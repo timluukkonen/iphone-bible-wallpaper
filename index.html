@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>iPhone Bible Wallpaper Builder</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#12121f;color:#e0e0f0;min-height:100vh}
+
+    header{background:#1a1a30;padding:14px 22px;border-bottom:1px solid #2a2a50;display:flex;align-items:center;gap:12px}
+    header svg{flex-shrink:0}
+    header h1{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:.01em}
+    header span{font-size:.8rem;color:#666;margin-left:auto}
+
+    .app{display:flex;height:calc(100vh - 53px)}
+
+    /* ── Controls ── */
+    .controls{width:340px;min-width:340px;background:#1a1a30;border-right:1px solid #2a2a50;overflow-y:auto;padding:18px 16px}
+    .controls::-webkit-scrollbar{width:3px}
+    .controls::-webkit-scrollbar-thumb{background:#2a2a50;border-radius:2px}
+
+    .sec{margin-bottom:22px}
+    .sec-title{font-size:.65rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#e94560;margin-bottom:11px}
+
+    label{display:block;font-size:.8rem;color:#8888aa;margin-bottom:3px}
+
+    select,input[type=text],textarea{
+      width:100%;background:#0d0d22;border:1px solid #2a2a50;border-radius:8px;
+      color:#e0e0f0;padding:8px 11px;font-size:.85rem;font-family:inherit;
+      margin-bottom:10px;transition:border-color .15s}
+    select:focus,input[type=text]:focus,textarea:focus{outline:none;border-color:#e94560}
+    textarea{resize:vertical;min-height:76px;line-height:1.5}
+
+    input[type=range]{width:100%;accent-color:#e94560;cursor:pointer}
+    .range-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .range-row span{font-size:.8rem;color:#8888aa;min-width:38px;text-align:right}
+
+    button{border:none;border-radius:9px;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;padding:10px 14px}
+    button:active{transform:scale(.97)}
+    .btn-p{background:#e94560;color:#fff;width:100%;display:block;margin-bottom:8px}
+    .btn-s{background:#0d0d22;color:#c0c0e0;border:1px solid #2a2a50;width:100%;display:block}
+    .btn-row{display:flex;gap:6px;margin-bottom:10px}
+    .btn-row button{flex:1}
+
+    .tabs{display:flex;gap:4px;margin-bottom:10px}
+    .tab{flex:1;padding:6px 4px;border-radius:7px;border:1px solid #2a2a50;background:#0d0d22;
+         color:#8888aa;font-size:.75rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
+    .tab.on{background:#e94560;border-color:#e94560;color:#fff}
+
+    .swatch-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px}
+    .swatch{aspect-ratio:1;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .12s}
+    .swatch:hover{transform:scale(1.1)}
+    .swatch.on{border-color:#fff}
+
+    .upload-zone{border:2px dashed #2a2a50;border-radius:9px;padding:14px;text-align:center;
+                 cursor:pointer;margin-bottom:10px;font-size:.8rem;color:#8888aa;transition:border-color .15s}
+    .upload-zone:hover{border-color:#e94560;color:#e94560}
+    .upload-zone input{display:none}
+
+    .status{font-size:.78rem;color:#8888aa;text-align:center;padding:4px;min-height:22px;margin-bottom:4px}
+    .ok{color:#5dde8a}.err{color:#ff6b6b}
+
+    .pill-row{display:flex;gap:5px;margin-bottom:10px}
+    .pill{flex:1;padding:7px 4px;border-radius:7px;border:1px solid #2a2a50;background:#0d0d22;
+          color:#8888aa;font-size:.78rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
+    .pill.on{background:#e94560;border-color:#e94560;color:#fff}
+
+    .color-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .color-row label{margin:0;flex:1}
+    input[type=color]{width:38px;height:30px;border:none;border-radius:6px;cursor:pointer;background:none;padding:2px}
+
+    .check-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .check-row input{width:auto;margin:0;cursor:pointer}
+    .check-row label{margin:0;font-size:.82rem;color:#c0c0e0}
+
+    /* ── Preview ── */
+    .preview-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                   padding:20px;background:#0c0c1a;overflow:hidden}
+    .phone-frame{position:relative;border-radius:44px;
+                 box-shadow:0 0 0 2px #333,0 0 0 7px #1a1a1a,0 25px 70px rgba(0,0,0,.8)}
+    #cv{display:block;cursor:grab}
+    #cv.dragging{cursor:grabbing}
+    .preview-hint{margin-top:12px;font-size:.72rem;color:#444;text-align:center;line-height:1.6}
+
+    @media(max-width:720px){
+      .app{flex-direction:column;height:auto}
+      .controls{width:100%;min-width:unset;border-right:none;border-bottom:1px solid #2a2a50}
+      .preview-panel{padding:14px;min-height:400px}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="26" height="26" viewBox="0 0 26 26"><rect width="26" height="26" rx="6" fill="#e94560"/>
+  <text x="5" y="20" font-size="17" fill="white">✝</text></svg>
+  <h1>iPhone Bible Wallpaper Builder</h1>
+  <span id="hdrModel"></span>
+</header>
+
+<div class="app">
+<div class="controls">
+
+  <!-- Device -->
+  <div class="sec">
+    <div class="sec-title">Device</div>
+    <label>iPhone Model</label>
+    <select id="selModel" onchange="onModelChange()">
+      <option value="auto">Auto-detect</option>
+      <option value="se3">iPhone SE 3rd gen — 750×1334</option>
+      <option value="mini">iPhone 13 mini — 1080×2340</option>
+      <option value="std">iPhone 12 / 13 / 14 — 1170×2532</option>
+      <option value="pro">iPhone 14 Pro / 15 / 16 — 1179×2556</option>
+      <option value="plus">iPhone 15 / 16 Plus — 1290×2796</option>
+      <option value="promax">iPhone 15 / 16 Pro Max — 1320×2868</option>
+    </select>
+    <div id="stDevice" class="status"></div>
+  </div>
+
+  <!-- Verse -->
+  <div class="sec">
+    <div class="sec-title">Bible Verse</div>
+    <label>Translation</label>
+    <select id="selBible"><option>Loading…</option></select>
+    <label>Reference</label>
+    <input type="text" id="inRef" placeholder="e.g. John 3:16 or Psalm 46:1">
+    <button class="btn-p" id="btnFetch" onclick="fetchVerse()">Fetch Verse</button>
+    <div id="stFetch" class="status"></div>
+    <label>Verse Text <span style="color:#555">(editable)</span></label>
+    <textarea id="taVerse" oninput="onVerseEdit()"></textarea>
+  </div>
+
+  <!-- Background -->
+  <div class="sec">
+    <div class="sec-title">Background</div>
+    <div class="tabs">
+      <div class="tab on" onclick="setBg('solid',this)">Solid</div>
+      <div class="tab"    onclick="setBg('grad',this)">Gradient</div>
+      <div class="tab"    onclick="setBg('preset',this)">Presets</div>
+      <div class="tab"    onclick="setBg('upload',this)">Upload</div>
+    </div>
+
+    <div id="bgSolid">
+      <div class="swatch-grid" id="solidGrid"></div>
+      <div class="color-row"><label>Custom</label>
+        <input type="color" id="cpSolid" value="#1a1a2e" oninput="s.bgColor=this.value;draw()">
+      </div>
+    </div>
+
+    <div id="bgGrad" style="display:none">
+      <div class="swatch-grid" id="gradGrid"></div>
+      <div class="color-row"><label>Color 1</label>
+        <input type="color" id="cpG1" value="#0f0c29" oninput="s.g1=this.value;draw()">
+      </div>
+      <div class="color-row"><label>Color 2</label>
+        <input type="color" id="cpG2" value="#302b63" oninput="s.g2=this.value;draw()">
+      </div>
+      <label>Direction</label>
+      <select id="selGDir" onchange="s.gDir=this.value;draw()">
+        <option value="tb">Top → Bottom</option>
+        <option value="bt">Bottom → Top</option>
+        <option value="lr">Left → Right</option>
+        <option value="tl">Diagonal ↘</option>
+        <option value="tr">Diagonal ↙</option>
+      </select>
+    </div>
+
+    <div id="bgPreset" style="display:none">
+      <div class="swatch-grid" id="presetGrid"></div>
+    </div>
+
+    <div id="bgUpload" style="display:none">
+      <div class="upload-zone" onclick="document.getElementById('fileBg').click()">
+        <input type="file" id="fileBg" accept="image/*" onchange="loadImg(event,'bg')">
+        Tap to upload background image
+      </div>
+      <div id="stBgUp" class="status"></div>
+    </div>
+  </div>
+
+  <!-- Text Style -->
+  <div class="sec">
+    <div class="sec-title">Text Style</div>
+    <label>Font</label>
+    <select id="selFont" onchange="s.font=this.value;draw()">
+      <option value="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif">SF Pro (iOS Default)</option>
+      <option value="Georgia,'Times New Roman',serif">Georgia (Elegant Serif)</option>
+      <option value="'Palatino Linotype',Palatino,serif">Palatino (Classic)</option>
+      <option value="'Gill Sans',Optima,Candara,sans-serif">Gill Sans (Clean)</option>
+      <option value="Futura,'Trebuchet MS',sans-serif">Futura (Modern)</option>
+      <option value="'Courier New',Courier,monospace">Courier (Typewriter)</option>
+    </select>
+
+    <label>Size</label>
+    <div class="range-row">
+      <input type="range" id="rSize" min="18" max="80" value="36" oninput="s.sz=+this.value;document.getElementById('vSize').textContent=this.value+'pt';draw()">
+      <span id="vSize">36pt</span>
+    </div>
+
+    <label>Weight</label>
+    <select id="selWeight" onchange="s.wt=this.value;draw()">
+      <option value="300">Light</option>
+      <option value="400">Regular</option>
+      <option value="600" selected>Semibold</option>
+      <option value="700">Bold</option>
+      <option value="800">Heavy</option>
+    </select>
+
+    <div class="color-row">
+      <label>Text color</label>
+      <input type="color" id="cpText" value="#ffffff" oninput="s.tc=this.value;draw()">
+    </div>
+
+    <label>Opacity</label>
+    <div class="range-row">
+      <input type="range" id="rOpacity" min="10" max="100" value="100"
+        oninput="s.ta=this.value/100;document.getElementById('vOpacity').textContent=this.value+'%';draw()">
+      <span id="vOpacity">100%</span>
+    </div>
+
+    <label>Shadow</label>
+    <select id="selShadow" onchange="s.shadow=this.value;draw()">
+      <option value="none">None</option>
+      <option value="subtle" selected>Subtle</option>
+      <option value="strong">Strong</option>
+      <option value="glow">Glow</option>
+    </select>
+
+    <label>Alignment</label>
+    <div class="pill-row">
+      <div class="pill"   id="al-left"   onclick="setAlign('left')">Left</div>
+      <div class="pill on" id="al-center" onclick="setAlign('center')">Center</div>
+      <div class="pill"   id="al-right"  onclick="setAlign('right')">Right</div>
+    </div>
+  </div>
+
+  <!-- Position -->
+  <div class="sec">
+    <div class="sec-title">Text Position</div>
+    <label>Vertical (or drag preview)</label>
+    <div class="range-row">
+      <input type="range" id="rTY" min="0" max="100" value="50"
+        oninput="s.ty=+this.value;document.getElementById('vTY').textContent=this.value+'%';draw()">
+      <span id="vTY">50%</span>
+    </div>
+    <label>Text box width</label>
+    <div class="range-row">
+      <input type="range" id="rTW" min="40" max="96" value="80"
+        oninput="s.tw=+this.value;document.getElementById('vTW').textContent=this.value+'%';draw()">
+      <span id="vTW">80%</span>
+    </div>
+  </div>
+
+  <!-- Reference label -->
+  <div class="sec">
+    <div class="sec-title">Reference Label</div>
+    <div class="check-row">
+      <input type="checkbox" id="chkRef" checked onchange="s.showRef=this.checked;draw()">
+      <label for="chkRef">Show verse reference below text</label>
+    </div>
+    <div class="color-row">
+      <label>Reference color</label>
+      <input type="color" id="cpRef" value="#cccccc" oninput="s.rc=this.value;draw()">
+    </div>
+  </div>
+
+  <!-- Home Screen Reference -->
+  <div class="sec">
+    <div class="sec-title">Home Screen Reference</div>
+    <p style="font-size:.78rem;color:#8888aa;line-height:1.55;margin-bottom:10px">
+      Upload a screenshot of your home screen to see where icons and widgets sit.
+      Shown in preview only — never exported to the final wallpaper.
+    </p>
+    <div class="upload-zone" onclick="document.getElementById('fileRef').click()">
+      <input type="file" id="fileRef" accept="image/*" onchange="loadImg(event,'ref')">
+      Upload home screen screenshot
+    </div>
+    <div id="refControls" style="display:none">
+      <label>Reference opacity</label>
+      <div class="range-row">
+        <input type="range" id="rRefOp" min="5" max="75" value="30"
+          oninput="s.refOp=this.value/100;document.getElementById('vRefOp').textContent=this.value+'%';draw()">
+        <span id="vRefOp">30%</span>
+      </div>
+      <button class="btn-s" onclick="clearRef()">Clear Reference</button>
+    </div>
+  </div>
+
+  <!-- Export -->
+  <div class="sec">
+    <div class="sec-title">Export</div>
+    <button class="btn-p" onclick="exportWallpaper()">Download Wallpaper PNG</button>
+    <div id="stExport" class="status"></div>
+  </div>
+
+</div><!-- /controls -->
+
+<!-- Preview -->
+<div class="preview-panel">
+  <div class="phone-frame" id="frame">
+    <canvas id="cv"></canvas>
+  </div>
+  <div class="preview-hint">
+    Drag verse text up/down to reposition<br>
+    iOS chrome overlay is for reference only
+  </div>
+</div>
+</div><!-- /app -->
+
+<script>
+// ── roundRect polyfill ──────────────────────────────────────────────────────
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    let tl,tr,br,bl;
+    if(typeof r==='number'){tl=tr=br=bl=r}
+    else if(Array.isArray(r)){
+      if(r.length===1){tl=tr=br=bl=r[0]}
+      else if(r.length===2){tl=br=r[0];tr=bl=r[1]}
+      else if(r.length===3){tl=r[0];tr=bl=r[1];br=r[2]}
+      else{[tl,tr,br,bl]=r}
+    }else{tl=tr=br=bl=0}
+    this.moveTo(x+tl,y);
+    this.lineTo(x+w-tr,y);this.quadraticCurveTo(x+w,y,x+w,y+tr);
+    this.lineTo(x+w,y+h-br);this.quadraticCurveTo(x+w,y+h,x+w-br,y+h);
+    this.lineTo(x+bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-bl);
+    this.lineTo(x,y+tl);this.quadraticCurveTo(x,y,x+tl,y);
+    this.closePath();return this;
+  };
+}
+
+// ── Constants ───────────────────────────────────────────────────────────────
+const API_KEY='jmaoXHe-xG-8YWxHrW2UR';
+const API='https://rest.api.bible/v1';
+
+const MODELS={
+  se3:   {n:'iPhone SE 3',      w:750,  h:1334, sH:40,  hiH:0,   dkH:98,  cr:38,  notch:'none'},
+  mini:  {n:'iPhone 13 mini',   w:1080, h:2340, sH:150, hiH:102, dkH:249, cr:118, notch:'notch'},
+  std:   {n:'iPhone 12/13/14',  w:1170, h:2532, sH:141, hiH:102, dkH:249, cr:118, notch:'notch'},
+  pro:   {n:'iPhone 14Pro/15/16',w:1179,h:2556, sH:177, hiH:102, dkH:249, cr:118, notch:'island'},
+  plus:  {n:'iPhone 15/16 Plus',w:1290, h:2796, sH:177, hiH:102, dkH:272, cr:129, notch:'island'},
+  promax:{n:'iPhone 15/16 Pro Max',w:1320,h:2868,sH:177,hiH:102, dkH:272, cr:132, notch:'island'},
+};
+
+const BOOKS={
+  genesis:'GEN',gen:'GEN',exodus:'EXO',exo:'EXO',ex:'EXO',leviticus:'LEV',lev:'LEV',
+  numbers:'NUM',num:'NUM',deuteronomy:'DEU',deu:'DEU',deut:'DEU',
+  joshua:'JOS',josh:'JOS',judges:'JDG',judg:'JDG',ruth:'RUT',
+  '1 samuel':'1SA','1samuel':'1SA','1sa':'1SA','1sam':'1SA',
+  '2 samuel':'2SA','2samuel':'2SA','2sa':'2SA','2sam':'2SA',
+  '1 kings':'1KI','1kings':'1KI','1ki':'1KI','1kgs':'1KI',
+  '2 kings':'2KI','2kings':'2KI','2ki':'2KI','2kgs':'2KI',
+  '1 chronicles':'1CH','1ch':'1CH','1chr':'1CH',
+  '2 chronicles':'2CH','2ch':'2CH','2chr':'2CH',
+  ezra:'EZR',nehemiah:'NEH',neh:'NEH',esther:'EST',est:'EST',job:'JOB',
+  psalms:'PSA',psalm:'PSA',ps:'PSA',psa:'PSA',
+  proverbs:'PRO',prov:'PRO',pro:'PRO',ecclesiastes:'ECC',eccl:'ECC',
+  'song of solomon':'SNG',song:'SNG',sos:'SNG',
+  isaiah:'ISA',isa:'ISA',jeremiah:'JER',jer:'JER',lamentations:'LAM',lam:'LAM',
+  ezekiel:'EZK',ezek:'EZK',daniel:'DAN',dan:'DAN',hosea:'HOS',hos:'HOS',
+  joel:'JOL',amos:'AMO',obadiah:'OBA',jonah:'JON',micah:'MIC',mic:'MIC',
+  nahum:'NAM',nah:'NAM',habakkuk:'HAB',hab:'HAB',zephaniah:'ZEP',zeph:'ZEP',
+  haggai:'HAG',hag:'HAG',zechariah:'ZEC',zech:'ZEC',malachi:'MAL',mal:'MAL',
+  matthew:'MAT',matt:'MAT',mat:'MAT',mark:'MRK',mrk:'MRK',mk:'MRK',
+  luke:'LUK',luk:'LUK',john:'JHN',jhn:'JHN',jn:'JHN',
+  acts:'ACT',act:'ACT',romans:'ROM',rom:'ROM',
+  '1 corinthians':'1CO','1cor':'1CO','1co':'1CO','1 cor':'1CO',
+  '2 corinthians':'2CO','2cor':'2CO','2co':'2CO','2 cor':'2CO',
+  galatians:'GAL',gal:'GAL',ephesians:'EPH',eph:'EPH',
+  philippians:'PHP',phil:'PHP',php:'PHP',colossians:'COL',col:'COL',
+  '1 thessalonians':'1TH','1thess':'1TH','1th':'1TH',
+  '2 thessalonians':'2TH','2thess':'2TH','2th':'2TH',
+  '1 timothy':'1TI','1tim':'1TI','1ti':'1TI',
+  '2 timothy':'2TI','2tim':'2TI','2ti':'2TI',
+  titus:'TIT',tit:'TIT',philemon:'PHM',phm:'PHM',
+  hebrews:'HEB',heb:'HEB',james:'JAS',jas:'JAS',
+  '1 peter':'1PE','1pet':'1PE','1pe':'1PE',
+  '2 peter':'2PE','2pet':'2PE','2pe':'2PE',
+  '1 john':'1JN','1jn':'1JN','2 john':'2JN','2jn':'2JN',
+  '3 john':'3JN','3jn':'3JN',jude:'JUD',revelation:'REV',rev:'REV',
+};
+
+const GRAD_PRESETS=[
+  {n:'Midnight',c1:'#0f0c29',c2:'#302b63'},{n:'Dusk',c1:'#2c3e50',c2:'#fd746c'},
+  {n:'Deep Sea',c1:'#0d1b2a',c2:'#1a3a5c'},{n:'Cosmic',c1:'#200122',c2:'#6f0000'},
+  {n:'Forest',c1:'#0f2027',c2:'#203a43'},{n:'Royal',c1:'#141e30',c2:'#243b55'},
+  {n:'Rose',c1:'#1a0038',c2:'#b31059'},{n:'Teal',c1:'#004d40',c2:'#1a237e'},
+  {n:'Ember',c1:'#1a0000',c2:'#7f0000'},{n:'Slate',c1:'#1f1c2c',c2:'#928dab'},
+  {n:'Gold',c1:'#0f2027',c2:'#78563c'},{n:'Sky',c1:'#0d0221',c2:'#0d47a1'},
+];
+
+const SOLID_SWATCHES=[
+  '#000000','#1a1a2e','#0d1b2a','#1a0033','#1a3300',
+  '#330000','#001a33','#1f1f1f','#3d2b1f','#0a1628','#1f0a28','#002200',
+];
+
+// ── App state ────────────────────────────────────────────────────────────────
+const s={
+  bgType:'solid', bgColor:'#1a1a2e',
+  g1:'#0f0c29', g2:'#302b63', gDir:'tb',
+  bgImg:null, refImg:null, refOp:.30,
+  verse:'', verseRef:'',
+  font:"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif",
+  sz:36, wt:'600', tc:'#ffffff', ta:1, shadow:'subtle',
+  align:'center', ty:50, tw:80,
+  showRef:true, rc:'#cccccc',
+  bibleId:'', dragging:false,
+};
+
+// ── Canvas + model ───────────────────────────────────────────────────────────
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+
+function getModel(){
+  const v=document.getElementById('selModel').value;
+  return v==='auto'?autoModel():MODELS[v]||MODELS.std;
+}
+function autoModel(){
+  const pw=screen.width*devicePixelRatio, ph=screen.height*devicePixelRatio;
+  const s2=Math.min(pw,ph),l=Math.max(pw,ph);
+  if(s2<=750&&l<=1334)return MODELS.se3;
+  if(s2<=1080)return MODELS.mini;
+  if(s2<=1170)return MODELS.std;
+  if(s2<=1179)return MODELS.pro;
+  if(s2<=1290)return MODELS.plus;
+  return MODELS.promax;
+}
+
+function previewScale(){
+  const panel=document.querySelector('.preview-panel');
+  const m=getModel();
+  const mxH=panel.clientHeight-70, mxW=panel.clientWidth-40;
+  return Math.min(mxH/m.h, mxW/m.w, 0.32);
+}
+
+function setupCanvas(){
+  const m=getModel(), sc=previewScale();
+  cv.width=m.w; cv.height=m.h;
+  cv.style.width=Math.round(m.w*sc)+'px';
+  cv.style.height=Math.round(m.h*sc)+'px';
+  document.getElementById('frame').style.borderRadius=Math.round(m.cr*sc)+'px';
+  document.getElementById('hdrModel').textContent=m.n+' — '+m.w+'×'+m.h;
+  document.getElementById('stDevice').textContent=m.n+' — '+m.w+'×'+m.h+'px';
+}
+
+function onModelChange(){setupCanvas();draw();}
+
+// ── Draw ─────────────────────────────────────────────────────────────────────
+function draw(forExport=false){
+  const m=getModel();
+  ctx.clearRect(0,0,m.w,m.h);
+  drawBg(m.w,m.h);
+  if(!forExport&&s.refImg) drawRef(m.w,m.h);
+  drawVerse(m);
+  drawChrome(m);
+}
+
+function drawBg(w,h){
+  if(s.bgType==='solid'){
+    ctx.fillStyle=s.bgColor;ctx.fillRect(0,0,w,h);
+  } else if(s.bgType==='grad'||s.bgType==='preset'){
+    let g;
+    const {g1,g2,gDir}=s;
+    if(gDir==='tb')g=ctx.createLinearGradient(0,0,0,h);
+    else if(gDir==='bt')g=ctx.createLinearGradient(0,h,0,0);
+    else if(gDir==='lr')g=ctx.createLinearGradient(0,0,w,0);
+    else if(gDir==='tl')g=ctx.createLinearGradient(0,0,w,h);
+    else g=ctx.createLinearGradient(w,0,0,h);
+    g.addColorStop(0,g1);g.addColorStop(1,g2);
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  } else if(s.bgImg){
+    coverImg(s.bgImg,w,h,1);
+  } else {
+    ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,w,h);
+  }
+}
+
+function coverImg(img,w,h,alpha){
+  const iw=img.width,ih=img.height,ca=w/h,ia=iw/ih;
+  let sx,sy,sw,sh;
+  if(ia>ca){sw=ih*ca;sh=ih;sx=(iw-sw)/2;sy=0;}
+  else{sw=iw;sh=iw/ca;sx=0;sy=(ih-sh)/2;}
+  ctx.save();ctx.globalAlpha=alpha;
+  ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);
+  ctx.restore();
+}
+
+function drawRef(w,h){coverImg(s.refImg,w,h,s.refOp);}
+
+function drawVerse(m){
+  if(!s.verse.trim())return;
+  const {w,h,sH,hiH,dkH}=m;
+  const safeTop=sH+30, safeBot=h-dkH-hiH-20;
+  const safeH=safeBot-safeTop;
+  const bw=w*(s.tw/100), bx=(w-bw)/2;
+  const cy=safeTop+(s.ty/100)*safeH;
+  const fpt=s.sz*3;
+  const font=`${s.wt} ${fpt}px ${s.font}`;
+  ctx.font=font;
+  ctx.textAlign=s.align==='left'?'left':s.align==='right'?'right':'center';
+  const lh=fpt*1.5;
+  const lines=wrap(ctx,s.verse,bw);
+  const rfpt=Math.round(fpt*0.58);
+  const rlh=rfpt*1.4;
+  const totalH=lines.length*lh+(s.showRef&&s.verseRef?rlh+20:0);
+  let y=cy-totalH/2+lh*0.8;
+  setShadow(s.shadow,s.tc);
+  const [r,g2,b]=hexRgb(s.tc);
+  ctx.fillStyle=`rgba(${r},${g2},${b},${s.ta})`;
+  const tx=s.align==='left'?bx:s.align==='right'?bx+bw:w/2;
+  for(const ln of lines){ctx.fillText(ln,tx,y);y+=lh;}
+  if(s.showRef&&s.verseRef){
+    ctx.font=`${s.wt} ${rfpt}px ${s.font}`;
+    const [rr,rg,rb]=hexRgb(s.rc);
+    ctx.fillStyle=`rgba(${rr},${rg},${rb},${s.ta*.85})`;
+    y+=12;ctx.fillText('— '+s.verseRef,tx,y);
+  }
+  ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+}
+
+function setShadow(type,color){
+  const [r,g,b]=hexRgb(color);
+  const inv=r+g+b>382?'0,0,0':'255,255,255';
+  if(type==='none'){ctx.shadowBlur=0;ctx.shadowColor='transparent';ctx.shadowOffsetY=0;}
+  else if(type==='subtle'){ctx.shadowColor=`rgba(${inv},.6)`;ctx.shadowBlur=12;ctx.shadowOffsetY=2;}
+  else if(type==='strong'){ctx.shadowColor=`rgba(${inv},.9)`;ctx.shadowBlur=22;ctx.shadowOffsetY=4;}
+  else if(type==='glow'){ctx.shadowColor=`rgba(${r},${g},${b},.4)`;ctx.shadowBlur=35;ctx.shadowOffsetY=0;}
+}
+
+function hexRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+
+function wrap(ctx,text,maxW){
+  const words=text.split(' ');const lines=[];let cur='';
+  for(const w of words){
+    const t=cur?cur+' '+w:w;
+    if(ctx.measureText(t).width<=maxW){cur=t;}
+    else{if(cur)lines.push(cur);cur=w;}
+  }
+  if(cur)lines.push(cur);return lines;
+}
+
+function drawChrome(m){
+  const {w,h,sH,hiH,dkH,notch}=m;
+  // Status bar scrim
+  const sg=ctx.createLinearGradient(0,0,0,sH+40);
+  sg.addColorStop(0,'rgba(0,0,0,.55)');sg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=sg;ctx.fillRect(0,0,w,sH+40);
+  // Time
+  const now=new Date();
+  const ts=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}).replace(/\s[AP]M$/,'');
+  const tfont=Math.round(sH*.5);
+  ctx.font=`600 ${tfont}px -apple-system,BlinkMacSystemFont,sans-serif`;
+  ctx.fillStyle='rgba(255,255,255,.95)';
+  ctx.textAlign='left';
+  ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=8;ctx.shadowOffsetY=1;
+  const ty2=notch==='island'?sH*.82:notch==='notch'?sH*.76:sH*.73;
+  ctx.fillText(ts,w*.075,ty2);
+  drawStatusIcons(w,ty2,tfont);
+  if(notch==='island')drawDI(w,sH);
+  else if(notch==='notch')drawNotch(w,sH);
+  drawDock(w,h,dkH,hiH);
+  if(hiH>0){
+    const bw=w*.35,bh=Math.round(hiH*.17),bx=(w-bw)/2,by=h-hiH+hiH*.36;
+    ctx.fillStyle='rgba(255,255,255,.48)';ctx.shadowBlur=0;
+    ctx.beginPath();ctx.roundRect(bx,by,bw,bh,bh/2);ctx.fill();
+  }
+  ctx.shadowBlur=0;ctx.shadowColor='transparent';ctx.shadowOffsetY=0;
+}
+
+function drawStatusIcons(w,y,fs){
+  ctx.fillStyle='rgba(255,255,255,.9)';ctx.strokeStyle='rgba(255,255,255,.9)';ctx.shadowBlur=0;
+  // Battery
+  const bw=fs*1.4,bh=fs*.65,bx=w*.86,by=y-bh*.85;
+  ctx.lineWidth=1.8;ctx.beginPath();ctx.roundRect(bx,by,bw,bh,2.5);ctx.stroke();
+  ctx.fillRect(bx+bw+1.5,by+bh*.3,3.5,bh*.4);
+  ctx.fillRect(bx+2.5,by+2.5,(bw-5)*.82,bh-5);
+  // Signal bars
+  const bsx=w*.79;
+  for(let i=0;i<3;i++){
+    const bh2=fs*(.28+i*.24),bw2=fs*.22;
+    ctx.fillRect(bsx+i*(bw2+2.5),y-bh2*.92,bw2,bh2*.88);
+  }
+}
+
+function drawDI(w,sH){
+  const dw=w*.32,dh=sH*.37,dx=(w-dw)/2,dy=sH*.08;
+  ctx.fillStyle='rgba(0,0,0,.97)';ctx.shadowBlur=0;
+  ctx.beginPath();ctx.roundRect(dx,dy,dw,dh,dh/2);ctx.fill();
+}
+
+function drawNotch(w,sH){
+  const nw=w*.4,nh=sH*.68,nx=(w-nw)/2;
+  ctx.fillStyle='rgba(0,0,0,.97)';ctx.shadowBlur=0;
+  ctx.beginPath();ctx.roundRect(nx,0,nw,nh,[0,0,nh*.36,nh*.36]);ctx.fill();
+  // FaceID dot
+  ctx.fillStyle='rgba(40,40,40,.95)';
+  ctx.beginPath();ctx.arc(nx+nw*.72,nh*.48,nh*.16,0,Math.PI*2);ctx.fill();
+}
+
+function drawDock(w,h,dkH,hiH){
+  const dy=h-dkH-hiH;
+  // Bottom scrim
+  const dg=ctx.createLinearGradient(0,dy,0,h);
+  dg.addColorStop(0,'rgba(0,0,0,0)');dg.addColorStop(.25,'rgba(0,0,0,.38)');dg.addColorStop(1,'rgba(0,0,0,.6)');
+  ctx.fillStyle=dg;ctx.fillRect(0,dy,w,dkH+hiH);
+  // Frosted dock pill
+  const dp=w*.06,dw=w-dp*2,di=dkH*.82,diy=dy+(dkH-di)/2;
+  ctx.fillStyle='rgba(200,200,220,.17)';ctx.shadowBlur=0;
+  ctx.beginPath();ctx.roundRect(dp,diy,dw,di,di*.27);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.13)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.roundRect(dp,diy,dw,di,di*.27);ctx.stroke();
+  // 4 icon placeholders
+  const isz=di*.62,iy=diy+(di-isz)/2,isp=dw/4;
+  for(let i=0;i<4;i++){
+    const ix=dp+isp*i+(isp-isz)/2;
+    ctx.fillStyle='rgba(255,255,255,.11)';
+    ctx.beginPath();ctx.roundRect(ix,iy,isz,isz,isz*.22);ctx.fill();
+  }
+}
+
+// ── Bible API ────────────────────────────────────────────────────────────────
+const PREF=['KJV','NIV','ESV','NLT','NASB','CSB','NKJV','MSG','ASV','WEB'];
+
+async function loadBibles(){
+  const sel=document.getElementById('selBible');
+  try{
+    const r=await fetch(`${API}/bibles`,{headers:{'api-key':API_KEY}});
+    const d=await r.json();
+    const all=d.data||[];
+    const pref=[],rest=[];
+    for(const b of all){
+      const ab=(b.abbreviationLocal||b.abbreviation||'').toUpperCase();
+      const pi=PREF.indexOf(ab);
+      if(pi>=0)pref.push({...b,_pi:pi});else rest.push(b);
+    }
+    pref.sort((a,b)=>a._pi-b._pi);
+    rest.sort((a,b)=>(a.abbreviation||'').localeCompare(b.abbreviation||''));
+    sel.innerHTML='';
+    for(const b of[...pref,...rest]){
+      const ab=b.abbreviationLocal||b.abbreviation||b.id;
+      const nm=b.nameLocal||b.name||'';
+      const o=document.createElement('option');
+      o.value=b.id;o.textContent=`${ab} — ${nm}`;
+      if(ab.toUpperCase()==='KJV')o.selected=true;
+      sel.appendChild(o);
+    }
+    s.bibleId=sel.value;
+    document.getElementById('stDevice').textContent=getModel().n+' | '+all.length+' translations loaded';
+  }catch(e){
+    sel.innerHTML='<option>API error — check key</option>';
+    console.error(e);
+  }
+}
+document.getElementById('selBible').addEventListener('change',e=>{s.bibleId=e.target.value;});
+
+function parseRef(input){
+  input=input.trim();
+  const m=input.match(/^(.+?)\s+(\d+):(\d+)$/i);
+  if(!m)return null;
+  let bk=m[1].trim().toLowerCase();
+  const ch=m[2],vs=m[3];
+  let code=BOOKS[bk];
+  if(!code){
+    for(const[k,v]of Object.entries(BOOKS)){
+      if(k.startsWith(bk)||(bk.length>=3&&k.startsWith(bk))){code=v;break;}
+    }
+  }
+  if(!code)return null;
+  return{id:`${code}.${ch}.${vs}`,display:input};
+}
+
+async function fetchVerse(){
+  const ref=document.getElementById('inRef').value;
+  const bid=document.getElementById('selBible').value;
+  const st=document.getElementById('stFetch');
+  if(!ref.trim()){st.textContent='Enter a reference like John 3:16';st.className='status err';return;}
+  const parsed=parseRef(ref);
+  if(!parsed){st.textContent='Cannot parse — try "John 3:16"';st.className='status err';return;}
+  st.textContent='Fetching…';st.className='status';
+  document.getElementById('btnFetch').disabled=true;
+  try{
+    const url=`${API}/bibles/${bid}/verses/${parsed.id}?content-type=text&include-verse-numbers=false&include-titles=false`;
+    const r=await fetch(url,{headers:{'api-key':API_KEY}});
+    if(!r.ok){const e=await r.json();throw new Error(e.message||'HTTP '+r.status);}
+    const d=await r.json();
+    const text=(d.data?.content||'').trim().replace(/\s+/g,' ');
+    const vref=d.data?.reference||ref;
+    s.verse=text;s.verseRef=vref;
+    document.getElementById('taVerse').value=text;
+    st.textContent=vref+' loaded';st.className='status ok';
+    draw();
+  }catch(e){
+    st.textContent='Error: '+e.message;st.className='status err';
+  }finally{document.getElementById('btnFetch').disabled=false;}
+}
+
+document.getElementById('inRef').addEventListener('keydown',e=>{if(e.key==='Enter')fetchVerse();});
+function onVerseEdit(){s.verse=document.getElementById('taVerse').value;draw();}
+
+// ── Background helpers ────────────────────────────────────────────────────────
+function setBg(type,el){
+  s.bgType=type;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  ['solid','grad','preset','upload'].forEach(t=>{
+    document.getElementById('bg'+t.charAt(0).toUpperCase()+t.slice(1)).style.display=t===type?'':'none';
+  });
+  draw();
+}
+
+function loadImg(ev,target){
+  const file=ev.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      if(target==='bg'){
+        s.bgImg=img;s.bgType='upload';
+        document.getElementById('stBgUp').textContent=file.name+' loaded';
+        document.getElementById('stBgUp').className='status ok';
+      }else{
+        s.refImg=img;
+        document.getElementById('refControls').style.display='';
+      }
+      draw();
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearRef(){
+  s.refImg=null;
+  document.getElementById('fileRef').value='';
+  document.getElementById('refControls').style.display='none';
+  draw();
+}
+
+function initSwatches(){
+  // Solid
+  const sg=document.getElementById('solidGrid');
+  SOLID_SWATCHES.forEach(c=>{
+    const d=document.createElement('div');d.className='swatch'+(c===s.bgColor?' on':'');
+    d.style.background=c;
+    d.onclick=()=>{
+      sg.querySelectorAll('.swatch').forEach(x=>x.classList.remove('on'));d.classList.add('on');
+      s.bgColor=c;document.getElementById('cpSolid').value=c;draw();
+    };
+    sg.appendChild(d);
+  });
+  // Gradient
+  const gg=document.getElementById('gradGrid');
+  GRAD_PRESETS.forEach(p=>{
+    const d=document.createElement('div');d.className='swatch';
+    d.style.background=`linear-gradient(to bottom,${p.c1},${p.c2})`;d.title=p.n;
+    d.onclick=()=>{
+      gg.querySelectorAll('.swatch').forEach(x=>x.classList.remove('on'));d.classList.add('on');
+      s.g1=p.c1;s.g2=p.c2;s.gDir='tb';
+      document.getElementById('cpG1').value=p.c1;document.getElementById('cpG2').value=p.c2;
+      document.getElementById('selGDir').value='tb';draw();
+    };
+    gg.appendChild(d);
+  });
+  // Preset (diagonal variants)
+  const pg=document.getElementById('presetGrid');
+  GRAD_PRESETS.forEach(p=>{
+    const d=document.createElement('div');d.className='swatch';
+    d.style.background=`linear-gradient(135deg,${p.c1},${p.c2})`;d.title=p.n;
+    d.onclick=()=>{
+      pg.querySelectorAll('.swatch').forEach(x=>x.classList.remove('on'));d.classList.add('on');
+      s.g1=p.c1;s.g2=p.c2;s.gDir='tl';s.bgType='preset';draw();
+    };
+    pg.appendChild(d);
+  });
+}
+
+// ── Text controls ─────────────────────────────────────────────────────────────
+function setAlign(a){
+  s.align=a;
+  ['left','center','right'].forEach(x=>{
+    document.getElementById('al-'+x).classList.toggle('on',x===a);
+  });
+  draw();
+}
+
+// ── Drag to reposition ────────────────────────────────────────────────────────
+function evPct(clientY){
+  const rect=cv.getBoundingClientRect();
+  const m=getModel();
+  const cy=(clientY-rect.top)*(m.h/rect.height);
+  const safeTop=m.sH+30,safeBot=m.h-m.dkH-m.hiH-20;
+  return Math.max(0,Math.min(100,Math.round((cy-safeTop)/(safeBot-safeTop)*100)));
+}
+
+cv.addEventListener('mousedown',()=>{s.dragging=true;cv.classList.add('dragging');});
+cv.addEventListener('mouseup',()=>{s.dragging=false;cv.classList.remove('dragging');});
+cv.addEventListener('mouseleave',()=>{s.dragging=false;cv.classList.remove('dragging');});
+cv.addEventListener('mousemove',e=>{
+  if(!s.dragging)return;
+  const p=evPct(e.clientY);s.ty=p;
+  document.getElementById('rTY').value=p;document.getElementById('vTY').textContent=p+'%';draw();
+});
+cv.addEventListener('touchstart',e=>{s.dragging=true;e.preventDefault();},{passive:false});
+cv.addEventListener('touchend',()=>{s.dragging=false;});
+cv.addEventListener('touchmove',e=>{
+  if(!s.dragging)return;
+  const p=evPct(e.touches[0].clientY);s.ty=p;
+  document.getElementById('rTY').value=p;document.getElementById('vTY').textContent=p+'%';draw();
+  e.preventDefault();
+},{passive:false});
+
+// ── Export ────────────────────────────────────────────────────────────────────
+function exportWallpaper(){
+  const st=document.getElementById('stExport');
+  if(!s.verse.trim()){st.textContent='No verse — enter one first';st.className='status err';return;}
+  draw(true);
+  setTimeout(()=>{
+    try{
+      const m=getModel();
+      const slug=(s.verseRef||'verse').replace(/[^a-z0-9 ]/gi,'').replace(/\s+/g,'-').toLowerCase();
+      const a=document.createElement('a');
+      a.download=`wallpaper-${slug}-${m.w}x${m.h}.png`;
+      a.href=cv.toDataURL('image/png');a.click();
+      st.textContent=`Saved ${m.w}×${m.h}px — add to iPhone via Photos`;st.className='status ok';
+    }catch(e){st.textContent='Export failed: '+e.message;st.className='status err';}
+    draw();
+  },80);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+function init(){
+  initSwatches();
+  setupCanvas();
+  // Default verse
+  s.verse='For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.';
+  s.verseRef='John 3:16 (KJV)';
+  document.getElementById('taVerse').value=s.verse;
+  draw();
+  loadBibles();
+  window.addEventListener('resize',()=>{setupCanvas();draw();});
+}
+
+init();
+</script>
+</body>
+</html>
