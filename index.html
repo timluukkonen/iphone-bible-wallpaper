@@ -125,7 +125,7 @@
     <select id="selBible"><option>Loading…</option></select>
     <label>Reference</label>
     <input type="text" id="inRef" placeholder="e.g. John 3:16 or Psalm 46:1">
-    <button class="btn-p" id="btnFetch" onclick="fetchVerse()">Fetch Verse</button>
+    <button class="btn-p" id="btnFetch" onclick="fetchVerse()">Get Verse</button>
     <div id="stFetch" class="status"></div>
     <label>Verse Text <span style="color:#555">(editable)</span></label>
     <textarea id="taVerse" oninput="onVerseEdit()"></textarea>
@@ -634,9 +634,16 @@ function getDeviceResolution(){
 }
 
 function autoLoadLockScreenRef(){
+  const st=document.getElementById('autoRefStatus');
   const ios=getIOSVersion();
-  if(!ios)return;
+  if(!ios){
+    st.textContent='Auto-detect: not on iPhone';
+    st.className='status';
+    return;
+  }
   const{w,h}=getDeviceResolution();
+  st.textContent=`Detected: iOS ${ios} · ${w}×${h}px`;
+  st.className='status';
   const key=`${ios}-${w}-${h}`;
   const src=LOCKSCREEN_LIBRARY[key];
   if(!src)return;
@@ -644,12 +651,14 @@ function autoLoadLockScreenRef(){
   img.onload=()=>{
     s.refImg=img;
     document.getElementById('refControls').style.display='';
-    const st=document.getElementById('autoRefStatus');
-    st.textContent=`Auto-loaded iOS ${ios} lock screen reference`;
+    st.textContent=`Detected: iOS ${ios} · ${w}×${h}px — reference loaded`;
     st.className='status ok';
     draw();
   };
-  img.onerror=()=>{};
+  img.onerror=()=>{
+    st.textContent=`Detected: iOS ${ios} · ${w}×${h}px — reference asset missing`;
+    st.className='status err';
+  };
   img.src=src;
 }
 
@@ -849,12 +858,29 @@ cv.addEventListener('mousemove',e=>{
   const p=evPct(e.clientY);s.ty=p;
   document.getElementById('rTY').value=p;document.getElementById('vTY').textContent=p+'%';draw();
 });
-cv.addEventListener('touchstart',e=>{s.dragging=true;e.preventDefault();},{passive:false});
-cv.addEventListener('touchend',()=>{s.dragging=false;});
+let pinchDist0=0,pinchSz0=0;
+function touchDist(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.sqrt(dx*dx+dy*dy);}
+
+cv.addEventListener('touchstart',e=>{
+  if(e.touches.length===2){
+    s.dragging=false;
+    pinchDist0=touchDist(e.touches);
+    pinchSz0=s.sz;
+  }else{s.dragging=true;}
+  e.preventDefault();
+},{passive:false});
+cv.addEventListener('touchend',()=>{s.dragging=false;pinchDist0=0;});
 cv.addEventListener('touchmove',e=>{
-  if(!s.dragging)return;
-  const p=evPct(e.touches[0].clientY);s.ty=p;
-  document.getElementById('rTY').value=p;document.getElementById('vTY').textContent=p+'%';draw();
+  if(e.touches.length===2&&pinchDist0){
+    const sz=Math.max(18,Math.min(80,Math.round(pinchSz0*(touchDist(e.touches)/pinchDist0))));
+    s.sz=sz;
+    document.getElementById('rSize').value=sz;
+    document.getElementById('vSize').textContent=sz+'pt';
+    draw();
+  }else if(s.dragging&&e.touches.length===1){
+    const p=evPct(e.touches[0].clientY);s.ty=p;
+    document.getElementById('rTY').value=p;document.getElementById('vTY').textContent=p+'%';draw();
+  }
   e.preventDefault();
 },{passive:false});
 
