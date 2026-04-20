@@ -265,16 +265,17 @@
     </div>
   </div>
 
-  <!-- Home Screen Reference -->
+  <!-- Lock Screen Reference -->
   <div class="sec">
     <div class="sec-title">Lock Screen Reference</div>
     <p style="font-size:.78rem;color:#8888aa;line-height:1.55;margin-bottom:10px">
       Upload a screenshot of your lock screen to see where widgets and UI sit.
       Shown in preview only — never exported to the final wallpaper.
     </p>
+    <div id="autoRefStatus" class="status" style="margin-bottom:6px"></div>
     <div class="upload-zone" onclick="document.getElementById('fileRef').click()">
       <input type="file" id="fileRef" accept="image/*" onchange="loadImg(event,'ref')">
-      Upload home screen screenshot
+      Upload lock screen screenshot
     </div>
     <div id="refControls" style="display:none">
       <label>Reference opacity</label>
@@ -616,6 +617,42 @@ function drawDock(w,h,dkH,hiH){
   }
 }
 
+// ── Lock screen reference library ────────────────────────────────────────────
+// key: "iosVersion-widthPx-heightPx"  value: relative asset path
+const LOCKSCREEN_LIBRARY={
+  '26-1179-2556':'assets/lockscreen-ios26-1179x2556.png',
+};
+
+function getIOSVersion(){
+  const m=navigator.userAgent.match(/iPhone OS (\d+)_/);
+  return m?parseInt(m[1]):null;
+}
+
+function getDeviceResolution(){
+  const dpr=window.devicePixelRatio||1;
+  return{w:Math.round(screen.width*dpr),h:Math.round(screen.height*dpr)};
+}
+
+function autoLoadLockScreenRef(){
+  const ios=getIOSVersion();
+  if(!ios)return;
+  const{w,h}=getDeviceResolution();
+  const key=`${ios}-${w}-${h}`;
+  const src=LOCKSCREEN_LIBRARY[key];
+  if(!src)return;
+  const img=new Image();
+  img.onload=()=>{
+    s.refImg=img;
+    document.getElementById('refControls').style.display='';
+    const st=document.getElementById('autoRefStatus');
+    st.textContent=`Auto-loaded iOS ${ios} lock screen reference`;
+    st.className='status ok';
+    draw();
+  };
+  img.onerror=()=>{};
+  img.src=src;
+}
+
 // ── Bible API ────────────────────────────────────────────────────────────────
 // Each slot: match fn picks candidates, prefer fn picks best among them
 const PREF_SLOTS=[
@@ -869,6 +906,7 @@ function init(){
   document.getElementById('taVerse').value=s.verse;
   draw();
   loadBibles();
+  autoLoadLockScreenRef();
   window.addEventListener('resize',()=>{setupCanvas();draw();});
 }
 
