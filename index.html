@@ -290,7 +290,7 @@
   <!-- Export -->
   <div class="sec">
     <div class="sec-title">Export</div>
-    <button class="btn-p" onclick="exportWallpaper()">Download Wallpaper PNG</button>
+    <button class="btn-p" id="btnSave" onclick="saveWallpaper()">Save Wallpaper</button>
     <div id="stExport" class="status"></div>
   </div>
 
@@ -302,8 +302,7 @@
     <canvas id="cv"></canvas>
   </div>
   <div class="preview-hint">
-    Drag verse text up/down to reposition<br>
-    iOS chrome overlay is for reference only
+    Drag verse text up/down to reposition
   </div>
 </div>
 </div><!-- /app -->
@@ -452,7 +451,6 @@ function draw(forExport=false){
   drawBg(m.w,m.h);
   if(!forExport&&s.refImg) drawRef(m.w,m.h);
   drawVerse(m);
-  drawChrome(m);
 }
 
 function drawBg(w,h){
@@ -619,7 +617,7 @@ function drawDock(w,h,dkH,hiH){
 }
 
 // ── Bible API ────────────────────────────────────────────────────────────────
-const PREF=['KJV','NIV','ESV','NLT','NASB','CSB','NKJV','MSG','ASV','WEB'];
+const PREF=['NASB','NKJV','NIV','KJV'];
 
 async function loadBibles(){
   const sel=document.getElementById('selBible');
@@ -627,25 +625,25 @@ async function loadBibles(){
     const r=await fetch(`${API}/bibles`,{headers:{'api-key':API_KEY}});
     const d=await r.json();
     const all=d.data||[];
-    const pref=[],rest=[];
+    const pref=[];
     for(const b of all){
       const ab=(b.abbreviationLocal||b.abbreviation||'').toUpperCase();
-      const pi=PREF.indexOf(ab);
-      if(pi>=0)pref.push({...b,_pi:pi});else rest.push(b);
+      const pi=PREF.findIndex(p=>ab===p||ab.startsWith(p));
+      if(pi>=0)pref.push({...b,_pi:pi,_pref:PREF[pi]});
     }
     pref.sort((a,b)=>a._pi-b._pi);
-    rest.sort((a,b)=>(a.abbreviation||'').localeCompare(b.abbreviation||''));
     sel.innerHTML='';
-    for(const b of[...pref,...rest]){
+    for(const b of pref){
       const ab=b.abbreviationLocal||b.abbreviation||b.id;
       const nm=b.nameLocal||b.name||'';
       const o=document.createElement('option');
       o.value=b.id;o.textContent=`${ab} — ${nm}`;
-      if(ab.toUpperCase()==='KJV')o.selected=true;
+      if(b._pref==='NASB')o.selected=true;
       sel.appendChild(o);
     }
+    if(!pref.length)sel.innerHTML='<option>Translations unavailable</option>';
     s.bibleId=sel.value;
-    document.getElementById('stDevice').textContent=getModel().n+' | '+all.length+' translations loaded';
+    document.getElementById('stDevice').textContent=getModel().n+' | '+pref.length+' translations loaded';
   }catch(e){
     sel.innerHTML='<option>API error — check key</option>';
     console.error(e);
@@ -810,21 +808,41 @@ cv.addEventListener('touchmove',e=>{
 },{passive:false});
 
 // ── Export ────────────────────────────────────────────────────────────────────
-function exportWallpaper(){
+async function saveWallpaper(){
   const st=document.getElementById('stExport');
   if(!s.verse.trim()){st.textContent='No verse — enter one first';st.className='status err';return;}
   draw(true);
-  setTimeout(()=>{
+  await new Promise(r=>setTimeout(r,80));
+  const m=getModel();
+  const slug=(s.verseRef||'verse').replace(/[^a-z0-9 ]/gi,'').replace(/\s+/g,'-').toLowerCase();
+  const fname=`wallpaper-${slug}-${m.w}x${m.h}.png`;
+  // iOS Safari: Web Share API with file → share sheet → Save Image → set as wallpaper in Photos
+  if(typeof navigator.canShare==='function'){
+    cv.toBlob(async blob=>{
+      draw();
+      const file=new File([blob],fname,{type:'image/png'});
+      if(navigator.canShare({files:[file]})){
+        try{
+          await navigator.share({files:[file],title:'Bible Wallpaper'});
+          st.textContent='Tap "Save Image", then set as wallpaper in Photos';st.className='status ok';
+        }catch(e){
+          if(e.name!=='AbortError'){st.textContent='Share failed: '+e.message;st.className='status err';}
+        }
+      }else{
+        const a=document.createElement('a');a.download=fname;
+        a.href=URL.createObjectURL(blob);a.click();
+        st.textContent=`Saved ${m.w}×${m.h}px`;st.className='status ok';
+      }
+    },'image/png');
+  }else{
+    // Desktop: anchor download
     try{
-      const m=getModel();
-      const slug=(s.verseRef||'verse').replace(/[^a-z0-9 ]/gi,'').replace(/\s+/g,'-').toLowerCase();
-      const a=document.createElement('a');
-      a.download=`wallpaper-${slug}-${m.w}x${m.h}.png`;
+      const a=document.createElement('a');a.download=fname;
       a.href=cv.toDataURL('image/png');a.click();
-      st.textContent=`Saved ${m.w}×${m.h}px — add to iPhone via Photos`;st.className='status ok';
+      st.textContent=`Downloaded ${m.w}×${m.h}px — add to iPhone via Photos`;st.className='status ok';
     }catch(e){st.textContent='Export failed: '+e.message;st.className='status err';}
     draw();
-  },80);
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
