@@ -617,15 +617,14 @@ function drawDock(w,h,dkH,hiH){
 }
 
 // ── Bible API ────────────────────────────────────────────────────────────────
-// Exact API abbreviation → {display label, sort order}
-// NASB and NASB1995 both map to order 0 so only the first found is kept
-const PREF_MAP={
-  'NASB':    {label:'NASB',order:0},
-  'NASB1995':{label:'NASB',order:0},
-  'NKJV':   {label:'NKJV',order:1},
-  'NIV':    {label:'NIV', order:2},
-  'KJV':    {label:'KJV', order:3},
-};
+// Each slot: match fn picks candidates, prefer fn picks best among them
+const PREF_SLOTS=[
+  {label:'NASB', match:ab=>ab.startsWith('NASB')&&!ab.includes('2020'),
+                 prefer:ab=>ab==='NASB1995'?0:ab==='NASB'?1:2},
+  {label:'NKJV', match:ab=>ab==='NKJV',  prefer:()=>0},
+  {label:'NIV',  match:ab=>ab==='NIV',   prefer:()=>0},
+  {label:'KJV',  match:ab=>ab==='KJV',   prefer:()=>0},
+];
 
 async function loadBibles(){
   const sel=document.getElementById('selBible');
@@ -633,13 +632,21 @@ async function loadBibles(){
     const r=await fetch(`${API}/bibles`,{headers:{'api-key':API_KEY}});
     const d=await r.json();
     const all=d.data||[];
-    const seen=new Set(), pref=[];
-    for(const b of all){
-      const ab=(b.abbreviationLocal||b.abbreviation||'').toUpperCase();
-      const m=PREF_MAP[ab];
-      if(m&&!seen.has(m.order)){seen.add(m.order);pref.push({...b,_order:m.order,_label:m.label});}
+    const pref=[];
+    for(let i=0;i<PREF_SLOTS.length;i++){
+      const slot=PREF_SLOTS[i];
+      const candidates=all.filter(b=>{
+        const ab=(b.abbreviationLocal||b.abbreviation||'').toUpperCase();
+        return slot.match(ab);
+      });
+      if(!candidates.length) continue;
+      candidates.sort((a,b)=>{
+        const aa=(a.abbreviationLocal||a.abbreviation||'').toUpperCase();
+        const ba=(b.abbreviationLocal||b.abbreviation||'').toUpperCase();
+        return slot.prefer(aa)-slot.prefer(ba);
+      });
+      pref.push({...candidates[0],_order:i,_label:slot.label});
     }
-    pref.sort((a,b)=>a._order-b._order);
     sel.innerHTML='';
     for(const b of pref){
       const nm=b.nameLocal||b.name||'';
