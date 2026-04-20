@@ -628,7 +628,7 @@ async function loadBibles(){
     const pref=[];
     for(const b of all){
       const ab=(b.abbreviationLocal||b.abbreviation||'').toUpperCase();
-      const pi=PREF.findIndex(p=>ab===p||ab.startsWith(p));
+      const pi=PREF.findIndex(p=>ab===p||ab.replace(/\d+$/,'')===p);
       if(pi>=0)pref.push({...b,_pi:pi,_pref:PREF[pi]});
     }
     pref.sort((a,b)=>a._pi-b._pi);
