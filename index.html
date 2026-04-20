@@ -272,6 +272,10 @@
       Upload a screenshot of your lock screen to see where widgets and UI sit.
       Shown in preview only — never exported to the final wallpaper.
     </p>
+    <label>Reference Source</label>
+    <select id="selLockRef" onchange="onLockRefChange()" style="margin-bottom:8px">
+      <option value="auto">Auto-detect</option>
+    </select>
     <div id="autoRefStatus" class="status" style="margin-bottom:6px"></div>
     <div class="upload-zone" onclick="document.getElementById('fileRef').click()">
       <input type="file" id="fileRef" accept="image/*" onchange="loadImg(event,'ref')">
@@ -284,14 +288,17 @@
           oninput="s.refOp=this.value/100;document.getElementById('vRefOp').textContent=this.value+'%';draw()">
         <span id="vRefOp">30%</span>
       </div>
-      <button class="btn-s" onclick="clearRef()">Clear Reference</button>
+      <div class="btn-row">
+        <button class="btn-s" id="btnToggleRef" onclick="toggleRef()">Hide Reference</button>
+        <button class="btn-s" onclick="clearRef()">Clear</button>
+      </div>
     </div>
   </div>
 
   <!-- Export -->
   <div class="sec">
     <div class="sec-title">Export</div>
-    <button class="btn-p" id="btnSave" onclick="saveWallpaper()">Save to Photos</button>
+    <button class="btn-p" id="btnSave" onclick="saveWallpaper()">Save Image</button>
     <div id="stExport" class="status"></div>
   </div>
 
@@ -398,7 +405,7 @@ const SOLID_SWATCHES=[
 const s={
   bgType:'solid', bgColor:'#1a1a2e',
   g1:'#0f0c29', g2:'#302b63', gDir:'tb',
-  bgImg:null, refImg:null, refOp:.30,
+  bgImg:null, refImg:null, refOp:.30, refVisible:true,
   verse:'', verseRef:'',
   font:"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif",
   sz:36, wt:'600', tc:'#ffffff', ta:1, shadow:'subtle',
@@ -484,7 +491,13 @@ function coverImg(img,w,h,alpha){
   ctx.restore();
 }
 
-function drawRef(w,h){coverImg(s.refImg,w,h,s.refOp);}
+function drawRef(w,h){if(s.refVisible)coverImg(s.refImg,w,h,s.refOp);}
+
+function toggleRef(){
+  s.refVisible=!s.refVisible;
+  document.getElementById('btnToggleRef').textContent=s.refVisible?'Hide Reference':'Show Reference';
+  draw();
+}
 
 function drawVerse(m){
   if(!s.verse.trim())return;
@@ -512,7 +525,7 @@ function drawVerse(m){
     ctx.font=`${s.wt} ${rfpt}px ${s.font}`;
     const [rr,rg,rb]=hexRgb(s.rc);
     ctx.fillStyle=`rgba(${rr},${rg},${rb},${s.ta*.85})`;
-    y+=12;ctx.fillText('— '+s.verseRef,tx,y);
+    y+=12;ctx.fillText(s.verseRef.replace(/\s*\([^)]*\)/g,'').trim(),tx,y);
   }
   ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
 }
@@ -620,7 +633,8 @@ function drawDock(w,h,dkH,hiH){
 // ── Lock screen reference library ────────────────────────────────────────────
 // key: "iosVersion-widthPx-heightPx"  value: relative asset path
 const LOCKSCREEN_LIBRARY={
-  '26-1179-2556':'assets/lockscreen-ios26-1179x2556.png',
+  '26-1179-2556':{src:'assets/lockscreen-ios26-1179x2556.png', label:'iOS 26 — iPhone 14 Pro / 15 / 16 (1179×2556)'},
+  '18-1179-2556':{src:'assets/lockscreen-ios18-1179x2556.png', label:'iOS 18 — iPhone 14 Pro / 15 / 16 (1179×2556)'},
 };
 
 function getIOSVersion(){
@@ -633,33 +647,50 @@ function getDeviceResolution(){
   return{w:Math.round(screen.width*dpr),h:Math.round(screen.height*dpr)};
 }
 
+function loadLockScreenAsset(key,statusMsg){
+  const st=document.getElementById('autoRefStatus');
+  const entry=LOCKSCREEN_LIBRARY[key];
+  if(!entry){st.textContent=statusMsg||'No reference available';st.className='status';return;}
+  const img=new Image();
+  img.onload=()=>{
+    s.refImg=img;s.refVisible=true;
+    document.getElementById('refControls').style.display='';
+    document.getElementById('btnToggleRef').textContent='Hide Reference';
+    st.textContent=entry.label+' — loaded';st.className='status ok';
+    draw();
+  };
+  img.onerror=()=>{st.textContent=entry.label+' — asset missing';st.className='status err';};
+  img.src=entry.src;
+}
+
 function autoLoadLockScreenRef(){
   const st=document.getElementById('autoRefStatus');
   const ios=getIOSVersion();
-  if(!ios){
-    st.textContent='Auto-detect: not on iPhone';
-    st.className='status';
-    return;
-  }
+  if(!ios){st.textContent='Auto-detect: not on iPhone';st.className='status';return;}
   const{w,h}=getDeviceResolution();
-  st.textContent=`Detected: iOS ${ios} · ${w}×${h}px`;
-  st.className='status';
   const key=`${ios}-${w}-${h}`;
-  const src=LOCKSCREEN_LIBRARY[key];
-  if(!src)return;
-  const img=new Image();
-  img.onload=()=>{
-    s.refImg=img;
-    document.getElementById('refControls').style.display='';
-    st.textContent=`Detected: iOS ${ios} · ${w}×${h}px — reference loaded`;
-    st.className='status ok';
-    draw();
-  };
-  img.onerror=()=>{
-    st.textContent=`Detected: iOS ${ios} · ${w}×${h}px — reference asset missing`;
-    st.className='status err';
-  };
-  img.src=src;
+  if(!LOCKSCREEN_LIBRARY[key]){
+    st.textContent=`Detected: iOS ${ios} · ${w}×${h}px — no reference available`;
+    st.className='status';return;
+  }
+  loadLockScreenAsset(key,`Detected: iOS ${ios} · ${w}×${h}px`);
+}
+
+function onLockRefChange(){
+  const val=document.getElementById('selLockRef').value;
+  const st=document.getElementById('autoRefStatus');
+  if(val==='auto'){autoLoadLockScreenRef();return;}
+  st.textContent='';st.className='status';
+  loadLockScreenAsset(val);
+}
+
+function initLockRefDropdown(){
+  const sel=document.getElementById('selLockRef');
+  for(const[key,entry]of Object.entries(LOCKSCREEN_LIBRARY)){
+    const o=document.createElement('option');
+    o.value=key;o.textContent=entry.label;
+    sel.appendChild(o);
+  }
 }
 
 // ── Bible API ────────────────────────────────────────────────────────────────
@@ -901,7 +932,7 @@ async function saveWallpaper(){
       if(navigator.canShare({files:[file]})){
         try{
           await navigator.share({files:[file],title:'Bible Wallpaper'});
-          st.textContent='Tap "Save Image", then set as wallpaper in Photos';st.className='status ok';
+          st.textContent='Save image to Photos, then set as lock screen wallpaper on iPhone';st.className='status ok';
         }catch(e){
           if(e.name!=='AbortError'){st.textContent='Share failed: '+e.message;st.className='status err';}
         }
@@ -916,7 +947,7 @@ async function saveWallpaper(){
     try{
       const a=document.createElement('a');a.download=fname;
       a.href=cv.toDataURL('image/png');a.click();
-      st.textContent=`Downloaded ${m.w}×${m.h}px — add to iPhone via Photos`;st.className='status ok';
+      st.textContent=`Save image to Photos, then set as lock screen wallpaper on iPhone`;st.className='status ok';
     }catch(e){st.textContent='Export failed: '+e.message;st.className='status err';}
     draw();
   }
@@ -928,10 +959,11 @@ function init(){
   setupCanvas();
   // Default verse
   s.verse='For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.';
-  s.verseRef='John 3:16 (KJV)';
+  s.verseRef='John 3:16';
   document.getElementById('taVerse').value=s.verse;
   draw();
   loadBibles();
+  initLockRefDropdown();
   autoLoadLockScreenRef();
   window.addEventListener('resize',()=>{setupCanvas();draw();});
 }
