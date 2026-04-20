@@ -617,7 +617,15 @@ function drawDock(w,h,dkH,hiH){
 }
 
 // ── Bible API ────────────────────────────────────────────────────────────────
-const PREF=['NASB','NKJV','NIV','KJV'];
+// Exact API abbreviation → {display label, sort order}
+// NASB and NASB1995 both map to order 0 so only the first found is kept
+const PREF_MAP={
+  'NASB':    {label:'NASB',order:0},
+  'NASB1995':{label:'NASB',order:0},
+  'NKJV':   {label:'NKJV',order:1},
+  'NIV':    {label:'NIV', order:2},
+  'KJV':    {label:'KJV', order:3},
+};
 
 async function loadBibles(){
   const sel=document.getElementById('selBible');
@@ -625,20 +633,19 @@ async function loadBibles(){
     const r=await fetch(`${API}/bibles`,{headers:{'api-key':API_KEY}});
     const d=await r.json();
     const all=d.data||[];
-    const pref=[];
+    const seen=new Set(), pref=[];
     for(const b of all){
       const ab=(b.abbreviationLocal||b.abbreviation||'').toUpperCase();
-      const pi=PREF.findIndex(p=>ab===p||ab.replace(/\d+$/,'')===p);
-      if(pi>=0)pref.push({...b,_pi:pi,_pref:PREF[pi]});
+      const m=PREF_MAP[ab];
+      if(m&&!seen.has(m.order)){seen.add(m.order);pref.push({...b,_order:m.order,_label:m.label});}
     }
-    pref.sort((a,b)=>a._pi-b._pi);
+    pref.sort((a,b)=>a._order-b._order);
     sel.innerHTML='';
     for(const b of pref){
-      const ab=b.abbreviationLocal||b.abbreviation||b.id;
       const nm=b.nameLocal||b.name||'';
       const o=document.createElement('option');
-      o.value=b.id;o.textContent=`${ab} — ${nm}`;
-      if(b._pref==='NASB')o.selected=true;
+      o.value=b.id;o.textContent=`${b._label} — ${nm}`;
+      if(b._order===0)o.selected=true;
       sel.appendChild(o);
     }
     if(!pref.length)sel.innerHTML='<option>Translations unavailable</option>';
