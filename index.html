@@ -30,7 +30,7 @@
       color:#e0e0f0;padding:8px 11px;font-size:.85rem;font-family:inherit;
       margin-bottom:10px;transition:border-color .15s}
     select:focus,input[type=text]:focus,textarea:focus{outline:none;border-color:#e94560}
-    textarea{resize:vertical;min-height:76px;line-height:1.5}
+    textarea{resize:none;min-height:76px;line-height:1.5;overflow:hidden}
 
     input[type=range]{width:100%;accent-color:#e94560;cursor:pointer}
     .range-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
@@ -70,10 +70,10 @@
                     opacity:0;transition:opacity .15s}
     .bg-phone.on .bg-phone-check{opacity:1}
 
-    .btn-numgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px}
-    .btn-num{padding:7px 2px;border-radius:7px;border:1px solid #2a2a50;background:#0d0d22;
-             color:#8888aa;font-size:.78rem;font-weight:600;cursor:pointer;text-align:center;
-             transition:background .12s,color .12s,border-color .12s}
+    .btn-numgrid{display:grid;grid-template-columns:repeat(auto-fill,30px);gap:5px;margin-bottom:10px}
+    .btn-num{width:30px;height:30px;border-radius:50%;border:1px solid #2a2a50;background:#0d0d22;
+             color:#8888aa;font-size:.72rem;font-weight:600;cursor:pointer;text-align:center;
+             line-height:28px;transition:background .12s,color .12s,border-color .12s}
     .btn-num:hover{border-color:#e94560;color:#e0e0f0}
     .btn-num.on{background:#e94560;border-color:#e94560;color:#fff}
     .btn-num.in-range{background:#5a1020;border-color:#c03040;color:#ffaaaa}
@@ -982,7 +982,7 @@ async function fetchVerse(){
     const text=(d.data?.content||'').trim().replace(/\s+/g,' ');
     const vref=d.data?.reference||'';
     s.verse=text;s.verseRef=vref;
-    document.getElementById('taVerse').value=text;
+    document.getElementById('taVerse').value=text;autoResizeVerse();
     st.textContent=vref+' loaded';st.className='status ok';
     draw();
   }catch(e){
@@ -991,7 +991,8 @@ async function fetchVerse(){
 }
 
 document.getElementById('inRef').addEventListener('keydown',e=>{if(e.key==='Enter')fetchVerse();});
-function onVerseEdit(){s.verse=document.getElementById('taVerse').value;draw();}
+function autoResizeVerse(){const t=document.getElementById('taVerse');t.style.height='auto';t.style.height=t.scrollHeight+'px';}
+function onVerseEdit(){s.verse=document.getElementById('taVerse').value;autoResizeVerse();draw();}
 
 // ── Background picker ─────────────────────────────────────────────────────────
 const GRAD_DIR={'tb':'to bottom','bt':'to top','lr':'to right','tl':'135deg','tr':'225deg'};
@@ -1180,7 +1181,7 @@ function init(){
   // Default verse
   s.verse='For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.';
   s.verseRef='John 3:16';
-  document.getElementById('taVerse').value=s.verse;
+  document.getElementById('taVerse').value=s.verse;autoResizeVerse();
   draw();
   loadBibles();
   initLockRefDropdown();
