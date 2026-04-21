@@ -70,6 +70,14 @@
                     opacity:0;transition:opacity .15s}
     .bg-phone.on .bg-phone-check{opacity:1}
 
+    .btn-numgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px}
+    .btn-num{padding:7px 2px;border-radius:7px;border:1px solid #2a2a50;background:#0d0d22;
+             color:#8888aa;font-size:.78rem;font-weight:600;cursor:pointer;text-align:center;
+             transition:background .12s,color .12s,border-color .12s}
+    .btn-num:hover{border-color:#e94560;color:#e0e0f0}
+    .btn-num.on{background:#e94560;border-color:#e94560;color:#fff}
+    .btn-num.in-range{background:#5a1020;border-color:#c03040;color:#ffaaaa}
+
     .upload-zone{border:2px dashed #2a2a50;border-radius:9px;padding:14px;text-align:center;
                  cursor:pointer;margin-bottom:10px;font-size:.8rem;color:#8888aa;transition:border-color .15s}
     .upload-zone:hover{border-color:#e94560;color:#e94560}
@@ -140,9 +148,31 @@
     <div class="sec-title">Bible Verse</div>
     <label>Translation</label>
     <select id="selBible"><option>Loading…</option></select>
-    <label>Reference</label>
-    <input type="text" id="inRef" placeholder="e.g. John 3:16 or Psalm 46:1">
-    <button class="btn-p" id="btnFetch" onclick="fetchVerse()">Get Verse</button>
+
+    <div class="tabs" style="margin-top:8px">
+      <div class="tab on" id="tabType" onclick="setVerseMode('type')">Type</div>
+      <div class="tab"    id="tabBrowse" onclick="setVerseMode('browse')">Browse</div>
+    </div>
+
+    <div id="verseTypeMode">
+      <label>Reference</label>
+      <input type="text" id="inRef" placeholder="e.g. John 3:16 or John 3:14-15">
+    </div>
+
+    <div id="verseBrowseMode" style="display:none">
+      <label>Book</label>
+      <select id="selBook" onchange="onBookChange()" disabled><option value="">Select book…</option></select>
+      <div id="chapterGridWrap" style="display:none">
+        <label style="margin-top:6px">Chapter</label>
+        <div class="btn-numgrid" id="chGrid"></div>
+      </div>
+      <div id="verseGridWrap" style="display:none">
+        <label style="margin-top:4px">Verses — <span id="vsRangeHint" style="color:#8888aa;font-weight:400">tap to select</span></label>
+        <div class="btn-numgrid" id="vsGrid"></div>
+      </div>
+    </div>
+
+    <button class="btn-p" id="btnFetch" onclick="fetchVerse()" style="margin-top:8px">Get Verse</button>
     <div id="stFetch" class="status"></div>
     <label>Verse Text <span style="color:#555">(editable)</span></label>
     <textarea id="taVerse" oninput="onVerseEdit()"></textarea>
@@ -762,40 +792,195 @@ async function loadBibles(){
     console.error(e);
   }
 }
-document.getElementById('selBible').addEventListener('change',e=>{s.bibleId=e.target.value;});
+document.getElementById('selBible').addEventListener('change',e=>{
+  s.bibleId=e.target.value;
+  if(document.getElementById('verseBrowseMode').style.display!=='none')loadBooks();
+});
 
-function parseRef(input){
-  input=input.trim();
-  const m=input.match(/^(.+?)\s+(\d+):(\d+)$/i);
-  if(!m)return null;
-  let bk=m[1].trim().toLowerCase();
-  const ch=m[2],vs=m[3];
+// ── Verse selector (browse mode) ──────────────────────────────────────────────
+function setVerseMode(mode){
+  const isType=mode==='type';
+  document.getElementById('verseTypeMode').style.display=isType?'':'none';
+  document.getElementById('verseBrowseMode').style.display=isType?'none':'';
+  document.getElementById('tabType').classList.toggle('on',isType);
+  document.getElementById('tabBrowse').classList.toggle('on',!isType);
+  if(!isType&&document.getElementById('selBook').children.length<=1)loadBooks();
+}
+
+async function loadBooks(){
+  const bid=document.getElementById('selBible').value;
+  const sel=document.getElementById('selBook');
+  sel.innerHTML='<option value="">Loading…</option>';sel.disabled=true;
+  resetChapterGrid();resetVerseGrid();
+  try{
+    const r=await fetch(`${API}/bibles/${bid}/books`,{headers:{'api-key':API_KEY}});
+    const d=await r.json();
+    sel.innerHTML='<option value="">Select book…</option>';
+    (d.data||[]).forEach(b=>{
+      const o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);
+    });
+    sel.disabled=false;
+  }catch(e){sel.innerHTML='<option value="">Error loading books</option>';}
+}
+
+async function onBookChange(){
+  const bookId=document.getElementById('selBook').value;
+  const bid=document.getElementById('selBible').value;
+  resetChapterGrid();resetVerseGrid();
+  if(!bookId)return;
+  const grid=document.getElementById('chGrid');
+  grid.innerHTML='<div style="color:#8888aa;font-size:.8rem;padding:4px">Loading…</div>';
+  document.getElementById('chapterGridWrap').style.display='';
+  try{
+    const r=await fetch(`${API}/bibles/${bid}/books/${bookId}/chapters`,{headers:{'api-key':API_KEY}});
+    const d=await r.json();
+    grid.innerHTML='';
+    (d.data||[]).filter(c=>c.number!=='intro').forEach(c=>{
+      const btn=document.createElement('div');
+      btn.className='btn-num';btn.textContent=c.number;btn.dataset.chId=c.id;
+      btn.onclick=()=>selectChapter(c.id,btn);
+      grid.appendChild(btn);
+    });
+  }catch(e){grid.innerHTML='<div style="color:#ff6b6b;font-size:.8rem">Error</div>';}
+}
+
+let activeChBtn=null;
+async function selectChapter(chId,btn){
+  if(activeChBtn)activeChBtn.classList.remove('on');
+  activeChBtn=btn;btn.classList.add('on');
+  resetVerseGrid();
+  const bid=document.getElementById('selBible').value;
+  const wrap=document.getElementById('verseGridWrap');
+  const grid=document.getElementById('vsGrid');
+  wrap.style.display='';
+  grid.innerHTML='<div style="color:#8888aa;font-size:.8rem;padding:6px 0">Loading verses…</div>';
+  try{wrap.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(_){}
+  try{
+    const r=await fetch(`${API}/bibles/${bid}/chapters/${chId}/verses`,{headers:{'api-key':API_KEY}});
+    if(!r.ok){const err=await r.json().catch(()=>({}));throw new Error(err.message||'HTTP '+r.status);}
+    const d=await r.json();
+    verseList=Array.isArray(d.data)?d.data:[];
+    if(!verseList.length){
+      grid.innerHTML='<div style="color:#8888aa;font-size:.8rem;padding:6px 0">No verses found for this chapter</div>';
+      return;
+    }
+    renderVerseGrid();
+  }catch(e){
+    grid.innerHTML=`<div style="color:#ff6b6b;font-size:.8rem;padding:6px 0">Error: ${e.message}</div>`;
+  }
+}
+
+let verseList=[],vsSelected=new Set();
+
+function renderVerseGrid(){
+  vsSelected=new Set();
+  document.getElementById('verseGridWrap').style.display='';
+  const grid=document.getElementById('vsGrid');
+  grid.innerHTML='';
+  verseList.forEach((v,i)=>{
+    const btn=document.createElement('div');
+    btn.className='btn-num';btn.textContent=v.id.split('.').pop();
+    btn.onclick=()=>selectVerse(i);
+    grid.appendChild(btn);
+  });
+  updateVerseHint();
+}
+
+function selectVerse(idx){
+  if(vsSelected.has(idx)){vsSelected.delete(idx);}
+  else{vsSelected.add(idx);}
+  updateVerseHighlight();
+  updateVerseHint();
+}
+
+function updateVerseHighlight(){
+  const btns=document.querySelectorAll('#vsGrid .btn-num');
+  btns.forEach((btn,i)=>btn.classList.toggle('on',vsSelected.has(i)));
+}
+
+function updateVerseHint(){
+  const hint=document.getElementById('vsRangeHint');
+  if(!hint)return;
+  if(vsSelected.size===0){hint.textContent='tap to select';}
+  else{
+    const sorted=[...vsSelected].sort((a,b)=>a-b);
+    const nums=sorted.map(i=>verseList[i].id.split('.').pop());
+    hint.textContent=nums.length===1
+      ?`v${nums[0]} selected`
+      :`v${nums[0]}–${nums[nums.length-1]} (${nums.length} verses)`;
+  }
+}
+
+function resetChapterGrid(){
+  document.getElementById('chapterGridWrap').style.display='none';
+  document.getElementById('chGrid').innerHTML='';
+  activeChBtn=null;
+}
+function resetVerseGrid(){
+  document.getElementById('verseGridWrap').style.display='none';
+  document.getElementById('vsGrid').innerHTML='';
+  verseList=[];vsSelected=new Set();
+}
+
+function resolveBook(bk){
+  bk=bk.trim().toLowerCase();
   let code=BOOKS[bk];
   if(!code){
     for(const[k,v]of Object.entries(BOOKS)){
-      if(k.startsWith(bk)||(bk.length>=3&&k.startsWith(bk))){code=v;break;}
+      if(k.startsWith(bk)&&bk.length>=2){code=v;break;}
     }
   }
+  return code||null;
+}
+
+function parseRef(input){
+  input=input.trim();
+  // Range: "Book Ch:V-V2"
+  const rm=input.match(/^(.+?)\s+(\d+):(\d+)-(\d+)$/i);
+  if(rm){
+    const code=resolveBook(rm[1]);
+    if(!code)return null;
+    return{id:`${code}.${rm[2]}.${rm[3]}-${code}.${rm[2]}.${rm[4]}`,display:input,isPassage:true};
+  }
+  // Single verse: "Book Ch:V"
+  const m=input.match(/^(.+?)\s+(\d+):(\d+)$/i);
+  if(!m)return null;
+  const code=resolveBook(m[1]);
   if(!code)return null;
-  return{id:`${code}.${ch}.${vs}`,display:input};
+  return{id:`${code}.${m[2]}.${m[3]}`,display:input,isPassage:false};
 }
 
 async function fetchVerse(){
-  const ref=document.getElementById('inRef').value;
   const bid=document.getElementById('selBible').value;
   const st=document.getElementById('stFetch');
-  if(!ref.trim()){st.textContent='Enter a reference like John 3:16';st.className='status err';return;}
-  const parsed=parseRef(ref);
-  if(!parsed){st.textContent='Cannot parse — try "John 3:16"';st.className='status err';return;}
+  const isBrowse=document.getElementById('verseBrowseMode').style.display!=='none';
+  let url;
+  if(isBrowse){
+    if(vsSelected.size===0){st.textContent='Select a verse';st.className='status err';return;}
+    const sorted=[...vsSelected].sort((a,b)=>a-b);
+    const vsId=verseList[sorted[0]].id;
+    if(sorted.length>1){
+      const veId=verseList[sorted[sorted.length-1]].id;
+      url=`${API}/bibles/${bid}/passages/${vsId}-${veId}?content-type=text&include-verse-numbers=false&include-titles=false`;
+    }else{
+      url=`${API}/bibles/${bid}/verses/${vsId}?content-type=text&include-verse-numbers=false&include-titles=false`;
+    }
+  }else{
+    const ref=document.getElementById('inRef').value;
+    if(!ref.trim()){st.textContent='Enter a reference like John 3:16';st.className='status err';return;}
+    const parsed=parseRef(ref);
+    if(!parsed){st.textContent='Cannot parse — try "John 3:16"';st.className='status err';return;}
+    const endpoint=parsed.isPassage?'passages':'verses';
+    url=`${API}/bibles/${bid}/${endpoint}/${parsed.id}?content-type=text&include-verse-numbers=false&include-titles=false`;
+  }
   st.textContent='Fetching…';st.className='status';
   document.getElementById('btnFetch').disabled=true;
   try{
-    const url=`${API}/bibles/${bid}/verses/${parsed.id}?content-type=text&include-verse-numbers=false&include-titles=false`;
     const r=await fetch(url,{headers:{'api-key':API_KEY}});
     if(!r.ok){const e=await r.json();throw new Error(e.message||'HTTP '+r.status);}
     const d=await r.json();
     const text=(d.data?.content||'').trim().replace(/\s+/g,' ');
-    const vref=d.data?.reference||ref;
+    const vref=d.data?.reference||'';
     s.verse=text;s.verseRef=vref;
     document.getElementById('taVerse').value=text;
     st.textContent=vref+' loaded';st.className='status ok';
