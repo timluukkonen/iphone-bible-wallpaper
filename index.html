@@ -70,21 +70,14 @@
                     opacity:0;transition:opacity .15s}
     .bg-phone.on .bg-phone-check{opacity:1}
 
-    .browse-row{margin-top:14px}
-    .browse-row-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
-    .browse-row-head label{margin:0;font-size:.8rem;color:#8888aa}
-    .browse-row-hint{font-size:.75rem;color:#666688}
-    .btn-numgrid{display:flex;overflow-x:auto;gap:8px;padding:2px 1px 6px;
-                 scrollbar-width:thin;scrollbar-color:#333355 transparent}
-    .btn-numgrid::-webkit-scrollbar{height:3px}
-    .btn-numgrid::-webkit-scrollbar-track{background:transparent}
-    .btn-numgrid::-webkit-scrollbar-thumb{background:#333355;border-radius:2px}
-    .btn-num{flex-shrink:0;min-width:44px;padding:10px 14px;border-radius:9px;border:1px solid #2a2a50;
-             background:#0d0d22;color:#8888aa;font-size:.85rem;font-weight:600;cursor:pointer;
-             text-align:center;transition:background .12s,color .12s,border-color .12s}
-    .btn-num:hover{border-color:#e94560;color:#e0e0f0}
-    .btn-num.on{background:#e94560;border-color:#e94560;color:#fff}
-    .btn-num.in-range{background:#5a1020;border-color:#c03040;color:#ffaaaa}
+    .ref-row{display:flex;gap:6px;align-items:center;margin-bottom:10px}
+    .ref-row input{flex:1;margin:0}
+    .btn-arrow{flex-shrink:0;width:44px;height:38px;border-radius:9px;border:none;
+               background:#e94560;color:#fff;cursor:pointer;display:flex;
+               align-items:center;justify-content:center;
+               transition:background .15s,transform .1s;box-shadow:0 2px 8px rgba(233,69,96,.35)}
+    .btn-arrow:hover{background:#ff5572;transform:scale(1.05)}
+    .btn-arrow:active{transform:scale(.96)}
 
     .upload-zone{border:2px dashed #2a2a50;border-radius:9px;padding:14px;text-align:center;
                  cursor:pointer;margin-bottom:10px;font-size:.8rem;color:#8888aa;transition:border-color .15s}
@@ -157,35 +150,15 @@
     <label>Translation</label>
     <select id="selBible"><option>Loading…</option></select>
 
-    <div class="tabs" style="margin-top:8px">
-      <div class="tab on" id="tabType" onclick="setVerseMode('type')">Type</div>
-      <div class="tab"    id="tabBrowse" onclick="setVerseMode('browse')">Browse</div>
-    </div>
-
-    <div id="verseTypeMode">
-      <label>Reference</label>
+    <label style="margin-top:8px">Reference</label>
+    <div class="ref-row">
       <input type="text" id="inRef" placeholder="e.g. John 3:16 or John 3:14-15">
+      <button class="btn-arrow" id="btnFetch" onclick="fetchVerse()" title="Get Verse"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
     </div>
-
-    <div id="verseBrowseMode" style="display:none">
-      <div class="browse-row">
-        <div class="browse-row-head"><label>Book</label><span id="bookStatus" class="browse-row-hint"></span></div>
-        <div class="btn-numgrid" id="bookGrid"></div>
-      </div>
-      <div id="chapterGridWrap" class="browse-row" style="display:none">
-        <div class="browse-row-head"><label>Chapter</label></div>
-        <div class="btn-numgrid" id="chGrid"></div>
-      </div>
-      <div id="verseGridWrap" class="browse-row" style="display:none">
-        <div class="browse-row-head"><label>Verses</label><span id="vsRangeHint" class="browse-row-hint">tap to select</span></div>
-        <div class="btn-numgrid" id="vsGrid"></div>
-      </div>
-    </div>
-
-    <button class="btn-p" id="btnFetch" onclick="fetchVerse()" style="margin-top:8px">Get Verse</button>
     <div id="stFetch" class="status"></div>
     <label>Verse Text <span style="color:#555">(editable)</span></label>
     <textarea id="taVerse" oninput="onVerseEdit()"></textarea>
+    <div id="verseCitation" style="display:none;font-size:.7rem;color:#666688;text-align:center;margin-top:4px;margin-bottom:6px"></div>
   </div>
 
   <!-- Background -->
@@ -384,6 +357,8 @@ if(!CanvasRenderingContext2D.prototype.roundRect){
 // ── Constants ───────────────────────────────────────────────────────────────
 const API_KEY='jmaoXHe-xG-8YWxHrW2UR';
 const API='https://rest.api.bible/v1';
+const ESV_KEY='2d32a289cf89d8834f386e935e81004285fddd06';
+const ESV_API='https://api.esv.org/v3';
 
 const MODELS={
   se3:   {n:'iPhone SE 3',      w:750,  h:1334, sH:40,  hiH:0,   dkH:98,  cr:38,  notch:'none'},
@@ -793,15 +768,17 @@ async function loadBibles(){
       pref.push({...candidates[0],_order:i,_label:slot.label});
     }
     sel.innerHTML='';
+    const esvOpt=document.createElement('option');
+    esvOpt.value='ESV';esvOpt.textContent='ESV — English Standard Version';
+    sel.appendChild(esvOpt);
     for(const b of pref){
       const nm=b.nameLocal||b.name||'';
       const o=document.createElement('option');
       o.value=b.id;o.textContent=`${b._label} — ${nm}`;
-      if(b._order===0)o.selected=true;
       sel.appendChild(o);
     }
-    if(!pref.length)sel.innerHTML='<option>Translations unavailable</option>';
-    s.bibleId=sel.value;
+    sel.value='ESV';
+    s.bibleId=sel.value;updateCitation();
     document.getElementById('stDevice').textContent=getModel().n+' | '+pref.length+' translations loaded';
   }catch(e){
     sel.innerHTML='<option>API error — check key</option>';
@@ -810,138 +787,9 @@ async function loadBibles(){
 }
 document.getElementById('selBible').addEventListener('change',e=>{
   s.bibleId=e.target.value;
-  if(document.getElementById('verseBrowseMode').style.display!=='none')loadBooks();
+  updateCitation();
 });
 
-// ── Verse selector (browse mode) ──────────────────────────────────────────────
-function setVerseMode(mode){
-  const isType=mode==='type';
-  document.getElementById('verseTypeMode').style.display=isType?'':'none';
-  document.getElementById('verseBrowseMode').style.display=isType?'none':'';
-  document.getElementById('tabType').classList.toggle('on',isType);
-  document.getElementById('tabBrowse').classList.toggle('on',!isType);
-  if(!isType&&document.getElementById('bookGrid').children.length===0)loadBooks();
-}
-
-let activeBookBtn=null;
-
-async function loadBooks(){
-  const bid=document.getElementById('selBible').value;
-  const grid=document.getElementById('bookGrid');
-  const status=document.getElementById('bookStatus');
-  grid.innerHTML='';activeBookBtn=null;
-  status.textContent='Loading…';
-  resetChapterGrid();resetVerseGrid();
-  try{
-    const r=await fetch(`${API}/bibles/${bid}/books`,{headers:{'api-key':API_KEY}});
-    const d=await r.json();
-    status.textContent='';
-    (d.data||[]).forEach(b=>{
-      const btn=document.createElement('div');
-      btn.className='btn-num';btn.textContent=b.name;
-      btn.onclick=()=>selectBook(b.id,btn);
-      grid.appendChild(btn);
-    });
-  }catch(e){status.textContent='Error loading books';}
-}
-
-function selectBook(bookId,btn){
-  if(activeBookBtn)activeBookBtn.classList.remove('on');
-  activeBookBtn=btn;btn.classList.add('on');
-  resetChapterGrid();resetVerseGrid();
-  const bid=document.getElementById('selBible').value;
-  const grid=document.getElementById('chGrid');
-  grid.innerHTML='<div style="color:#8888aa;font-size:.8rem;padding:4px">Loading…</div>';
-  document.getElementById('chapterGridWrap').style.display='';
-  fetch(`${API}/bibles/${bid}/books/${bookId}/chapters`,{headers:{'api-key':API_KEY}})
-    .then(r=>r.json()).then(d=>{
-      grid.innerHTML='';
-      (d.data||[]).filter(c=>c.number!=='intro').forEach(c=>{
-        const btn=document.createElement('div');
-        btn.className='btn-num';btn.textContent=c.number;
-        btn.onclick=()=>selectChapter(c.id,btn);
-        grid.appendChild(btn);
-      });
-    }).catch(()=>{grid.innerHTML='<div style="color:#ff6b6b;font-size:.8rem">Error</div>';});
-}
-
-let activeChBtn=null;
-async function selectChapter(chId,btn){
-  if(activeChBtn)activeChBtn.classList.remove('on');
-  activeChBtn=btn;btn.classList.add('on');
-  resetVerseGrid();
-  const bid=document.getElementById('selBible').value;
-  const wrap=document.getElementById('verseGridWrap');
-  const grid=document.getElementById('vsGrid');
-  wrap.style.display='';
-  grid.innerHTML='<div style="color:#8888aa;font-size:.8rem;padding:6px 0">Loading verses…</div>';
-  try{wrap.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(_){}
-  try{
-    const r=await fetch(`${API}/bibles/${bid}/chapters/${chId}/verses`,{headers:{'api-key':API_KEY}});
-    if(!r.ok){const err=await r.json().catch(()=>({}));throw new Error(err.message||'HTTP '+r.status);}
-    const d=await r.json();
-    verseList=Array.isArray(d.data)?d.data:[];
-    if(!verseList.length){
-      grid.innerHTML='<div style="color:#8888aa;font-size:.8rem;padding:6px 0">No verses found for this chapter</div>';
-      return;
-    }
-    renderVerseGrid();
-  }catch(e){
-    grid.innerHTML=`<div style="color:#ff6b6b;font-size:.8rem;padding:6px 0">Error: ${e.message}</div>`;
-  }
-}
-
-let verseList=[],vsSelected=new Set();
-
-function renderVerseGrid(){
-  vsSelected=new Set();
-  document.getElementById('verseGridWrap').style.display='';
-  const grid=document.getElementById('vsGrid');
-  grid.innerHTML='';
-  verseList.forEach((v,i)=>{
-    const btn=document.createElement('div');
-    btn.className='btn-num';btn.textContent=v.id.split('.').pop();
-    btn.onclick=()=>selectVerse(i);
-    grid.appendChild(btn);
-  });
-  updateVerseHint();
-}
-
-function selectVerse(idx){
-  if(vsSelected.has(idx)){vsSelected.delete(idx);}
-  else{vsSelected.add(idx);}
-  updateVerseHighlight();
-  updateVerseHint();
-}
-
-function updateVerseHighlight(){
-  const btns=document.querySelectorAll('#vsGrid .btn-num');
-  btns.forEach((btn,i)=>btn.classList.toggle('on',vsSelected.has(i)));
-}
-
-function updateVerseHint(){
-  const hint=document.getElementById('vsRangeHint');
-  if(!hint)return;
-  if(vsSelected.size===0){hint.textContent='tap to select';}
-  else{
-    const sorted=[...vsSelected].sort((a,b)=>a-b);
-    const nums=sorted.map(i=>verseList[i].id.split('.').pop());
-    hint.textContent=nums.length===1
-      ?`v${nums[0]} selected`
-      :`v${nums[0]}–${nums[nums.length-1]} (${nums.length} verses)`;
-  }
-}
-
-function resetChapterGrid(){
-  document.getElementById('chapterGridWrap').style.display='none';
-  document.getElementById('chGrid').innerHTML='';
-  activeChBtn=null;
-}
-function resetVerseGrid(){
-  document.getElementById('verseGridWrap').style.display='none';
-  document.getElementById('vsGrid').innerHTML='';
-  verseList=[];vsSelected=new Set();
-}
 
 function resolveBook(bk){
   bk=bk.trim().toLowerCase();
@@ -971,36 +819,46 @@ function parseRef(input){
   return{id:`${code}.${m[2]}.${m[3]}`,display:input,isPassage:false};
 }
 
+async function fetchVerseESV(){
+  const st=document.getElementById('stFetch');
+  const ref=document.getElementById('inRef').value.trim();
+  if(!ref){st.textContent='Enter a reference like John 3:16';st.className='status err';return;}
+  st.textContent='Fetching…';st.className='status';
+  document.getElementById('btnFetch').disabled=true;
+  try{
+    const q=encodeURIComponent(ref);
+    const url=`${ESV_API}/passage/text/?q=${q}&include-verse-numbers=false&include-first-verse-numbers=false&include-headings=false&include-footnotes=false&include-passage-references=false&include-short-copyright=false&include-surrounding-chapters=false`;
+    const r=await fetch(url,{headers:{Authorization:`Token ${ESV_KEY}`}});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    const text=(d.passages&&d.passages[0]||'').replace(/\[\d+\]/g,'').replace(/¶\s*/g,'').trim().replace(/\s+/g,' ').replace(/^["\u201C]+|["\u201D]+$/g,'').trim();
+    const vref=d.canonical||ref;
+    s.verse=text;s.verseRef=vref;
+    document.getElementById('taVerse').value=text;autoResizeVerse();
+    st.textContent=vref+' loaded';st.className='status ok';
+    draw();
+  }catch(e){
+    st.textContent='Error: '+e.message;st.className='status err';
+  }finally{document.getElementById('btnFetch').disabled=false;}
+}
+
 async function fetchVerse(){
   const bid=document.getElementById('selBible').value;
+  if(bid==='ESV'){fetchVerseESV();return;}
   const st=document.getElementById('stFetch');
-  const isBrowse=document.getElementById('verseBrowseMode').style.display!=='none';
-  let url;
-  if(isBrowse){
-    if(vsSelected.size===0){st.textContent='Select a verse';st.className='status err';return;}
-    const sorted=[...vsSelected].sort((a,b)=>a-b);
-    const vsId=verseList[sorted[0]].id;
-    if(sorted.length>1){
-      const veId=verseList[sorted[sorted.length-1]].id;
-      url=`${API}/bibles/${bid}/passages/${vsId}-${veId}?content-type=text&include-verse-numbers=false&include-titles=false`;
-    }else{
-      url=`${API}/bibles/${bid}/verses/${vsId}?content-type=text&include-verse-numbers=false&include-titles=false`;
-    }
-  }else{
-    const ref=document.getElementById('inRef').value;
-    if(!ref.trim()){st.textContent='Enter a reference like John 3:16';st.className='status err';return;}
-    const parsed=parseRef(ref);
-    if(!parsed){st.textContent='Cannot parse — try "John 3:16"';st.className='status err';return;}
-    const endpoint=parsed.isPassage?'passages':'verses';
-    url=`${API}/bibles/${bid}/${endpoint}/${parsed.id}?content-type=text&include-verse-numbers=false&include-titles=false`;
-  }
+  const ref=document.getElementById('inRef').value;
+  if(!ref.trim()){st.textContent='Enter a reference like John 3:16';st.className='status err';return;}
+  const parsed=parseRef(ref);
+  if(!parsed){st.textContent='Cannot parse — try "John 3:16"';st.className='status err';return;}
+  const endpoint=parsed.isPassage?'passages':'verses';
+  const url=`${API}/bibles/${bid}/${endpoint}/${parsed.id}?content-type=text&include-verse-numbers=false&include-titles=false`;
   st.textContent='Fetching…';st.className='status';
   document.getElementById('btnFetch').disabled=true;
   try{
     const r=await fetch(url,{headers:{'api-key':API_KEY}});
     if(!r.ok){const e=await r.json();throw new Error(e.message||'HTTP '+r.status);}
     const d=await r.json();
-    const text=(d.data?.content||'').trim().replace(/\s+/g,' ');
+    const text=(d.data?.content||'').trim().replace(/\s+/g,' ').replace(/^["\u201C]+|["\u201D]+$/g,'').trim();
     const vref=d.data?.reference||'';
     s.verse=text;s.verseRef=vref;
     document.getElementById('taVerse').value=text;autoResizeVerse();
@@ -1011,6 +869,21 @@ async function fetchVerse(){
   }finally{document.getElementById('btnFetch').disabled=false;}
 }
 
+const CITATIONS={
+  'ESV':'ESV® Bible (The Holy Bible, English Standard Version®), © 2001 Crossway',
+  'NASB':'New American Standard Bible®, © 1960–2020 The Lockman Foundation',
+  'NIV':'Holy Bible, New International Version®, © 1973–2011 Biblica, Inc.®',
+  'NKJV':'New King James Version®, © 1982 Thomas Nelson',
+  'KJV':null,
+};
+function updateCitation(){
+  const bid=document.getElementById('selBible').value;
+  const sel=document.getElementById('selBible');
+  const label=(sel.options[sel.selectedIndex]?.text||'').split(' — ')[0].trim();
+  const text=CITATIONS[bid]||CITATIONS[label]||null;
+  const el=document.getElementById('verseCitation');
+  el.textContent=text||'';el.style.display=text?'':'none';
+}
 document.getElementById('inRef').addEventListener('keydown',e=>{if(e.key==='Enter')fetchVerse();});
 function autoResizeVerse(){const t=document.getElementById('taVerse');t.style.height='auto';t.style.height=t.scrollHeight+'px';}
 function onVerseEdit(){s.verse=document.getElementById('taVerse').value;autoResizeVerse();draw();}
@@ -1199,10 +1072,20 @@ async function saveWallpaper(){
 function init(){
   initBgPicker();
   setupCanvas();
-  // Default verse
-  s.verse='For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.';
-  s.verseRef='John 3:16';
-  document.getElementById('taVerse').value=s.verse;autoResizeVerse();
+  // Default verse (ESV, no API call)
+  const DEF_REF='John 3:16';
+  const DEF_VERSE='For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.';
+  s.verse=DEF_VERSE;s.verseRef=DEF_REF;
+  const inRef=document.getElementById('inRef');
+  const taVerse=document.getElementById('taVerse');
+  inRef.value=DEF_REF;inRef.style.color='#555577';
+  taVerse.value=DEF_VERSE;taVerse.style.color='#555577';autoResizeVerse();
+  inRef.addEventListener('focus',function(){
+    if(this.value===DEF_REF&&this.style.color==='rgb(85, 85, 119)'){this.value='';this.style.color='';}
+  });
+  taVerse.addEventListener('focus',function(){
+    if(this.value===DEF_VERSE&&this.style.color==='rgb(85, 85, 119)'){this.value='';this.style.color='';s.verse='';draw();}
+  });
   draw();
   loadBibles();
   initLockRefDropdown();
@@ -1212,5 +1095,14 @@ function init(){
 
 init();
 </script>
+<footer style="background:#111128;border-top:1px solid #2a2a50;padding:18px 22px;font-size:.68rem;color:#555577;line-height:2">
+  <strong style="color:#777799;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase">Scripture Copyright Notices</strong><br>
+  <strong style="color:#666688">ESV</strong> — Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved. <a href="https://api.esv.org/#copyright" target="_blank" style="color:#555577;text-decoration:underline">esv.org/copyright</a><br>
+  <strong style="color:#666688">NASB</strong> — New American Standard Bible® Copyright © 1960–1995 by The Lockman Foundation. All Rights Reserved. <a href="https://www.lockman.org" target="_blank" style="color:#555577;text-decoration:underline">lockman.org</a><br>
+  <strong style="color:#666688">NIV</strong> — The Holy Bible, New International Version® NIV® Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.® Used by Permission. All rights reserved worldwide.<br>
+  <strong style="color:#666688">NKJV</strong> — New King James Version®, Copyright © 1982 Thomas Nelson. All rights reserved.<br>
+  <strong style="color:#666688">KJV</strong> — Public Domain (outside United Kingdom). Crown Copyright applies in the UK.<br>
+  <a href="https://api.bible/terms-and-conditions#copyright-recognition" target="_blank" style="color:#555577;text-decoration:underline">API.Bible terms &amp; copyright recognition</a>
+</footer>
 </body>
 </html>
