@@ -19,7 +19,7 @@
     header h1{font-size:1.05rem;font-weight:700;color:#1A3D52;letter-spacing:.01em}
     header span{font-size:.78rem;color:#7AA0B8;margin-left:auto}
 
-    .app{display:flex;height:calc(100vh - 53px)}
+    .app{display:flex;height:calc(100vh - 53px);background:#E0EDF5}
 
     /* ── Controls ── */
     .controls{width:340px;min-width:340px;background:#EBF4F9;border-right:1px solid #CCE2ED;overflow-y:auto;padding:16px 12px}
@@ -112,8 +112,10 @@
     .check-row label{margin:0;font-size:.82rem;color:#1A3D52}
 
     /* ── Preview ── */
+    .preview-col{flex:1;display:flex;flex-direction:column}
     .preview-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                   padding:20px;background:#E0EDF5;overflow:hidden}
+                   padding:20px}
+    .save-bar{display:flex;flex-direction:column;align-items:center;padding:14px 20px 18px}
     .phone-frame{position:relative;border-radius:44px;overflow:hidden;
                  border:4px solid #6A9EB8;
                  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),
@@ -127,7 +129,8 @@
     @media(max-width:720px){
       .app{flex-direction:column;height:auto}
       .controls{width:100%;min-width:unset;border-right:none;border-bottom:1px solid #CCE2ED}
-      .preview-panel{padding:14px;min-height:400px}
+      .preview-col{min-height:unset;padding-bottom:24px}
+      .preview-panel{flex:none;padding:20px 8px 8px}
     }
 
     .btn-home{border:1.5px solid #CCE2ED;background:#EDF5FA;color:#2A9DBF;border-radius:20px;
@@ -162,8 +165,7 @@
 <body>
 
 <header>
-  <svg width="26" height="26" viewBox="0 0 26 26"><rect width="26" height="26" rx="6" fill="#2A9DBF"/>
-  <text x="5" y="20" font-size="17" fill="white">✝</text></svg>
+  <svg width="26" height="26" viewBox="0 0 26 26"><rect width="26" height="26" rx="6" fill="#2A9DBF"/><rect x="11" y="5" width="4" height="16" rx="1" fill="white"/><rect x="5" y="9" width="16" height="4" rx="1" fill="white"/></svg>
   <h1>iPhone Bible Wallpaper Builder</h1>
   <button class="btn-home" id="btnAddHome" onclick="showAddToHome()" title="Add to Home Screen">
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3 5l4-4 4 4" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -201,9 +203,9 @@
     <div id="refControls" style="display:none">
       <label>Reference opacity</label>
       <div class="range-row">
-        <input type="range" id="rRefOp" min="5" max="75" value="30"
+        <input type="range" id="rRefOp" min="0" max="100" value="75"
           oninput="s.refOp=this.value/100;document.getElementById('vRefOp').textContent=this.value+'%';draw()">
-        <span id="vRefOp">30%</span>
+        <span id="vRefOp">75%</span>
       </div>
       <div class="btn-row">
         <button class="btn-s" id="btnToggleRef" onclick="toggleRef()">Hide Reference</button>
@@ -263,6 +265,14 @@
       Tap to upload background image
     </div>
     <div id="stBgUp" class="status"></div>
+    <div id="bgBlurControls" style="display:none">
+      <label>Blur</label>
+      <div class="range-row">
+        <input type="range" id="rBgBlur" min="0" max="40" value="0" step="1"
+          oninput="s.bgBlur=+this.value;document.getElementById('vBgBlur').textContent=this.value;draw()">
+        <span id="vBgBlur">0</span>
+      </div>
+    </div>
   </div>
 
   <!-- Text Style -->
@@ -358,22 +368,22 @@
     </div>
   </div>
 
-  <!-- Export -->
-  <div class="sec">
-    <div class="sec-title">Export</div>
-    <button class="btn-p" id="btnSave" onclick="saveWallpaper()">Save Image</button>
-    <div id="stExport" class="status"></div>
-  </div>
 
 </div><!-- /controls -->
 
 <!-- Preview -->
-<div class="preview-panel">
-  <div class="phone-frame" id="frame">
-    <canvas id="cv"></canvas>
+<div class="preview-col">
+  <div class="preview-panel">
+    <div class="phone-frame" id="frame">
+      <canvas id="cv"></canvas>
+    </div>
   </div>
-  <div class="preview-hint">
-    Drag verse text up/down to reposition
+  <div class="save-bar">
+    <button id="btnSave" onclick="saveWallpaper()" style="display:flex;align-items:center;gap:8px;background:#2A9DBF;color:#fff;border:none;border-radius:50px;padding:12px 28px;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(42,157,191,.35);transition:background .15s,transform .1s;white-space:nowrap">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2v9M5.5 7.5L9 11l3.5-3.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13v1.5A1.5 1.5 0 003.5 16h11a1.5 1.5 0 001.5-1.5V13" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Save Image
+    </button>
+    <div id="stExport" class="status" style="margin-top:6px"></div>
   </div>
 </div>
 </div><!-- /app -->
@@ -473,7 +483,7 @@ const BG_OPTIONS=[
 const s={
   bgType:'solid', bgColor:'#0A1E2A',
   g1:'#0f0c29', g2:'#302b63', gDir:'tb',
-  bgImg:null, refImg:null, refOp:.30, refVisible:true,
+  bgImg:null, bgBlur:0, refImg:null, refOp:.75, refVisible:true,
   verse:'', verseRef:'',
   font:"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif",
   sz:36, wt:'600', tc:'#ffffff', ta:1, shadow:'none', lineH:1.5,
@@ -491,6 +501,7 @@ function getModel(){
   return v==='auto'?autoModel():MODELS[v]||MODELS.std;
 }
 function autoModel(){
+  if(!/iPhone/.test(navigator.userAgent))return MODELS.pro;
   const pw=screen.width*devicePixelRatio, ph=screen.height*devicePixelRatio;
   const s2=Math.min(pw,ph),l=Math.max(pw,ph);
   if(s2<=750&&l<=1334)return MODELS.se3;
@@ -504,6 +515,11 @@ function autoModel(){
 function previewScale(){
   const panel=document.querySelector('.preview-panel');
   const m=getModel();
+  const mobile=window.innerWidth<=720;
+  if(mobile){
+    const mxW=window.innerWidth-16;
+    return Math.min(mxW/m.w, 0.32);
+  }
   const mxH=panel.clientHeight-70, mxW=panel.clientWidth-40;
   return Math.min(mxH/m.h, mxW/m.w, 0.32);
 }
@@ -548,19 +564,23 @@ function drawBg(w,h){
     g.addColorStop(0,g1);g.addColorStop(1,g2);
     ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   } else if(s.bgImg){
-    coverImg(s.bgImg,w,h,1);
+    const pad=s.bgBlur*2;
+    if(s.bgBlur>0)ctx.filter=`blur(${s.bgBlur}px)`;
+    coverImg(s.bgImg,w,h,1,pad);
+    if(s.bgBlur>0)ctx.filter='none';
   } else {
     ctx.fillStyle='#0A2E38';ctx.fillRect(0,0,w,h);
   }
 }
 
-function coverImg(img,w,h,alpha){
-  const iw=img.width,ih=img.height,ca=w/h,ia=iw/ih;
+function coverImg(img,w,h,alpha,pad=0){
+  const tw=w+pad*2,th=h+pad*2;
+  const iw=img.width,ih=img.height,ca=tw/th,ia=iw/ih;
   let sx,sy,sw,sh;
   if(ia>ca){sw=ih*ca;sh=ih;sx=(iw-sw)/2;sy=0;}
   else{sw=iw;sh=iw/ca;sx=0;sy=(ih-sh)/2;}
   ctx.save();ctx.globalAlpha=alpha;
-  ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);
+  ctx.drawImage(img,sx,sy,sw,sh,-pad,-pad,tw,th);
   ctx.restore();
 }
 
@@ -738,15 +758,19 @@ function loadLockScreenAsset(key,statusMsg){
 
 function autoLoadLockScreenRef(){
   const st=document.getElementById('autoRefStatus');
-  const ios=getIOSVersion();
-  if(!ios){st.textContent='Auto-detect: not on iPhone';st.className='status';return;}
-  const{w,h}=getDeviceResolution();
-  const key=`${ios}-${w}-${h}`;
-  if(!LOCKSCREEN_LIBRARY[key]){
-    st.textContent=`Detected: iOS ${ios} · ${w}×${h}px — no reference available`;
-    st.className='status';return;
+  if(!/iPhone/.test(navigator.userAgent)){
+    st.textContent='Not on iPhone';st.className='status err';return;
   }
-  loadLockScreenAsset(key,`Detected: iOS ${ios} · ${w}×${h}px`);
+  const ios=getIOSVersion();
+  const{w,h}=getDeviceResolution();
+  // 1. Exact match (iOS version + resolution)
+  const exactKey=ios?`${ios}-${w}-${h}`:null;
+  if(exactKey&&LOCKSCREEN_LIBRARY[exactKey]){loadLockScreenAsset(exactKey);return;}
+  // 2. Resolution-only match (any iOS version in library)
+  const resKey=Object.keys(LOCKSCREEN_LIBRARY).find(k=>k.endsWith(`-${w}-${h}`));
+  if(resKey){loadLockScreenAsset(resKey);return;}
+  st.textContent=`iOS ${ios||'?'} · ${w}×${h}px — no reference for this device`;
+  st.className='status';
 }
 
 function onLockRefChange(){
@@ -809,7 +833,6 @@ async function loadBibles(){
     }
     sel.value='ESV';
     s.bibleId=sel.value;updateCitation();
-    document.getElementById('stDevice').textContent=getModel().n+' | '+pref.length+' translations loaded';
   }catch(e){
     sel.innerHTML='<option>API error — check key</option>';
     console.error(e);
@@ -912,7 +935,9 @@ function updateCitation(){
   const label=(sel.options[sel.selectedIndex]?.text||'').split(' — ')[0].trim();
   const text=CITATIONS[bid]||CITATIONS[label]||null;
   const el=document.getElementById('verseCitation');
-  el.textContent=text||'';el.style.display=text?'':'none';
+  el.innerHTML=(text?text+' &nbsp;·&nbsp; ':'')+
+    '<a href="#" onclick="showCopyright();return false;" style="color:#B8CED8;text-decoration:none;white-space:nowrap">© Copyright Notice</a>';
+  el.style.display='block';
 }
 document.getElementById('inRef').addEventListener('keydown',e=>{if(e.key==='Enter')fetchVerse();});
 function autoResizeVerse(){const t=document.getElementById('taVerse');t.style.height='auto';t.style.height=t.scrollHeight+'px';}
@@ -986,7 +1011,10 @@ function loadImg(ev,target){
     const img=new Image();
     img.onload=()=>{
       if(target==='bg'){
-        s.bgImg=img;s.bgType='upload';
+        s.bgImg=img;s.bgType='upload';s.bgBlur=0;
+        document.getElementById('rBgBlur').value=0;
+        document.getElementById('vBgBlur').textContent='0';
+        document.getElementById('bgBlurControls').style.display='';
         document.getElementById('stBgUp').textContent=file.name+' loaded';
         document.getElementById('stBgUp').className='status ok';
       }else{
@@ -1099,6 +1127,14 @@ async function saveWallpaper(){
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+function showCopyright(){
+  document.getElementById('copyrightOverlay').classList.add('show');
+}
+function hideCopyright(e){
+  if(!e||e.target===document.getElementById('copyrightOverlay'))
+    document.getElementById('copyrightOverlay').classList.remove('show');
+}
+
 function showAddToHome(){
   document.getElementById('addHomeOverlay').classList.add('show');
 }
@@ -1127,6 +1163,7 @@ function init(){
     if(this.value===DEF_REF&&this.style.color==='rgb(168, 184, 200)'){this.value='';this.style.color='';}
   });
   draw();
+  updateCitation();
   loadBibles();
   initLockRefDropdown();
   autoLoadLockScreenRef();
@@ -1135,16 +1172,24 @@ function init(){
 
 init();
 </script>
-<footer style="background:#F0F7FB;border-top:1px solid #CCE2ED;padding:10px 22px 12px;font-size:.64rem;color:#7AA0B8;line-height:1.55">
-  <div style="font-size:.58rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#5E92AA;margin-bottom:6px">Scripture Copyright Notices</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 28px">
-    <span><strong style="color:#5E92AA">ESV</strong> — © 2001 Crossway. Used by permission. <a href="https://api.esv.org/#copyright" target="_blank" style="color:#7AA0B8;text-decoration:underline">esv.org/copyright</a></span>
-    <span><strong style="color:#5E92AA">NIV</strong> — © 1973–2011 Biblica, Inc.® All rights reserved worldwide.</span>
-    <span><strong style="color:#5E92AA">NASB</strong> — © 1960–1995 The Lockman Foundation. <a href="https://www.lockman.org" target="_blank" style="color:#7AA0B8;text-decoration:underline">lockman.org</a></span>
-    <span><strong style="color:#5E92AA">NKJV</strong> — © 1982 Thomas Nelson. All rights reserved.</span>
-    <span style="grid-column:span 2;margin-top:1px"><strong style="color:#5E92AA">KJV</strong> — Public Domain (Crown Copyright in UK). &nbsp;·&nbsp; <a href="https://api.bible/terms-and-conditions#copyright-recognition" target="_blank" style="color:#7AA0B8;text-decoration:underline">API.Bible terms &amp; copyright recognition</a></span>
+
+<!-- Copyright overlay -->
+<div class="add-home-overlay" id="copyrightOverlay" onclick="hideCopyright(event)">
+  <div class="add-home-sheet" onclick="event.stopPropagation()">
+    <div class="add-home-handle"></div>
+    <div class="add-home-heading">Scripture Copyright Notices</div>
+    <div class="add-home-sub">Translations used in this app are licensed for non-commercial personal use.</div>
+    <div style="display:flex;flex-direction:column;gap:12px;text-align:left;margin-bottom:24px;font-size:.83rem;color:#1A3D52;line-height:1.5">
+      <div><strong style="color:#2A9DBF">ESV</strong> — The Holy Bible, English Standard Version® © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved. <a href="https://api.esv.org/#copyright" target="_blank" style="color:#2A9DBF">esv.org/copyright</a></div>
+      <div><strong style="color:#2A9DBF">NIV</strong> — The Holy Bible, New International Version® © 1973, 1978, 1984, 2011 by Biblica, Inc.® Used by permission. All rights reserved worldwide.</div>
+      <div><strong style="color:#2A9DBF">NASB</strong> — New American Standard Bible® © 1960, 1971, 1977, 1995 by The Lockman Foundation. Used by permission. <a href="https://www.lockman.org" target="_blank" style="color:#2A9DBF">lockman.org</a></div>
+      <div><strong style="color:#2A9DBF">NKJV</strong> — New King James Version® © 1982 by Thomas Nelson. Used by permission. All rights reserved.</div>
+      <div><strong style="color:#2A9DBF">KJV</strong> — Public Domain (Crown Copyright in the United Kingdom).</div>
+      <div style="border-top:1px solid #EDF5FA;padding-top:12px;font-size:.75rem;color:#7AA0B8">Verse text is provided via <a href="https://api.bible/terms-and-conditions#copyright-recognition" target="_blank" style="color:#2A9DBF">API.Bible</a> and the ESV API. For personal, non-commercial use only.</div>
+    </div>
+    <button class="btn-close-sheet" onclick="hideCopyright()">Close</button>
   </div>
-</footer>
+</div>
 
 <!-- Add to Home Screen overlay -->
 <div class="add-home-overlay" id="addHomeOverlay" onclick="hideAddToHome(event)">
