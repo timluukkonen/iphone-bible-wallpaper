@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Bible Wallpaper">
+  <meta name="theme-color" content="#2A9DBF">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
   <title>iPhone Bible Wallpaper Builder</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -123,6 +129,29 @@
       .controls{width:100%;min-width:unset;border-right:none;border-bottom:1px solid #CCE2ED}
       .preview-panel{padding:14px;min-height:400px}
     }
+
+    .btn-home{border:1.5px solid #CCE2ED;background:#EDF5FA;color:#2A9DBF;border-radius:20px;
+              padding:5px 10px;font-size:.72rem;font-weight:600;cursor:pointer;
+              display:flex;align-items:center;gap:4px;white-space:nowrap;transition:background .15s}
+    .btn-home:hover{background:#E0EEF5}
+    .btn-home svg{flex-shrink:0}
+
+    .add-home-overlay{display:none;position:fixed;inset:0;background:rgba(26,61,82,.5);
+                      z-index:200;align-items:flex-end;justify-content:center;
+                      backdrop-filter:blur(2px)}
+    .add-home-overlay.show{display:flex}
+    .add-home-sheet{background:#fff;border-radius:24px 24px 0 0;padding:16px 24px 36px;
+                    width:100%;max-width:500px;text-align:center}
+    .add-home-handle{width:36px;height:4px;background:#D0E5EF;border-radius:2px;margin:0 auto 20px}
+    .add-home-heading{font-size:1.05rem;font-weight:700;color:#1A3D52;margin-bottom:6px}
+    .add-home-sub{font-size:.82rem;color:#7AA0B8;margin-bottom:20px}
+    .add-home-steps{text-align:left;display:flex;flex-direction:column;gap:14px;margin-bottom:24px}
+    .add-home-step{display:flex;align-items:flex-start;gap:12px;font-size:.85rem;color:#1A3D52;line-height:1.4}
+    .step-num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#2A9DBF;
+              color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+    .btn-close-sheet{width:100%;border:1.5px solid #CCE2ED;background:#EDF5FA;color:#2A9DBF;
+                     border-radius:12px;padding:12px;font-size:.88rem;font-weight:600;cursor:pointer}
+    .btn-close-sheet:hover{background:#E0EEF5}
   </style>
 </head>
 <body>
@@ -132,6 +161,10 @@
   <text x="5" y="20" font-size="17" fill="white">✝</text></svg>
   <h1>iPhone Bible Wallpaper Builder</h1>
   <span id="hdrModel"></span>
+  <button class="btn-home" id="btnAddHome" onclick="showAddToHome()" title="Add to Home Screen">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3 5l4-4 4 4" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round"/></svg>
+    Add to Home
+  </button>
 </header>
 
 <div class="app">
@@ -270,11 +303,18 @@
 
     <label>Shadow</label>
     <select id="selShadow" onchange="s.shadow=this.value;draw()">
-      <option value="none">None</option>
-      <option value="subtle" selected>Subtle</option>
+      <option value="none" selected>None</option>
+      <option value="subtle">Subtle</option>
       <option value="strong">Strong</option>
       <option value="glow">Glow</option>
     </select>
+
+    <label>Line Spacing</label>
+    <div class="range-row">
+      <input type="range" id="rLineH" min="1.0" max="2.5" step="0.05" value="1.5"
+        oninput="s.lineH=+this.value;document.getElementById('vLineH').textContent=parseFloat(this.value).toFixed(2);draw()">
+      <span id="vLineH">1.50</span>
+    </div>
 
     <label>Alignment</label>
     <div class="pill-row">
@@ -432,7 +472,7 @@ const s={
   bgImg:null, refImg:null, refOp:.30, refVisible:true,
   verse:'', verseRef:'',
   font:"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif",
-  sz:36, wt:'600', tc:'#ffffff', ta:1, shadow:'subtle',
+  sz:36, wt:'600', tc:'#ffffff', ta:1, shadow:'none', lineH:1.5,
   align:'center', ty:50, tw:80,
   showRef:true, rc:'#ffffff',
   bibleId:'', dragging:false,
@@ -540,7 +580,7 @@ function drawVerse(m){
   const font=`${s.wt} ${fpt}px ${s.font}`;
   ctx.font=font;
   ctx.textAlign=s.align==='left'?'left':s.align==='right'?'right':'center';
-  const lh=fpt*1.5;
+  const lh=fpt*s.lineH;
   const lines=wrap(ctx,s.verse,bw);
   const rfpt=Math.round(fpt*0.58);
   const rlh=rfpt*1.4;
@@ -1056,7 +1096,20 @@ async function saveWallpaper(){
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+function showAddToHome(){
+  document.getElementById('addHomeOverlay').classList.add('show');
+}
+function hideAddToHome(e){
+  if(!e||e.target===document.getElementById('addHomeOverlay'))
+    document.getElementById('addHomeOverlay').classList.remove('show');
+}
+
 function init(){
+  // Hide "Add to Home" button if already running as installed PWA
+  if(window.navigator.standalone||window.matchMedia('(display-mode:standalone)').matches){
+    const b=document.getElementById('btnAddHome');
+    if(b)b.style.display='none';
+  }
   initBgPicker();
   setupCanvas();
   // Default verse (ESV, no API call)
@@ -1089,5 +1142,29 @@ init();
     <span style="grid-column:span 2;margin-top:1px"><strong style="color:#5E92AA">KJV</strong> — Public Domain (Crown Copyright in UK). &nbsp;·&nbsp; <a href="https://api.bible/terms-and-conditions#copyright-recognition" target="_blank" style="color:#7AA0B8;text-decoration:underline">API.Bible terms &amp; copyright recognition</a></span>
   </div>
 </footer>
+
+<!-- Add to Home Screen overlay -->
+<div class="add-home-overlay" id="addHomeOverlay" onclick="hideAddToHome(event)">
+  <div class="add-home-sheet" onclick="event.stopPropagation()">
+    <div class="add-home-handle"></div>
+    <div class="add-home-heading">Add to Home Screen</div>
+    <div class="add-home-sub">Open this app like a native app — no browser chrome.</div>
+    <div class="add-home-steps">
+      <div class="add-home-step">
+        <div class="step-num">1</div>
+        <div>In Safari, tap the <strong>Share</strong> button <span style="font-size:1.1em">⬆</span> at the bottom of the screen</div>
+      </div>
+      <div class="add-home-step">
+        <div class="step-num">2</div>
+        <div>Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+      </div>
+      <div class="add-home-step">
+        <div class="step-num">3</div>
+        <div>Tap <strong>Add</strong> in the top right — the app icon will appear on your Home Screen</div>
+      </div>
+    </div>
+    <button class="btn-close-sheet" onclick="hideAddToHome()">Got it</button>
+  </div>
+</div>
 </body>
 </html>
