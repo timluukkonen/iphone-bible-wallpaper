@@ -146,7 +146,12 @@
     .add-home-heading{font-size:1.05rem;font-weight:700;color:#1A3D52;margin-bottom:6px}
     .add-home-sub{font-size:.82rem;color:#7AA0B8;margin-bottom:20px}
     .add-home-steps{text-align:left;display:flex;flex-direction:column;gap:14px;margin-bottom:24px}
-    .add-home-step{display:flex;align-items:flex-start;gap:12px;font-size:.85rem;color:#1A3D52;line-height:1.4}
+    .add-home-step{display:flex;align-items:center;gap:12px;font-size:.85rem;color:#1A3D52;line-height:1.4}
+    .step-body{flex:1}
+    .step-chip{display:inline-flex;align-items:center;justify-content:center;gap:5px;
+               background:#F0F7FB;border:1.5px solid #CCE2ED;border-radius:9px;
+               padding:4px 9px;margin-top:6px;font-size:.75rem;font-weight:600;color:#1A3D52;
+               white-space:nowrap}
     .step-num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#2A9DBF;
               color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center}
     .btn-close-sheet{width:100%;border:1.5px solid #CCE2ED;background:#EDF5FA;color:#2A9DBF;
@@ -160,7 +165,6 @@
   <svg width="26" height="26" viewBox="0 0 26 26"><rect width="26" height="26" rx="6" fill="#2A9DBF"/>
   <text x="5" y="20" font-size="17" fill="white">✝</text></svg>
   <h1>iPhone Bible Wallpaper Builder</h1>
-  <span id="hdrModel"></span>
   <button class="btn-home" id="btnAddHome" onclick="showAddToHome()" title="Add to Home Screen">
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3 5l4-4 4 4" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round"/></svg>
     Add to Home
@@ -510,7 +514,6 @@ function setupCanvas(){
   cv.style.width=Math.round(m.w*sc)+'px';
   cv.style.height=Math.round(m.h*sc)+'px';
   document.getElementById('frame').style.borderRadius=Math.round(m.cr*sc)+'px';
-  document.getElementById('hdrModel').textContent=m.n+' — '+m.w+'×'+m.h;
   const stDev=document.getElementById('stDevice');
   const isAuto=document.getElementById('selModel').value==='auto';
   if(isAuto&&!/iPhone/.test(navigator.userAgent)){
@@ -1148,20 +1151,39 @@ init();
   <div class="add-home-sheet" onclick="event.stopPropagation()">
     <div class="add-home-handle"></div>
     <div class="add-home-heading">Add to Home Screen</div>
-    <div class="add-home-sub">Open this app like a native app — no browser chrome.</div>
+    <div class="add-home-sub">Follow steps to install Web App on your iPhone.</div>
     <div class="add-home-steps">
+
+      <!-- Step 1 -->
       <div class="add-home-step">
         <div class="step-num">1</div>
-        <div>In Safari, tap the <strong>Share</strong> button <span style="font-size:1.1em">⬆</span> at the bottom of the screen</div>
+        <div class="step-body">Open this link in <span class="step-chip"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.25" stroke="#2A9DBF" stroke-width="1.3"/><path d="M9.5 4.5l-1.8 1.8M4.5 9.5l1.8-1.8" stroke="#2A9DBF" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="7" r="1" fill="#2A9DBF"/><path d="M7 2v1M7 11v1M2 7h1M11 7h1" stroke="#2A9DBF" stroke-width="1.1" stroke-linecap="round"/></svg><strong>Safari</strong></span></div>
       </div>
+
+      <!-- Step 2 -->
       <div class="add-home-step">
         <div class="step-num">2</div>
-        <div>Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+        <div class="step-body">Scroll down and tap <span class="step-chip"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="3" cy="7" r="1.2" fill="#1A3D52"/><circle cx="7" cy="7" r="1.2" fill="#1A3D52"/><circle cx="11" cy="7" r="1.2" fill="#1A3D52"/></svg></span></div>
       </div>
+
+      <!-- Step 3 -->
       <div class="add-home-step">
         <div class="step-num">3</div>
-        <div>Tap <strong>Add</strong> in the top right — the app icon will appear on your Home Screen</div>
+        <div class="step-body">Tap <span class="step-chip"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3" y="5" width="8" height="7" rx="1.5" stroke="#1A3D52" stroke-width="1.3"/><path d="M7 1v7M4.5 3.5L7 1l2.5 2.5" stroke="#1A3D52" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><strong>Share</strong></span></div>
       </div>
+
+      <!-- Step 4 -->
+      <div class="add-home-step">
+        <div class="step-num">4</div>
+        <div class="step-body">Tap <span class="step-chip"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M2 7h7M2 10h5" stroke="#1A3D52" stroke-width="1.3" stroke-linecap="round"/><path d="M11 8.5l1.5 1.5-1.5 1.5" stroke="#1A3D52" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><strong>View More</strong></span> to see all options</div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="add-home-step">
+        <div class="step-num">5</div>
+        <div class="step-body">Tap <span class="step-chip"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 2H4a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V5.5L8.5 2z" stroke="#1A3D52" stroke-width="1.3" stroke-linejoin="round"/><path d="M7 6v4M5 8h4" stroke="#1A3D52" stroke-width="1.3" stroke-linecap="round"/></svg><strong>Add to Home Screen</strong></span></div>
+      </div>
+
     </div>
     <button class="btn-close-sheet" onclick="hideAddToHome()">Got it</button>
   </div>
