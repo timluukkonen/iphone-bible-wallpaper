@@ -126,11 +126,21 @@
     #cv.dragging{cursor:grabbing}
     .preview-hint{margin-top:12px;font-size:.72rem;color:#7AA0B8;text-align:center;line-height:1.6}
 
+    .phone-wrap{position:relative;display:inline-block}
+    .txt-nav{position:absolute;top:50%;right:-46px;transform:translateY(-50%);
+             width:30px;height:160px;z-index:10}
+    .txt-nav input[type=range]{
+             position:absolute;top:50%;left:50%;
+             transform:translate(-50%,-50%) rotate(-90deg);
+             width:160px;margin:0;cursor:pointer;accent-color:#2A9DBF;
+             opacity:.85;}
+
     @media(max-width:720px){
+      .txt-nav{right:10px}
       .app{flex-direction:column;height:auto}
       .controls{width:100%;min-width:unset;border-right:none;border-bottom:1px solid #CCE2ED}
       .preview-col{min-height:unset;padding-bottom:24px}
-      .preview-panel{flex:none;padding:20px 8px 8px}
+      .preview-panel{flex:none;padding:28px 40px 12px}
     }
 
     .btn-home{border:1.5px solid #CCE2ED;background:#EDF5FA;color:#2A9DBF;border-radius:20px;
@@ -344,7 +354,7 @@
     <label>Vertical (or drag preview)</label>
     <div class="range-row">
       <input type="range" id="rTY" min="0" max="100" value="50"
-        oninput="s.ty=+this.value;document.getElementById('vTY').textContent=this.value+'%';draw()">
+        oninput="s.ty=+this.value;document.getElementById('vTY').textContent=this.value+'%';document.getElementById('rTYOverlay').value=this.value;draw()">
       <span id="vTY">50%</span>
     </div>
     <label>Text box width</label>
@@ -374,8 +384,15 @@
 <!-- Preview -->
 <div class="preview-col">
   <div class="preview-panel">
-    <div class="phone-frame" id="frame">
-      <canvas id="cv"></canvas>
+    <div class="phone-wrap">
+      <div class="phone-frame" id="frame">
+        <canvas id="cv"></canvas>
+      </div>
+      <div class="txt-nav">
+        <input type="range" id="rTYOverlay" min="0" max="100" value="50"
+          title="Drag to move verse text"
+          oninput="s.ty=+this.value;document.getElementById('rTY').value=this.value;document.getElementById('vTY').textContent=this.value+'%';draw()">
+      </div>
     </div>
   </div>
   <div class="save-bar">
@@ -517,7 +534,7 @@ function previewScale(){
   const m=getModel();
   const mobile=window.innerWidth<=720;
   if(mobile){
-    const mxW=window.innerWidth-16;
+    const mxW=window.innerWidth-80;
     return Math.min(mxW/m.w, 0.32);
   }
   const mxH=panel.clientHeight-70, mxW=panel.clientWidth-40;
@@ -1060,7 +1077,7 @@ cv.addEventListener('mouseleave',()=>{s.dragging=false;cv.classList.remove('drag
 cv.addEventListener('mousemove',e=>{
   if(!s.dragging)return;
   const p=evPct(e.clientY);s.ty=p;
-  document.getElementById('rTY').value=p;document.getElementById('vTY').textContent=p+'%';draw();
+  document.getElementById('rTY').value=p;document.getElementById('vTY').textContent=p+'%';syncTYOverlay(p);draw();
 });
 let pinchDist0=0,pinchSz0=0;
 function touchDist(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.sqrt(dx*dx+dy*dy);}
@@ -1070,8 +1087,11 @@ cv.addEventListener('touchstart',e=>{
     s.dragging=false;
     pinchDist0=touchDist(e.touches);
     pinchSz0=s.sz;
-  }else{s.dragging=true;}
-  e.preventDefault();
+    e.preventDefault();
+  }else if(window.innerWidth>720){
+    s.dragging=true;
+    e.preventDefault();
+  }
 },{passive:false});
 cv.addEventListener('touchend',()=>{s.dragging=false;pinchDist0=0;});
 cv.addEventListener('touchmove',e=>{
@@ -1081,11 +1101,12 @@ cv.addEventListener('touchmove',e=>{
     document.getElementById('rSize').value=sz;
     document.getElementById('vSize').textContent=sz+'pt';
     draw();
-  }else if(s.dragging&&e.touches.length===1){
+    e.preventDefault();
+  }else if(s.dragging&&e.touches.length===1&&window.innerWidth>720){
     const p=evPct(e.touches[0].clientY);s.ty=p;
-    document.getElementById('rTY').value=p;document.getElementById('vTY').textContent=p+'%';draw();
+    document.getElementById('rTY').value=p;document.getElementById('vTY').textContent=p+'%';syncTYOverlay(p);draw();
+    e.preventDefault();
   }
-  e.preventDefault();
 },{passive:false});
 
 // ── Export ────────────────────────────────────────────────────────────────────
@@ -1127,6 +1148,10 @@ async function saveWallpaper(){
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+function syncTYOverlay(val){
+  document.getElementById('rTYOverlay').value=val;
+}
+
 function showCopyright(){
   document.getElementById('copyrightOverlay').classList.add('show');
 }
