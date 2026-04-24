@@ -6,112 +6,121 @@
   <title>iPhone Bible Wallpaper Builder</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#12121f;color:#e0e0f0;min-height:100vh}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#EBF4F9;color:#1A3D52;min-height:100vh}
 
-    header{background:#1a1a30;padding:14px 22px;border-bottom:1px solid #2a2a50;display:flex;align-items:center;gap:12px}
+    header{background:#fff;padding:14px 22px;border-bottom:1px solid #CCE2ED;display:flex;align-items:center;gap:12px;box-shadow:0 1px 6px rgba(26,61,82,.06)}
     header svg{flex-shrink:0}
-    header h1{font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:.01em}
-    header span{font-size:.8rem;color:#666;margin-left:auto}
+    header h1{font-size:1.05rem;font-weight:700;color:#1A3D52;letter-spacing:.01em}
+    header span{font-size:.78rem;color:#7AA0B8;margin-left:auto}
 
     .app{display:flex;height:calc(100vh - 53px)}
 
     /* ── Controls ── */
-    .controls{width:340px;min-width:340px;background:#1a1a30;border-right:1px solid #2a2a50;overflow-y:auto;padding:18px 16px}
+    .controls{width:340px;min-width:340px;background:#EBF4F9;border-right:1px solid #CCE2ED;overflow-y:auto;padding:16px 12px}
     .controls::-webkit-scrollbar{width:3px}
-    .controls::-webkit-scrollbar-thumb{background:#2a2a50;border-radius:2px}
+    .controls::-webkit-scrollbar-thumb{background:#B8D4E2;border-radius:2px}
 
-    .sec{margin-bottom:22px}
-    .sec-title{font-size:.65rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#e94560;margin-bottom:11px}
+    .sec{margin-bottom:12px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(26,61,82,.07);padding:14px 16px}
 
-    label{display:block;font-size:.8rem;color:#8888aa;margin-bottom:3px}
+    .sec-title{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7AA0B8;margin:-14px -16px 12px;padding:11px 16px;border-bottom:1px solid #EDF5FA}
+
+    label{display:block;font-size:.78rem;color:#7AA0B8;margin-bottom:3px}
 
     select,input[type=text],textarea{
-      width:100%;background:#0d0d22;border:1px solid #2a2a50;border-radius:8px;
-      color:#e0e0f0;padding:8px 11px;font-size:.85rem;font-family:inherit;
-      margin-bottom:10px;transition:border-color .15s}
-    select:focus,input[type=text]:focus,textarea:focus{outline:none;border-color:#e94560}
+      width:100%;background:#F7FBFD;border:1.5px solid #CCE2ED;border-radius:10px;
+      color:#1A3D52;padding:8px 11px;font-size:.85rem;font-family:inherit;
+      margin-bottom:10px;transition:border-color .15s;
+      -webkit-appearance:none;appearance:none}
+    select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237AA0B8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:32px}
+    select:focus,input[type=text]:focus,textarea:focus{outline:none;border-color:#2A9DBF}
     textarea{resize:none;min-height:76px;line-height:1.5;overflow:hidden}
 
-    input[type=range]{width:100%;accent-color:#e94560;cursor:pointer}
+    input[type=range]{width:100%;accent-color:#2A9DBF;cursor:pointer}
     .range-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-    .range-row span{font-size:.8rem;color:#8888aa;min-width:38px;text-align:right}
+    .range-row span{font-size:.78rem;color:#7AA0B8;min-width:38px;text-align:right}
 
-    button{border:none;border-radius:9px;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;padding:10px 14px}
+    button{border:none;border-radius:50px;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;padding:11px 16px}
     button:active{transform:scale(.97)}
-    .btn-p{background:#e94560;color:#fff;width:100%;display:block;margin-bottom:8px}
-    .btn-s{background:#0d0d22;color:#c0c0e0;border:1px solid #2a2a50;width:100%;display:block}
+    .btn-p{background:#2A9DBF;color:#fff;width:100%;display:block;margin-bottom:8px}
+    .btn-p:hover{background:#1F809C}
+    .btn-s{background:#EDF5FA;color:#2A9DBF;border:1.5px solid #CCE2ED;width:100%;display:block}
+    .btn-s:hover{background:#E0EEF5}
     .btn-row{display:flex;gap:6px;margin-bottom:10px}
     .btn-row button{flex:1}
 
     .tabs{display:flex;gap:4px;margin-bottom:10px}
-    .tab{flex:1;padding:6px 4px;border-radius:7px;border:1px solid #2a2a50;background:#0d0d22;
-         color:#8888aa;font-size:.75rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
-    .tab.on{background:#e94560;border-color:#e94560;color:#fff}
+    .tab{flex:1;padding:7px 4px;border-radius:8px;border:1.5px solid #CCE2ED;background:#F5FAFD;
+         color:#7AA0B8;font-size:.75rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
+    .tab.on{background:#2A9DBF;border-color:#2A9DBF;color:#fff}
 
-    .bg-scroll-wrap{overflow-x:auto;margin-bottom:10px}
-    .bg-scroll-wrap::-webkit-scrollbar{height:6px}
-    .bg-scroll-wrap::-webkit-scrollbar-track{background:#0d0d22;border-radius:3px}
-    .bg-scroll-wrap::-webkit-scrollbar-thumb{background:#444466;border-radius:3px}
-    .bg-scroll-wrap::-webkit-scrollbar-thumb:hover{background:#6666aa}
-    .bg-scroll{display:flex;gap:8px;padding:4px 2px 8px}
-    .bg-phone{flex-shrink:0;width:72px;height:148px;border-radius:16px;position:relative;
-              cursor:pointer;border:2.5px solid transparent;overflow:hidden;
-              box-shadow:0 3px 14px rgba(0,0,0,.5);transition:transform .15s,border-color .15s}
-    .bg-phone:hover{transform:scale(1.07)}
-    .bg-phone.on{border-color:rgba(255,255,255,.92);transform:scale(1.07)}
-    .bg-phone-time{position:absolute;top:18px;left:0;right:0;text-align:center;
-                   font-size:21px;font-weight:300;letter-spacing:-.5px;
+    .bg-scroll-wrap{overflow-x:auto;margin:0 -16px;margin-bottom:10px}
+    .bg-scroll-wrap::-webkit-scrollbar{height:4px}
+    .bg-scroll-wrap::-webkit-scrollbar-track{background:#EDF5FA;border-radius:2px}
+    .bg-scroll-wrap::-webkit-scrollbar-thumb{background:#B8D4E2;border-radius:2px}
+    .bg-scroll-wrap::-webkit-scrollbar-thumb:hover{background:#89B5CC}
+    .bg-scroll{display:flex;gap:8px;padding:4px 16px 8px}
+    .bg-phone{flex-shrink:0;width:64px;height:132px;border-radius:14px;position:relative;
+              cursor:pointer;overflow:hidden;
+              box-shadow:0 2px 10px rgba(26,61,82,.14);transition:transform .15s,box-shadow .15s}
+    .bg-phone:hover{transform:scale(1.06)}
+    .bg-phone.on{transform:scale(1.06);box-shadow:0 0 0 3px #2A9DBF,0 2px 10px rgba(26,61,82,.14)}
+    .bg-phone-time{position:absolute;top:16px;left:0;right:0;text-align:center;
+                   font-size:18px;font-weight:300;letter-spacing:-.5px;
                    color:rgba(255,255,255,.88);font-family:-apple-system,sans-serif;
-                   text-shadow:0 1px 4px rgba(0,0,0,.5)}
-    .bg-phone-check{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
-                    width:20px;height:20px;border-radius:50%;
-                    background:rgba(255,255,255,.95);display:flex;align-items:center;
-                    justify-content:center;font-size:11px;color:#111;
+                   text-shadow:0 1px 4px rgba(0,0,0,.4)}
+    .bg-phone-check{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+                    width:18px;height:18px;border-radius:50%;
+                    background:#2A9DBF;display:flex;align-items:center;
+                    justify-content:center;font-size:10px;color:#fff;
                     opacity:0;transition:opacity .15s}
     .bg-phone.on .bg-phone-check{opacity:1}
 
     .ref-row{display:flex;gap:6px;align-items:center;margin-bottom:10px}
     .ref-row input{flex:1;margin:0}
-    .btn-arrow{flex-shrink:0;width:44px;height:38px;border-radius:9px;border:none;
-               background:#e94560;color:#fff;cursor:pointer;display:flex;
+    .btn-arrow{flex-shrink:0;width:38px;height:38px;border-radius:50%;border:none;
+               background:#2A9DBF;color:#fff;cursor:pointer;display:flex;
                align-items:center;justify-content:center;
-               transition:background .15s,transform .1s;box-shadow:0 2px 8px rgba(233,69,96,.35)}
-    .btn-arrow:hover{background:#ff5572;transform:scale(1.05)}
+               transition:background .15s,transform .1s;box-shadow:0 2px 8px rgba(42,157,191,.3)}
+    .btn-arrow:hover{background:#1F809C;transform:scale(1.05)}
     .btn-arrow:active{transform:scale(.96)}
 
-    .upload-zone{border:2px dashed #2a2a50;border-radius:9px;padding:14px;text-align:center;
-                 cursor:pointer;margin-bottom:10px;font-size:.8rem;color:#8888aa;transition:border-color .15s}
-    .upload-zone:hover{border-color:#e94560;color:#e94560}
+    .upload-zone{border:2px dashed #CCE2ED;border-radius:12px;padding:14px;text-align:center;
+                 cursor:pointer;margin-bottom:10px;font-size:.8rem;color:#7AA0B8;transition:border-color .15s,color .15s}
+    .upload-zone:hover{border-color:#2A9DBF;color:#2A9DBF}
     .upload-zone input{display:none}
 
-    .status{font-size:.78rem;color:#8888aa;text-align:center;padding:4px;min-height:22px;margin-bottom:4px}
-    .ok{color:#5dde8a}.err{color:#ff6b6b}
+    .status{font-size:.75rem;color:#7AA0B8;text-align:center;padding:4px;min-height:22px;margin-bottom:4px}
+    .ok{color:#3BADA6}.err{color:#D96B6B}
 
     .pill-row{display:flex;gap:5px;margin-bottom:10px}
-    .pill{flex:1;padding:7px 4px;border-radius:7px;border:1px solid #2a2a50;background:#0d0d22;
-          color:#8888aa;font-size:.78rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
-    .pill.on{background:#e94560;border-color:#e94560;color:#fff}
+    .pill{flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid #CCE2ED;background:#F5FAFD;
+          color:#7AA0B8;font-size:.78rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
+    .pill.on{background:#2A9DBF;border-color:#2A9DBF;color:#fff}
 
     .color-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
     .color-row label{margin:0;flex:1}
-    input[type=color]{width:38px;height:30px;border:none;border-radius:6px;cursor:pointer;background:none;padding:2px}
+    input[type=color]{width:38px;height:30px;border:1.5px solid #CCE2ED;border-radius:7px;cursor:pointer;background:#F5FAFD;padding:2px}
 
     .check-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-    .check-row input{width:auto;margin:0;cursor:pointer}
-    .check-row label{margin:0;font-size:.82rem;color:#c0c0e0}
+    .check-row input{width:auto;margin:0;cursor:pointer;accent-color:#2A9DBF}
+    .check-row label{margin:0;font-size:.82rem;color:#1A3D52}
 
     /* ── Preview ── */
     .preview-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                   padding:20px;background:#0c0c1a;overflow:hidden}
-    .phone-frame{position:relative;border-radius:44px;
-                 box-shadow:0 0 0 2px #333,0 0 0 7px #1a1a1a,0 25px 70px rgba(0,0,0,.8)}
+                   padding:20px;background:#E0EDF5;overflow:hidden}
+    .phone-frame{position:relative;border-radius:44px;overflow:hidden;
+                 border:4px solid #6A9EB8;
+                 box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),
+                            0 0 0 7px #C4DCE8,
+                            0 0 0 10px #E0EEF5,
+                            0 30px 80px rgba(26,61,82,.35)}
     #cv{display:block;cursor:grab}
     #cv.dragging{cursor:grabbing}
-    .preview-hint{margin-top:12px;font-size:.72rem;color:#444;text-align:center;line-height:1.6}
+    .preview-hint{margin-top:12px;font-size:.72rem;color:#7AA0B8;text-align:center;line-height:1.6}
 
     @media(max-width:720px){
       .app{flex-direction:column;height:auto}
-      .controls{width:100%;min-width:unset;border-right:none;border-bottom:1px solid #2a2a50}
+      .controls{width:100%;min-width:unset;border-right:none;border-bottom:1px solid #CCE2ED}
       .preview-panel{padding:14px;min-height:400px}
     }
   </style>
@@ -119,7 +128,7 @@
 <body>
 
 <header>
-  <svg width="26" height="26" viewBox="0 0 26 26"><rect width="26" height="26" rx="6" fill="#e94560"/>
+  <svg width="26" height="26" viewBox="0 0 26 26"><rect width="26" height="26" rx="6" fill="#2A9DBF"/>
   <text x="5" y="20" font-size="17" fill="white">✝</text></svg>
   <h1>iPhone Bible Wallpaper Builder</h1>
   <span id="hdrModel"></span>
@@ -128,7 +137,7 @@
 <div class="app">
 <div class="controls">
 
-  <!-- Device -->
+  <!-- Device + Lock Screen Reference -->
   <div class="sec">
     <div class="sec-title">Device</div>
     <label>iPhone Model</label>
@@ -142,6 +151,28 @@
       <option value="promax">iPhone 15 / 16 Pro Max — 1320×2868</option>
     </select>
     <div id="stDevice" class="status"></div>
+    <div style="border-top:1px solid #EDF5FA;margin:4px -16px 12px"></div>
+    <label>Lock Screen Reference</label>
+    <select id="selLockRef" onchange="onLockRefChange()">
+      <option value="auto">Auto-detect</option>
+    </select>
+    <div id="autoRefStatus" class="status"></div>
+    <div class="upload-zone" onclick="document.getElementById('fileRef').click()">
+      <input type="file" id="fileRef" accept="image/*" onchange="loadImg(event,'ref')">
+      Upload lock screen screenshot
+    </div>
+    <div id="refControls" style="display:none">
+      <label>Reference opacity</label>
+      <div class="range-row">
+        <input type="range" id="rRefOp" min="5" max="75" value="30"
+          oninput="s.refOp=this.value/100;document.getElementById('vRefOp').textContent=this.value+'%';draw()">
+        <span id="vRefOp">30%</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn-s" id="btnToggleRef" onclick="toggleRef()">Hide Reference</button>
+        <button class="btn-s" onclick="clearRef()">Clear</button>
+      </div>
+    </div>
   </div>
 
   <!-- Verse -->
@@ -150,15 +181,15 @@
     <label>Translation</label>
     <select id="selBible"><option>Loading…</option></select>
 
-    <label style="margin-top:8px">Reference</label>
+    <label style="margin-top:4px">Reference</label>
     <div class="ref-row">
       <input type="text" id="inRef" placeholder="e.g. John 3:16 or John 3:14-15">
-      <button class="btn-arrow" id="btnFetch" onclick="fetchVerse()" title="Get Verse"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+      <button class="btn-arrow" id="btnFetch" onclick="fetchVerse()" title="Get Verse"><svg width="14" height="14" viewBox="0 0 24 24"><polygon points="6,3 21,12 6,21" fill="currentColor"/></svg></button>
     </div>
     <div id="stFetch" class="status"></div>
-    <label>Verse Text <span style="color:#555">(editable)</span></label>
+    <label>Verse Text</label>
     <textarea id="taVerse" oninput="onVerseEdit()"></textarea>
-    <div id="verseCitation" style="display:none;font-size:.7rem;color:#666688;text-align:center;margin-top:4px;margin-bottom:6px"></div>
+    <div id="verseCitation" style="display:none;font-size:.7rem;color:#7AA0B8;text-align:center;margin-top:-4px;margin-bottom:6px"></div>
   </div>
 
   <!-- Background -->
@@ -167,7 +198,7 @@
     <div class="bg-scroll-wrap">
       <div class="bg-scroll" id="bgScroll"></div>
     </div>
-    <div id="customBgCtrl" style="display:none;margin-bottom:8px">
+    <div id="customBgCtrl" style="display:none;margin-bottom:2px">
       <div id="customSolidCtrl">
         <div class="color-row"><label>Custom color</label>
           <input type="color" id="cpCustom" value="#e94560" oninput="applyCustomSolid()">
@@ -279,37 +310,7 @@
     </div>
     <div class="color-row">
       <label>Reference color</label>
-      <input type="color" id="cpRef" value="#cccccc" oninput="s.rc=this.value;draw()">
-    </div>
-  </div>
-
-  <!-- Lock Screen Reference -->
-  <div class="sec">
-    <div class="sec-title">Lock Screen Reference</div>
-    <p style="font-size:.78rem;color:#8888aa;line-height:1.55;margin-bottom:10px">
-      Upload a screenshot of your lock screen to see where widgets and UI sit.
-      Shown in preview only — never exported to the final wallpaper.
-    </p>
-    <label>Reference Source</label>
-    <select id="selLockRef" onchange="onLockRefChange()" style="margin-bottom:8px">
-      <option value="auto">Auto-detect</option>
-    </select>
-    <div id="autoRefStatus" class="status" style="margin-bottom:6px"></div>
-    <div class="upload-zone" onclick="document.getElementById('fileRef').click()">
-      <input type="file" id="fileRef" accept="image/*" onchange="loadImg(event,'ref')">
-      Upload lock screen screenshot
-    </div>
-    <div id="refControls" style="display:none">
-      <label>Reference opacity</label>
-      <div class="range-row">
-        <input type="range" id="rRefOp" min="5" max="75" value="30"
-          oninput="s.refOp=this.value/100;document.getElementById('vRefOp').textContent=this.value+'%';draw()">
-        <span id="vRefOp">30%</span>
-      </div>
-      <div class="btn-row">
-        <button class="btn-s" id="btnToggleRef" onclick="toggleRef()">Hide Reference</button>
-        <button class="btn-s" onclick="clearRef()">Clear</button>
-      </div>
+      <input type="color" id="cpRef" value="#ffffff" oninput="s.rc=this.value;draw()">
     </div>
   </div>
 
@@ -408,46 +409,32 @@ const BOOKS={
 };
 
 const BG_OPTIONS=[
-  {id:'s0', type:'solid',color:'#000000'},
-  {id:'s1', type:'solid',color:'#1a1a2e'},
-  {id:'s2', type:'solid',color:'#0d1b2a'},
-  {id:'s3', type:'solid',color:'#1a0033'},
-  {id:'s4', type:'solid',color:'#1a3300'},
-  {id:'s5', type:'solid',color:'#330000'},
-  {id:'s6', type:'solid',color:'#001a33'},
-  {id:'s7', type:'solid',color:'#1f1f1f'},
-  {id:'s8', type:'solid',color:'#3d2b1f'},
-  {id:'s9', type:'solid',color:'#0a1628'},
-  {id:'s10',type:'solid',color:'#1f0a28'},
-  {id:'s11',type:'solid',color:'#002200'},
-  {id:'g0', type:'grad',c1:'#0f0c29',c2:'#302b63',dir:'tb',name:'Midnight'},
-  {id:'g1', type:'grad',c1:'#2c3e50',c2:'#fd746c',dir:'tb',name:'Dusk'},
-  {id:'g2', type:'grad',c1:'#0d1b2a',c2:'#1a3a5c',dir:'tb',name:'Deep Sea'},
-  {id:'g3', type:'grad',c1:'#200122',c2:'#6f0000',dir:'tb',name:'Cosmic'},
-  {id:'g4', type:'grad',c1:'#0f2027',c2:'#203a43',dir:'tb',name:'Forest'},
-  {id:'g5', type:'grad',c1:'#141e30',c2:'#243b55',dir:'tb',name:'Royal'},
-  {id:'g6', type:'grad',c1:'#1a0038',c2:'#b31059',dir:'tb',name:'Rose'},
-  {id:'g7', type:'grad',c1:'#004d40',c2:'#1a237e',dir:'tb',name:'Teal'},
-  {id:'g8', type:'grad',c1:'#1a0000',c2:'#7f0000',dir:'tb',name:'Ember'},
-  {id:'g9', type:'grad',c1:'#1f1c2c',c2:'#928dab',dir:'tb',name:'Slate'},
-  {id:'g10',type:'grad',c1:'#0f2027',c2:'#78563c',dir:'tb',name:'Gold'},
-  {id:'g11',type:'grad',c1:'#0d0221',c2:'#0d47a1',dir:'tb',name:'Sky'},
-  {id:'g12',type:'grad',c1:'#0f0c29',c2:'#302b63',dir:'tl',name:'Midnight ↘'},
-  {id:'g13',type:'grad',c1:'#2c3e50',c2:'#fd746c',dir:'tl',name:'Dusk ↘'},
-  {id:'g14',type:'grad',c1:'#1a0038',c2:'#b31059',dir:'tl',name:'Rose ↘'},
-  {id:'g15',type:'grad',c1:'#0d0221',c2:'#0d47a1',dir:'tl',name:'Sky ↘'},
+  // Solids — dark-to-teal progression bridging into the gradient section
+  {id:'s0', type:'solid', color:'#050D12', name:'Black'},
+  {id:'s1', type:'solid', color:'#0A1E2A', name:'Abyss'},
+  {id:'s2', type:'solid', color:'#165060', name:'Shore'},
+  {id:'s3', type:'solid', color:'#1C6070', name:'Ocean'},
+  {id:'s4', type:'solid', color:'#287888', name:'Tide'},
+  {id:'s5', type:'solid', color:'#4890A0', name:'Crest'},
+  // Gradients arranged as a seamless color progression — view side by side
+  {id:'g0', type:'grad', c1:'#F0C9A4', c2:'#E8B090', dir:'tb', name:'Dawn'},
+  {id:'g1', type:'grad', c1:'#E0A898', c2:'#C4A4A0', dir:'tb', name:'Blush'},
+  {id:'g2', type:'grad', c1:'#C4A4A0', c2:'#9ABBC4', dir:'tb', name:'Dusk'},
+  {id:'g3', type:'grad', c1:'#8CADB5', c2:'#4A9AA2', dir:'tb', name:'Mist'},
+  {id:'g4', type:'grad', c1:'#3A9098', c2:'#1E6870', dir:'tb', name:'Tide'},
+  {id:'g5', type:'grad', c1:'#1A6068', c2:'#A8CDD4', dir:'tb', name:'Shore'},
 ];
 
 // ── App state ────────────────────────────────────────────────────────────────
 const s={
-  bgType:'solid', bgColor:'#1a1a2e',
+  bgType:'solid', bgColor:'#0A1E2A',
   g1:'#0f0c29', g2:'#302b63', gDir:'tb',
   bgImg:null, refImg:null, refOp:.30, refVisible:true,
   verse:'', verseRef:'',
   font:"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif",
   sz:36, wt:'600', tc:'#ffffff', ta:1, shadow:'subtle',
   align:'center', ty:50, tw:80,
-  showRef:true, rc:'#cccccc',
+  showRef:true, rc:'#ffffff',
   bibleId:'', dragging:false,
 };
 
@@ -520,7 +507,7 @@ function drawBg(w,h){
   } else if(s.bgImg){
     coverImg(s.bgImg,w,h,1);
   } else {
-    ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#0A2E38';ctx.fillRect(0,0,w,h);
   }
 }
 
@@ -677,7 +664,7 @@ function drawDock(w,h,dkH,hiH){
 // key: "iosVersion-widthPx-heightPx"  value: relative asset path
 const LOCKSCREEN_LIBRARY={
   '26-1179-2556':{src:'assets/lockscreen-ios26-1179x2556.png', label:'iOS 26 — iPhone 14 Pro / 15 / 16 (1179×2556)'},
-  '18-1179-2556':{src:'assets/lockscreen-ios18-1179x2556.jpg', label:'iOS 18 — iPhone 14 Pro / 15 / 16 (1179×2556)'},
+  '18-1179-2556':{src:'assets/lockscreen-ios18-1179x2556.png', label:'iOS 18 — iPhone 14 Pro / 15 / 16 (1179×2556)'},
 };
 
 function getIOSVersion(){
@@ -834,7 +821,7 @@ async function fetchVerseESV(){
     const text=(d.passages&&d.passages[0]||'').replace(/\[\d+\]/g,'').replace(/¶\s*/g,'').trim().replace(/\s+/g,' ').replace(/^["\u201C]+|["\u201D]+$/g,'').trim();
     const vref=d.canonical||ref;
     s.verse=text;s.verseRef=vref;
-    document.getElementById('taVerse').value=text;autoResizeVerse();
+    const tv=document.getElementById('taVerse');tv.value=text;tv.style.color='';autoResizeVerse();
     st.textContent=vref+' loaded';st.className='status ok';
     draw();
   }catch(e){
@@ -861,7 +848,7 @@ async function fetchVerse(){
     const text=(d.data?.content||'').trim().replace(/\s+/g,' ').replace(/^["\u201C]+|["\u201D]+$/g,'').trim();
     const vref=d.data?.reference||'';
     s.verse=text;s.verseRef=vref;
-    document.getElementById('taVerse').value=text;autoResizeVerse();
+    const tv=document.getElementById('taVerse');tv.value=text;tv.style.color='';autoResizeVerse();
     st.textContent=vref+' loaded';st.className='status ok';
     draw();
   }catch(e){
@@ -1078,13 +1065,10 @@ function init(){
   s.verse=DEF_VERSE;s.verseRef=DEF_REF;
   const inRef=document.getElementById('inRef');
   const taVerse=document.getElementById('taVerse');
-  inRef.value=DEF_REF;inRef.style.color='#555577';
-  taVerse.value=DEF_VERSE;taVerse.style.color='#555577';autoResizeVerse();
+  inRef.value=DEF_REF;inRef.style.color='#A8B8C8';
+  taVerse.value=DEF_VERSE;taVerse.style.color='#A8B8C8';autoResizeVerse();
   inRef.addEventListener('focus',function(){
-    if(this.value===DEF_REF&&this.style.color==='rgb(85, 85, 119)'){this.value='';this.style.color='';}
-  });
-  taVerse.addEventListener('focus',function(){
-    if(this.value===DEF_VERSE&&this.style.color==='rgb(85, 85, 119)'){this.value='';this.style.color='';s.verse='';draw();}
+    if(this.value===DEF_REF&&this.style.color==='rgb(168, 184, 200)'){this.value='';this.style.color='';}
   });
   draw();
   loadBibles();
@@ -1095,14 +1079,15 @@ function init(){
 
 init();
 </script>
-<footer style="background:#111128;border-top:1px solid #2a2a50;padding:18px 22px;font-size:.68rem;color:#555577;line-height:2">
-  <strong style="color:#777799;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase">Scripture Copyright Notices</strong><br>
-  <strong style="color:#666688">ESV</strong> — Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved. <a href="https://api.esv.org/#copyright" target="_blank" style="color:#555577;text-decoration:underline">esv.org/copyright</a><br>
-  <strong style="color:#666688">NASB</strong> — New American Standard Bible® Copyright © 1960–1995 by The Lockman Foundation. All Rights Reserved. <a href="https://www.lockman.org" target="_blank" style="color:#555577;text-decoration:underline">lockman.org</a><br>
-  <strong style="color:#666688">NIV</strong> — The Holy Bible, New International Version® NIV® Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.® Used by Permission. All rights reserved worldwide.<br>
-  <strong style="color:#666688">NKJV</strong> — New King James Version®, Copyright © 1982 Thomas Nelson. All rights reserved.<br>
-  <strong style="color:#666688">KJV</strong> — Public Domain (outside United Kingdom). Crown Copyright applies in the UK.<br>
-  <a href="https://api.bible/terms-and-conditions#copyright-recognition" target="_blank" style="color:#555577;text-decoration:underline">API.Bible terms &amp; copyright recognition</a>
+<footer style="background:#F0F7FB;border-top:1px solid #CCE2ED;padding:10px 22px 12px;font-size:.64rem;color:#7AA0B8;line-height:1.55">
+  <div style="font-size:.58rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#5E92AA;margin-bottom:6px">Scripture Copyright Notices</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 28px">
+    <span><strong style="color:#5E92AA">ESV</strong> — © 2001 Crossway. Used by permission. <a href="https://api.esv.org/#copyright" target="_blank" style="color:#7AA0B8;text-decoration:underline">esv.org/copyright</a></span>
+    <span><strong style="color:#5E92AA">NIV</strong> — © 1973–2011 Biblica, Inc.® All rights reserved worldwide.</span>
+    <span><strong style="color:#5E92AA">NASB</strong> — © 1960–1995 The Lockman Foundation. <a href="https://www.lockman.org" target="_blank" style="color:#7AA0B8;text-decoration:underline">lockman.org</a></span>
+    <span><strong style="color:#5E92AA">NKJV</strong> — © 1982 Thomas Nelson. All rights reserved.</span>
+    <span style="grid-column:span 2;margin-top:1px"><strong style="color:#5E92AA">KJV</strong> — Public Domain (Crown Copyright in UK). &nbsp;·&nbsp; <a href="https://api.bible/terms-and-conditions#copyright-recognition" target="_blank" style="color:#7AA0B8;text-decoration:underline">API.Bible terms &amp; copyright recognition</a></span>
+  </div>
 </footer>
 </body>
 </html>
