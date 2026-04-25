@@ -111,7 +111,29 @@
     .check-row input{width:auto;margin:0;cursor:pointer;accent-color:#2A9DBF}
     .check-row label{margin:0;font-size:.82rem;color:#1A3D52}
 
-    /* ── Color Picker overlay ── */
+    /* ── Text style button ── */
+    .txt-color-btn{
+      position:absolute;top:22%;left:-14px;
+      width:32px;height:32px;border-radius:50%;
+      border:2.5px solid rgba(255,255,255,.88);
+      cursor:pointer;z-index:20;padding:0;
+      background:#fff;
+      box-shadow:0 2px 10px rgba(0,0,0,.5);
+      transition:transform .12s;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+    }
+    .txt-color-btn:active{transform:scale(.9)}
+    .txt-color-btn span{
+      position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      font-family:Georgia,'Times New Roman',Times,serif;
+      font-size:16px;font-weight:700;line-height:1;
+      color:#fff;
+      pointer-events:none;
+    }
+
+    /* ── Color picker button ── */
     .cp-btn{
       position:absolute;bottom:22%;left:-14px;
       width:32px;height:32px;border-radius:50%;
@@ -122,46 +144,37 @@
       transition:transform .12s;flex-shrink:0;
     }
     .cp-btn:active{transform:scale(.9)}
-    .cp-panel{
-      position:absolute;bottom:0;left:0;right:0;
-      background:rgba(44,72,195,.83);
-      backdrop-filter:blur(22px) saturate(1.8);
-      -webkit-backdrop-filter:blur(22px) saturate(1.8);
-      padding:8px 8px 8px;z-index:15;display:none;
-    }
-    .cp-panel.show{display:block}
-    .cp-ph{display:flex;align-items:center;margin-bottom:7px}
-    .cp-rb{
-      width:26px;height:26px;border-radius:50%;flex-shrink:0;
-      border:1.5px solid rgba(255,255,255,.55);cursor:pointer;padding:0;
-      background:conic-gradient(red,#ff0,lime,cyan,blue,magenta,red);
-      box-shadow:0 1px 4px rgba(0,0,0,.3);
-    }
-    .cp-rb:active{transform:scale(.9)}
-    .cp-pt{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.95);flex:1;text-align:center}
-    .cp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:7px}
+
+    /* ── Color swatch grid ── */
+    .cp-swatch-grid{display:grid;grid-template-columns:repeat(6,36px);gap:12px;margin-bottom:20px;justify-content:center}
+    .cp-dot{width:36px;height:36px}
     .cp-dot{
       aspect-ratio:1/1;border-radius:50%;cursor:pointer;
-      border:1.5px solid transparent;position:relative;
-      box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .12s,border-color .12s;
+      border:2.5px solid transparent;position:relative;
+      box-shadow:0 2px 8px rgba(0,0,0,.18);
+      transition:transform .15s,border-color .15s,box-shadow .15s;
     }
     .cp-dot:active{transform:scale(.88)}
-    .cp-dot.on{border-color:rgba(255,255,255,.9);transform:scale(1.12)}
+    .cp-dot.on{border-color:#1A3D52;transform:scale(1.14);box-shadow:0 3px 12px rgba(0,0,0,.28)}
     .cp-chk{
       position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-      font-size:8px;color:#fff;opacity:0;pointer-events:none;
-      text-shadow:0 1px 3px rgba(0,0,0,.8);
+      font-size:11px;color:#fff;opacity:0;pointer-events:none;
+      text-shadow:0 1px 4px rgba(0,0,0,.9);
     }
     .cp-dot.on .cp-chk{opacity:1}
-    .cp-sr input[type=range]{
+    .cp-lightness-row{margin-bottom:20px}
+    .cp-lightness-label{display:block;font-size:.78rem;color:#7AA0B8;margin-bottom:8px}
+    .cp-lightness-row input[type=range]{
       -webkit-appearance:none;appearance:none;
-      width:100%;height:5px;border-radius:3px;cursor:pointer;margin:0;
+      width:100%;height:6px;border-radius:3px;cursor:pointer;
     }
-    .cp-sr input[type=range]::-webkit-slider-thumb{
+    .cp-lightness-row input[type=range]::-webkit-slider-thumb{
       -webkit-appearance:none;appearance:none;
-      width:18px;height:18px;border-radius:50%;background:#fff;
-      box-shadow:0 1px 6px rgba(0,0,0,.5);margin-top:-7px;
+      width:24px;height:24px;border-radius:50%;
+      background:#fff;border:2px solid #CCE2ED;
+      box-shadow:0 2px 8px rgba(0,0,0,.22);margin-top:-9px;
     }
+    .cp-custom-btn{margin-bottom:12px}
 
     /* ── Preview ── */
     .preview-col{flex:1;display:flex;flex-direction:column}
@@ -179,7 +192,7 @@
     .preview-hint{margin-top:12px;font-size:.72rem;color:#7AA0B8;text-align:center;line-height:1.6}
 
     .phone-wrap{position:relative;display:inline-block}
-    .txt-nav{position:absolute;top:50%;right:-46px;transform:translateY(-50%);
+    .txt-nav{position:absolute;top:50%;right:-15px;transform:translateY(-50%);
              width:34px;z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px}
     .txt-nav-track{position:relative;width:30px;height:160px;flex-shrink:0}
     .txt-sz-btn{
@@ -223,12 +236,23 @@
     .btn-home:hover{background:#E0EEF5}
     .btn-home svg{flex-shrink:0}
 
+    .btn-settings{
+      width:32px;height:32px;border-radius:50%;padding:0;cursor:pointer;
+      background:#EDF5FA;border:1.5px solid #CCE2ED;color:#1A3D52;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+      margin-left:auto;
+      transition:background .15s,transform .1s;
+    }
+    .btn-settings:hover{background:#E0EEF5}
+    .btn-settings:active{transform:scale(.9)}
+
     .add-home-overlay{display:none;position:fixed;inset:0;background:rgba(26,61,82,.5);
                       z-index:200;align-items:flex-end;justify-content:center;
                       backdrop-filter:blur(2px)}
     .add-home-overlay.show{display:flex}
     .add-home-sheet{background:#fff;border-radius:24px 24px 0 0;padding:16px 24px 36px;
-                    width:100%;max-width:500px;text-align:center}
+                    width:100%;max-width:500px;text-align:center;
+                    max-height:85vh;overflow-y:auto}
     .add-home-handle{width:36px;height:4px;background:#D0E5EF;border-radius:2px;margin:0 auto 20px}
     .add-home-heading{font-size:1.05rem;font-weight:700;color:#1A3D52;margin-bottom:6px}
     .add-home-sub{font-size:.82rem;color:#7AA0B8;margin-bottom:20px}
@@ -244,6 +268,11 @@
     .btn-close-sheet{width:100%;border:1.5px solid #CCE2ED;background:#EDF5FA;color:#2A9DBF;
                      border-radius:12px;padding:12px;font-size:.88rem;font-weight:600;cursor:pointer}
     .btn-close-sheet:hover{background:#E0EEF5}
+
+    @keyframes overlayFadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes sheetSlideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .add-home-overlay.show{animation:overlayFadeIn .2s ease}
+    .add-home-overlay.show .add-home-sheet{animation:sheetSlideUp .32s cubic-bezier(.16,1,.3,1)}
   </style>
 </head>
 <body>
@@ -255,48 +284,15 @@
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3 5l4-4 4 4" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round"/></svg>
     Add to Home
   </button>
+  <button class="btn-settings" onclick="showSettings()" title="Settings">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+    </svg>
+  </button>
 </header>
 
 <div class="app">
 <div class="controls">
-
-  <!-- Device + Lock Screen Reference -->
-  <div class="sec">
-    <div class="sec-title">Device</div>
-    <label>iPhone Model</label>
-    <select id="selModel" onchange="onModelChange()">
-      <option value="auto">Auto-detect</option>
-      <option value="se3">iPhone SE 3rd gen — 750×1334</option>
-      <option value="mini">iPhone 13 mini — 1080×2340</option>
-      <option value="std">iPhone 12 / 13 / 14 — 1170×2532</option>
-      <option value="pro">iPhone 14 Pro / 15 / 16 — 1179×2556</option>
-      <option value="plus">iPhone 15 / 16 Plus — 1290×2796</option>
-      <option value="promax">iPhone 15 / 16 Pro Max — 1320×2868</option>
-    </select>
-    <div id="stDevice" class="status"></div>
-    <div style="border-top:1px solid #EDF5FA;margin:4px -16px 12px"></div>
-    <label>iPhone Lock Screen Preview</label>
-    <select id="selLockRef" onchange="onLockRefChange()">
-      <option value="auto">Auto-detect</option>
-    </select>
-    <div id="autoRefStatus" class="status"></div>
-    <div class="upload-zone" onclick="document.getElementById('fileRef').click()">
-      <input type="file" id="fileRef" accept="image/*" onchange="loadImg(event,'ref')">
-      Upload lock screen screenshot
-    </div>
-    <div id="refControls" style="display:none">
-      <label>Reference opacity</label>
-      <div class="range-row">
-        <input type="range" id="rRefOp" min="0" max="100" value="75"
-          oninput="s.refOp=this.value/100;document.getElementById('vRefOp').textContent=this.value+'%';draw()">
-        <span id="vRefOp">75%</span>
-      </div>
-      <div class="btn-row">
-        <button class="btn-s" id="btnToggleRef" onclick="toggleRef()">Hide Reference</button>
-        <button class="btn-s" onclick="clearRef()">Clear</button>
-      </div>
-    </div>
-  </div>
 
   <!-- Verse -->
   <div class="sec">
@@ -359,69 +355,6 @@
     </div>
   </div>
 
-  <!-- Text Style -->
-  <div class="sec">
-    <div class="sec-title">Text Style</div>
-    <label>Font</label>
-    <select id="selFont" onchange="s.font=this.value;draw()">
-      <option value="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif">SF Pro (iOS Default)</option>
-      <option value="Georgia,'Times New Roman',serif">Georgia (Elegant Serif)</option>
-      <option value="'Palatino Linotype',Palatino,serif">Palatino (Classic)</option>
-      <option value="'Gill Sans',Optima,Candara,sans-serif">Gill Sans (Clean)</option>
-      <option value="Futura,'Trebuchet MS',sans-serif">Futura (Modern)</option>
-      <option value="'Courier New',Courier,monospace">Courier (Typewriter)</option>
-    </select>
-
-    <label>Size</label>
-    <div class="range-row">
-      <input type="range" id="rSize" min="18" max="80" value="36" oninput="s.sz=+this.value;document.getElementById('vSize').textContent=this.value+'pt';draw()">
-      <span id="vSize">36pt</span>
-    </div>
-
-    <label>Weight</label>
-    <select id="selWeight" onchange="s.wt=this.value;draw()">
-      <option value="300">Light</option>
-      <option value="400">Regular</option>
-      <option value="600" selected>Semibold</option>
-      <option value="700">Bold</option>
-      <option value="800">Heavy</option>
-    </select>
-
-    <div class="color-row">
-      <label>Text color</label>
-      <input type="color" id="cpText" value="#ffffff" oninput="s.tc=this.value;draw()">
-    </div>
-
-    <label>Opacity</label>
-    <div class="range-row">
-      <input type="range" id="rOpacity" min="10" max="100" value="100"
-        oninput="s.ta=this.value/100;document.getElementById('vOpacity').textContent=this.value+'%';draw()">
-      <span id="vOpacity">100%</span>
-    </div>
-
-    <label>Shadow</label>
-    <select id="selShadow" onchange="s.shadow=this.value;draw()">
-      <option value="none" selected>None</option>
-      <option value="subtle">Subtle</option>
-      <option value="strong">Strong</option>
-      <option value="glow">Glow</option>
-    </select>
-
-    <label>Line Spacing</label>
-    <div class="range-row">
-      <input type="range" id="rLineH" min="1.0" max="2.5" step="0.05" value="1.5"
-        oninput="s.lineH=+this.value;document.getElementById('vLineH').textContent=parseFloat(this.value).toFixed(2);draw()">
-      <span id="vLineH">1.50</span>
-    </div>
-
-    <label>Alignment</label>
-    <div class="pill-row">
-      <div class="pill"   id="al-left"   onclick="setAlign('left')">Left</div>
-      <div class="pill on" id="al-center" onclick="setAlign('center')">Center</div>
-      <div class="pill"   id="al-right"  onclick="setAlign('right')">Right</div>
-    </div>
-  </div>
-
   <!-- Position -->
   <div class="sec">
     <div class="sec-title">Text Position</div>
@@ -479,24 +412,10 @@
           </svg>
         </button>
       </div>
+      <!-- Text style button -->
+      <button class="txt-color-btn" id="txtColorBtn" onclick="showTextStyle(event)" title="Text Style"><span>T</span></button>
       <!-- Color picker button -->
-      <button class="cp-btn" id="cpBtn" onclick="toggleColorPicker(event)" title="Background Color"></button>
-      <!-- Color picker panel -->
-      <div class="cp-panel" id="cpPanel" onclick="event.stopPropagation()">
-        <div class="cp-ph">
-          <button class="cp-rb" onclick="openCpNative()" title="Custom color"></button>
-          <span class="cp-pt">Background Color</span>
-          <div style="width:26px"></div>
-        </div>
-        <div class="cp-grid" id="cpGrid"></div>
-        <div class="cp-sr">
-          <input type="range" id="cpSlider" min="5" max="95" value="15"
-            oninput="onCpSlider(+this.value)">
-        </div>
-        <input type="color" id="cpNative"
-          style="opacity:0;position:absolute;width:0;height:0;pointer-events:none"
-          oninput="onCpNative(this.value)">
-      </div>
+      <button class="cp-btn" id="cpBtn" onclick="showColorPicker(event)" title="Background Color"></button>
     </div>
   </div>
   <div class="save-bar">
@@ -508,6 +427,133 @@
   </div>
 </div>
 </div><!-- /app -->
+
+<!-- Text Style overlay -->
+<div class="add-home-overlay" id="textStyleOverlay" onclick="hideTextStyle(event)">
+  <div class="add-home-sheet" onclick="event.stopPropagation()">
+    <div class="add-home-handle"></div>
+    <div class="add-home-heading">Text Style</div>
+    <div class="cp-swatch-grid" id="tcGrid"></div>
+    <div class="cp-lightness-row">
+      <label class="cp-lightness-label">Lightness</label>
+      <input type="range" id="tcSlider" min="5" max="95" value="95" oninput="onTcSlider(+this.value)">
+    </div>
+    <button class="btn-s" style="margin-bottom:20px;width:100%" onclick="openTcNative()">Custom Color…</button>
+    <input type="color" id="tcNative" style="opacity:0;position:absolute;width:0;height:0;pointer-events:none" oninput="onTcNative(this.value)">
+    <div style="text-align:left;border-top:1px solid #EDF5FA;padding-top:16px">
+      <label>Font</label>
+      <select id="selFont" onchange="s.font=this.value;draw()" style="margin-bottom:12px">
+        <option value="-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif">SF Pro (iOS Default)</option>
+        <option value="Georgia,'Times New Roman',serif">Georgia (Elegant Serif)</option>
+        <option value="'Palatino Linotype',Palatino,serif">Palatino (Classic)</option>
+        <option value="'Gill Sans',Optima,Candara,sans-serif">Gill Sans (Clean)</option>
+        <option value="Futura,'Trebuchet MS',sans-serif">Futura (Modern)</option>
+        <option value="'Courier New',Courier,monospace">Courier (Typewriter)</option>
+      </select>
+      <label>Size</label>
+      <div class="range-row" style="margin-bottom:12px">
+        <input type="range" id="rSize" min="18" max="80" value="36" oninput="s.sz=+this.value;document.getElementById('vSize').textContent=this.value+'pt';draw()">
+        <span id="vSize">36pt</span>
+      </div>
+      <label>Weight</label>
+      <select id="selWeight" onchange="s.wt=this.value;draw()" style="margin-bottom:12px">
+        <option value="300">Light</option>
+        <option value="400">Regular</option>
+        <option value="600" selected>Semibold</option>
+        <option value="700">Bold</option>
+        <option value="800">Heavy</option>
+      </select>
+      <label>Opacity</label>
+      <div class="range-row" style="margin-bottom:12px">
+        <input type="range" id="rOpacity" min="10" max="100" value="100"
+          oninput="s.ta=this.value/100;document.getElementById('vOpacity').textContent=this.value+'%';draw()">
+        <span id="vOpacity">100%</span>
+      </div>
+      <label>Shadow</label>
+      <select id="selShadow" onchange="s.shadow=this.value;draw()" style="margin-bottom:12px">
+        <option value="none" selected>None</option>
+        <option value="subtle">Subtle</option>
+        <option value="strong">Strong</option>
+        <option value="glow">Glow</option>
+      </select>
+      <label>Line Spacing</label>
+      <div class="range-row" style="margin-bottom:12px">
+        <input type="range" id="rLineH" min="1.0" max="2.5" step="0.05" value="1.5"
+          oninput="s.lineH=+this.value;document.getElementById('vLineH').textContent=parseFloat(this.value).toFixed(2);draw()">
+        <span id="vLineH">1.50</span>
+      </div>
+      <label>Alignment</label>
+      <div class="pill-row">
+        <div class="pill"    id="al-left"   onclick="setAlign('left')">Left</div>
+        <div class="pill on" id="al-center" onclick="setAlign('center')">Center</div>
+        <div class="pill"    id="al-right"  onclick="setAlign('right')">Right</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings overlay -->
+<div class="add-home-overlay" id="settingsOverlay" onclick="hideSettings(event)">
+  <div class="add-home-sheet" onclick="event.stopPropagation()">
+    <div class="add-home-handle"></div>
+    <div class="add-home-heading">Settings</div>
+    <div class="add-home-sub">Configure your device and lock screen reference.</div>
+    <div style="text-align:left">
+      <label>iPhone Model</label>
+      <select id="selModel" onchange="onModelChange()" style="margin-bottom:12px">
+        <option value="auto">Auto-detect</option>
+        <option value="se3">iPhone SE 3rd gen — 750×1334</option>
+        <option value="mini">iPhone 13 mini — 1080×2340</option>
+        <option value="std">iPhone 12 / 13 / 14 — 1170×2532</option>
+        <option value="pro">iPhone 14 Pro / 15 / 16 — 1179×2556</option>
+        <option value="plus">iPhone 15 / 16 Plus — 1290×2796</option>
+        <option value="promax">iPhone 15 / 16 Pro Max — 1320×2868</option>
+      </select>
+      <div id="stDevice" class="status" style="margin-top:-8px"></div>
+      <div style="border-top:1px solid #EDF5FA;margin:8px 0 12px"></div>
+      <label>iPhone Lock Screen Preview</label>
+      <select id="selLockRef" onchange="onLockRefChange()" style="margin-bottom:12px">
+        <option value="auto">Auto-detect</option>
+      </select>
+      <div id="autoRefStatus" class="status" style="margin-top:-8px"></div>
+      <div class="upload-zone" onclick="document.getElementById('fileRef').click()" style="margin-bottom:10px">
+        <input type="file" id="fileRef" accept="image/*" onchange="loadImg(event,'ref')">
+        Upload lock screen screenshot
+      </div>
+      <div id="refControls" style="display:none">
+        <label>Reference opacity</label>
+        <div class="range-row">
+          <input type="range" id="rRefOp" min="0" max="100" value="75"
+            oninput="s.refOp=this.value/100;document.getElementById('vRefOp').textContent=this.value+'%';draw()">
+          <span id="vRefOp">75%</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn-s" id="btnToggleRef" onclick="toggleRef()">Hide Reference</button>
+          <button class="btn-s" onclick="clearRef()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Background Color overlay -->
+<div class="add-home-overlay" id="cpOverlay" onclick="hideColorPicker(event)">
+  <div class="add-home-sheet" onclick="event.stopPropagation()">
+    <div class="add-home-handle"></div>
+    <div class="add-home-heading">Background Color</div>
+    <div class="add-home-sub">Choose a preset or adjust lightness.</div>
+    <div class="cp-swatch-grid" id="cpGrid"></div>
+    <div class="cp-lightness-row">
+      <label class="cp-lightness-label">Lightness</label>
+      <input type="range" id="cpSlider" min="5" max="95" value="15"
+        oninput="onCpSlider(+this.value)">
+    </div>
+    <button class="btn-s cp-custom-btn" onclick="openCpNative()">Custom Color…</button>
+    <input type="color" id="cpNative"
+      style="opacity:0;position:absolute;width:0;height:0;pointer-events:none"
+      oninput="onCpNative(this.value)">
+  </div>
+</div>
 
 <script>
 // ── roundRect polyfill ──────────────────────────────────────────────────────
@@ -879,8 +925,9 @@ function loadLockScreenAsset(key,statusMsg){
 
 function autoLoadLockScreenRef(){
   const st=document.getElementById('autoRefStatus');
+  const fallbackKey=Object.keys(LOCKSCREEN_LIBRARY)[0];
   if(!/iPhone/.test(navigator.userAgent)){
-    st.textContent='Not on iPhone';st.className='status err';return;
+    loadLockScreenAsset(fallbackKey,'No reference available');return;
   }
   const ios=getIOSVersion();
   const{w,h}=getDeviceResolution();
@@ -890,8 +937,8 @@ function autoLoadLockScreenRef(){
   // 2. Resolution-only match (any iOS version in library)
   const resKey=Object.keys(LOCKSCREEN_LIBRARY).find(k=>k.endsWith(`-${w}-${h}`));
   if(resKey){loadLockScreenAsset(resKey);return;}
-  st.textContent=`iOS ${ios||'?'} · ${w}×${h}px — no reference for this device`;
-  st.className='status';
+  // 3. Fallback to first library entry
+  loadLockScreenAsset(fallbackKey,`iOS ${ios||'?'} · ${w}×${h}px — showing default reference`);
 }
 
 function onLockRefChange(){
@@ -1371,39 +1418,120 @@ function updateCpBtn(){
   }
 }
 
-function toggleColorPicker(e){
+function showColorPicker(e){
   e&&e.stopPropagation();
-  const panel=document.getElementById('cpPanel');
-  const showing=panel.classList.toggle('show');
-  if(showing){
-    const r=Math.round(getModel().cr*previewScale());
-    panel.style.borderRadius=`12px 12px ${r}px ${r}px`;
-    if(s.bgType==='solid'){
-      const hsl=cpHexToHsl(s.bgColor);
-      cpH=hsl.h;cpSat=hsl.sat;
-      document.getElementById('cpSlider').value=hsl.lig;
-      cpUpdateTrack(cpH,cpSat);
-    }else if(s.bgType==='grad'){
-      const hsl=cpHexToHsl(s.g1);
-      cpH=hsl.h;cpSat=hsl.sat;
-      document.getElementById('cpSlider').value=hsl.lig;
-      cpUpdateTrack(cpH,cpSat);
-    }
+  document.getElementById('cpOverlay').classList.add('show');
+  if(s.bgType==='solid'){
+    const hsl=cpHexToHsl(s.bgColor);
+    cpH=hsl.h;cpSat=hsl.sat;
+    document.getElementById('cpSlider').value=hsl.lig;
+    cpUpdateTrack(cpH,cpSat);
+  }else if(s.bgType==='grad'){
+    const hsl=cpHexToHsl(s.g1);
+    cpH=hsl.h;cpSat=hsl.sat;
+    document.getElementById('cpSlider').value=hsl.lig;
+    cpUpdateTrack(cpH,cpSat);
   }
 }
-
-document.addEventListener('click',e=>{
-  const panel=document.getElementById('cpPanel');
-  const btn=document.getElementById('cpBtn');
-  if(!panel||!panel.classList.contains('show'))return;
-  if(!panel.contains(e.target)&&!btn.contains(e.target)){
-    panel.classList.remove('show');
-  }
-});
+function hideColorPicker(e){
+  if(!e||e.target===document.getElementById('cpOverlay'))
+    document.getElementById('cpOverlay').classList.remove('show');
+}
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 function syncTYOverlay(val){
   document.getElementById('rTYOverlay').value=val;
+}
+
+// ── Text Style picker ─────────────────────────────────────────────────────────
+let tcH=0,tcSat=0;
+
+function initTcGrid(){
+  const grid=document.getElementById('tcGrid');
+  CP_COLORS.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.className='cp-dot';d.style.background=c;
+    const chk=document.createElement('div');chk.className='cp-chk';chk.textContent='✓';
+    d.appendChild(chk);
+    d.onclick=()=>tcSelectColor(c,i);
+    grid.appendChild(d);
+  });
+}
+
+function tcUpdateTrack(h,sat){
+  const dark=cpHslToHex(h,sat,8);
+  const lite=cpHslToHex(h,Math.max(10,sat-10),92);
+  document.getElementById('tcSlider').style.background=
+    `linear-gradient(to right,${dark},${lite})`;
+}
+
+function tcSelectColor(hex,idx){
+  const hsl=cpHexToHsl(hex);
+  tcH=hsl.h;tcSat=hsl.sat;
+  document.getElementById('tcSlider').value=hsl.lig;
+  tcUpdateTrack(tcH,tcSat);
+  document.querySelectorAll('#tcGrid .cp-dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+  tcApply(hex);
+}
+
+function onTcSlider(val){
+  const hex=cpHslToHex(tcH,tcSat,val);
+  document.querySelectorAll('#tcGrid .cp-dot').forEach(d=>d.classList.remove('on'));
+  tcApply(hex);
+}
+
+function openTcNative(){
+  const n=document.getElementById('tcNative');
+  n.value=s.tc;
+  n.style.pointerEvents='auto';
+  n.click();
+  setTimeout(()=>n.style.pointerEvents='none',200);
+}
+
+function onTcNative(hex){
+  const hsl=cpHexToHsl(hex);
+  tcH=hsl.h;tcSat=hsl.sat;
+  document.getElementById('tcSlider').value=hsl.lig;
+  tcUpdateTrack(tcH,tcSat);
+  document.querySelectorAll('#tcGrid .cp-dot').forEach(d=>d.classList.remove('on'));
+  tcApply(hex);
+}
+
+function tcApply(hex){
+  s.tc=hex;
+  updateTxtBtn();
+  draw();
+}
+
+function updateTxtBtn(){
+  const btn=document.getElementById('txtColorBtn');
+  if(!btn)return;
+  btn.style.background=s.tc;
+  const lum=cpHexToHsl(s.tc).lig;
+  const span=btn.querySelector('span');
+  if(span)span.style.color=lum>50?'#000':'#fff';
+}
+
+function showTextStyle(e){
+  e&&e.stopPropagation();
+  document.getElementById('textStyleOverlay').classList.add('show');
+  const hsl=cpHexToHsl(s.tc);
+  tcH=hsl.h;tcSat=hsl.sat;
+  document.getElementById('tcSlider').value=hsl.lig;
+  tcUpdateTrack(tcH,tcSat);
+}
+
+function hideTextStyle(e){
+  if(!e||e.target===document.getElementById('textStyleOverlay'))
+    document.getElementById('textStyleOverlay').classList.remove('show');
+}
+
+function showSettings(){
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+function hideSettings(e){
+  if(!e||e.target===document.getElementById('settingsOverlay'))
+    document.getElementById('settingsOverlay').classList.remove('show');
 }
 
 function showCopyright(){
@@ -1430,6 +1558,7 @@ function init(){
   }
   initBgPicker();
   initCpGrid();
+  initTcGrid();
   setupCanvas();
   // Default verse (ESV, no API call)
   const DEF_REF='John 3:16';
@@ -1444,6 +1573,7 @@ function init(){
   });
   draw();
   updateCpBtn();
+  updateTxtBtn();
   updateCitation();
   loadBibles();
   initLockRefDropdown();
@@ -1468,7 +1598,6 @@ init();
       <div><strong style="color:#2A9DBF">KJV</strong> — Public Domain (Crown Copyright in the United Kingdom).</div>
       <div style="border-top:1px solid #EDF5FA;padding-top:12px;font-size:.75rem;color:#7AA0B8">Verse text is provided via <a href="https://api.bible/terms-and-conditions#copyright-recognition" target="_blank" style="color:#2A9DBF">API.Bible</a> and the ESV API. For personal, non-commercial use only.</div>
     </div>
-    <button class="btn-close-sheet" onclick="hideCopyright()">Close</button>
   </div>
 </div>
 
@@ -1511,7 +1640,6 @@ init();
       </div>
 
     </div>
-    <button class="btn-close-sheet" onclick="hideAddToHome()">Got it</button>
   </div>
 </div>
 </body>
