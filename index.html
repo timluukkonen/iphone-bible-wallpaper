@@ -644,8 +644,8 @@ const BG_OPTIONS=[
 
 // ── App state ────────────────────────────────────────────────────────────────
 const s={
-  bgType:'solid', bgColor:'#0A1E2A',
-  g1:'#0f0c29', g2:'#302b63', gDir:'tb',
+  bgType:'grad', bgColor:'#0A1E2A',
+  g1:'#E0A898', g2:'#C4A4A0', gDir:'tb',
   bgImg:null, bgBlur:0, refImg:null, refOp:.75, refVisible:true,
   verse:'', verseRef:'',
   font:"-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif",
@@ -1553,6 +1553,7 @@ function init(){
     if(b)b.style.display='none';
   }
   initBgPicker();
+  selectBgOption('g1');
   initCpGrid();
   initTcGrid();
   setupCanvas();
