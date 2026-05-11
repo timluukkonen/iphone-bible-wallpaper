@@ -278,17 +278,21 @@
     .add-home-overlay.show .add-home-sheet{animation:sheetSlideDown .32s cubic-bezier(.16,1,.3,1)}
     .sheet-top{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
     .sheet-top .add-home-handle{margin:0}
-    .btn-sheet-close{position:absolute;left:0;width:28px;height:28px;border-radius:50%;border:none;background:#EDF5FA;color:#7AA0B8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;padding:0;transition:background .15s,color .15s;font-family:inherit}
+    .btn-sheet-close{position:absolute;right:0;width:28px;height:28px;border-radius:50%;border:none;background:#EDF5FA;color:#7AA0B8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;padding:0;transition:background .15s,color .15s;font-family:inherit}
     .btn-sheet-close:hover{background:#E0EEF5;color:#1A3D52}
-    .vs-h-wrap{position:relative;margin-bottom:12px;background:#F7FBFD;border:1.5px solid #EDF5FA;border-radius:10px;overflow:hidden}
-    .vs-scroll-arrow{position:absolute;right:0;top:0;bottom:0;width:28px;display:flex;align-items:center;justify-content:center;background:linear-gradient(to right,transparent,rgba(247,251,253,.95));color:#7AA0B8;font-size:16px;font-weight:700;pointer-events:none;transition:opacity .15s}
-    .vs-scroll-arrow.hidden{opacity:0}
-    .vs-book-grid{display:flex;flex-direction:column;flex-wrap:wrap;height:100px;gap:4px;overflow-x:auto;overflow-y:hidden;padding:4px;scrollbar-width:none}
+    .vs-h-wrap{margin-bottom:12px;background:#F7FBFD;border:1.5px solid #EDF5FA;border-radius:10px;overflow:hidden}
+    .vs-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+    .vs-label-row label{margin-bottom:0}
+    .vs-arrow-pair{display:flex;gap:2px}
+    .vs-scroll-arrow{width:24px;height:24px;border-radius:50%;border:none;background:transparent;color:#7AA0B8;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit;transition:opacity .15s,color .15s}
+    .vs-scroll-arrow:hover{color:#2A9DBF}
+    .vs-scroll-arrow.hidden{opacity:0;pointer-events:none}
+    .vs-book-grid{display:flex;flex-direction:column;flex-wrap:wrap;height:36px;gap:2px;overflow-x:auto;overflow-y:hidden;padding:4px;scrollbar-width:none}
     .vs-book-grid::-webkit-scrollbar{display:none}
-    .vs-book-btn{height:28px;width:88px;flex-shrink:0;padding:0 6px;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.68rem;font-weight:600;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .12s,color .12s;font-family:inherit;display:flex;align-items:center;justify-content:center}
+    .vs-book-btn{height:28px;width:auto;flex-shrink:0;padding:0 8px;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.68rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s;font-family:inherit;display:flex;align-items:center;justify-content:center}
     .vs-book-btn:hover{background:#E0EEF5}
     .vs-book-btn.on{background:#2A9DBF;color:#fff}
-    .vs-num-grid{display:flex;flex-direction:column;flex-wrap:wrap;height:112px;gap:4px;overflow-x:auto;overflow-y:hidden;padding:4px;scrollbar-width:none}
+    .vs-num-grid{display:flex;flex-direction:column;flex-wrap:wrap;height:40px;gap:2px;overflow-x:auto;overflow-y:hidden;padding:4px;scrollbar-width:none}
     .vs-num-grid::-webkit-scrollbar{display:none}
     .vs-num-btn{height:32px;width:32px;flex-shrink:0;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;font-family:inherit;padding:0}
     .vs-num-btn:hover{background:#E0EEF5}
@@ -1658,11 +1662,19 @@ function selectVsVerse(v){
   document.querySelectorAll('#vsVerseGrid .vs-num-btn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)===v));
 }
 
+function scrollVsGrid(gridId,dir){
+  const grid=document.getElementById(gridId);
+  if(!grid)return;
+  grid.scrollBy({left:(dir||1)*grid.clientWidth*.8,behavior:'smooth'});
+  setTimeout(()=>updateScrollArrow(grid),350);
+}
 function updateScrollArrow(gridEl){
-  const arrow=gridEl.parentElement?.querySelector('.vs-scroll-arrow');
-  if(!arrow)return;
+  const arrow=gridEl.dataset.arrow?document.getElementById(gridEl.dataset.arrow):null;
+  const leftArrow=gridEl.dataset.arrowLeft?document.getElementById(gridEl.dataset.arrowLeft):null;
   const atEnd=gridEl.scrollLeft>=gridEl.scrollWidth-gridEl.clientWidth-2;
-  arrow.classList.toggle('hidden',gridEl.scrollWidth<=gridEl.clientWidth+2||atEnd);
+  const atStart=gridEl.scrollLeft<=2;
+  if(arrow)arrow.classList.toggle('hidden',gridEl.scrollWidth<=gridEl.clientWidth+2||atEnd);
+  if(leftArrow)leftArrow.classList.toggle('hidden',atStart);
 }
 
 function onVsTranslationChange(){
@@ -1893,23 +1905,20 @@ init();
     <div style="text-align:left">
       <label>Translation</label>
       <select id="vsTranslation" onchange="onVsTranslationChange()" style="margin-bottom:12px"></select>
-      <label>Book</label>
+      <div class="vs-label-row"><label>Book</label><div class="vs-arrow-pair"><button class="vs-scroll-arrow hidden" id="vsBookLArrow" onclick="scrollVsGrid('vsBookGrid',-1)">‹</button><button class="vs-scroll-arrow hidden" id="vsBookArrow" onclick="scrollVsGrid('vsBookGrid',1)">›</button></div></div>
       <div class="vs-h-wrap">
-        <div id="vsBookGrid" class="vs-book-grid" onscroll="updateScrollArrow(this)"></div>
-        <div class="vs-scroll-arrow hidden">›</div>
+        <div id="vsBookGrid" class="vs-book-grid" data-arrow="vsBookArrow" data-arrow-left="vsBookLArrow" onscroll="updateScrollArrow(this)"></div>
       </div>
       <div id="vsChapterSection" style="display:none">
-        <label>Chapter</label>
+        <div class="vs-label-row"><label>Chapter</label><div class="vs-arrow-pair"><button class="vs-scroll-arrow hidden" id="vsChapterLArrow" onclick="scrollVsGrid('vsChapterGrid',-1)">‹</button><button class="vs-scroll-arrow hidden" id="vsChapterArrow" onclick="scrollVsGrid('vsChapterGrid',1)">›</button></div></div>
         <div class="vs-h-wrap">
-          <div id="vsChapterGrid" class="vs-num-grid" onscroll="updateScrollArrow(this)"></div>
-          <div class="vs-scroll-arrow hidden">›</div>
+          <div id="vsChapterGrid" class="vs-num-grid" data-arrow="vsChapterArrow" data-arrow-left="vsChapterLArrow" onscroll="updateScrollArrow(this)"></div>
         </div>
       </div>
       <div id="vsVerseSection" style="display:none">
-        <label>Verse</label>
+        <div class="vs-label-row"><label>Verse</label><div class="vs-arrow-pair"><button class="vs-scroll-arrow hidden" id="vsVerseLArrow" onclick="scrollVsGrid('vsVerseGrid',-1)">‹</button><button class="vs-scroll-arrow hidden" id="vsVerseArrow" onclick="scrollVsGrid('vsVerseGrid',1)">›</button></div></div>
         <div class="vs-h-wrap">
-          <div id="vsVerseGrid" class="vs-num-grid" onscroll="updateScrollArrow(this)"></div>
-          <div class="vs-scroll-arrow hidden">›</div>
+          <div id="vsVerseGrid" class="vs-num-grid" data-arrow="vsVerseArrow" data-arrow-left="vsVerseLArrow" onscroll="updateScrollArrow(this)"></div>
         </div>
       </div>
       <div id="vsStatus" class="status" style="margin-bottom:6px"></div>
