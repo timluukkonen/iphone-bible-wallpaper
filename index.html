@@ -249,10 +249,10 @@
     .btn-settings:active{transform:scale(.9)}
 
     .add-home-overlay{display:none;position:fixed;inset:0;background:rgba(26,61,82,.5);
-                      z-index:200;align-items:flex-end;justify-content:center;
+                      z-index:200;align-items:flex-start;justify-content:center;
                       backdrop-filter:blur(2px)}
     .add-home-overlay.show{display:flex}
-    .add-home-sheet{background:#fff;border-radius:24px 24px 0 0;padding:16px 24px 36px;
+    .add-home-sheet{background:#fff;border-radius:0 0 24px 24px;padding:16px 24px 36px;
                     width:100%;max-width:500px;text-align:center;
                     max-height:85vh;overflow-y:auto}
     .add-home-handle{width:36px;height:4px;background:#D0E5EF;border-radius:2px;margin:0 auto 20px}
@@ -274,7 +274,12 @@
     @keyframes overlayFadeIn{from{opacity:0}to{opacity:1}}
     @keyframes sheetSlideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
     .add-home-overlay.show{animation:overlayFadeIn .2s ease}
-    .add-home-overlay.show .add-home-sheet{animation:sheetSlideUp .32s cubic-bezier(.16,1,.3,1)}
+    @keyframes sheetSlideDown{from{transform:translateY(-60px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .add-home-overlay.show .add-home-sheet{animation:sheetSlideDown .32s cubic-bezier(.16,1,.3,1)}
+    .sheet-top{position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+    .sheet-top .add-home-handle{margin:0}
+    .btn-sheet-close{position:absolute;left:0;width:28px;height:28px;border-radius:50%;border:none;background:#EDF5FA;color:#7AA0B8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;padding:0;transition:background .15s,color .15s;font-family:inherit}
+    .btn-sheet-close:hover{background:#E0EEF5;color:#1A3D52}
     .vs-book-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-height:180px;overflow-y:auto;margin-bottom:12px;padding:4px;background:#F7FBFD;border:1.5px solid #EDF5FA;border-radius:10px}
     .vs-book-btn{padding:6px 4px;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.68rem;font-weight:600;cursor:pointer;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .12s,color .12s;font-family:inherit;width:100%}
     .vs-book-btn:hover{background:#E0EEF5}
@@ -444,7 +449,7 @@
 <!-- Text Style overlay -->
 <div class="add-home-overlay" id="textStyleOverlay" onclick="hideTextStyle(event)">
   <div class="add-home-sheet" onclick="event.stopPropagation()">
-    <div class="add-home-handle"></div>
+    <div class="sheet-top"><button class="btn-sheet-close" onclick="hideTextStyle()">×</button><div class="add-home-handle"></div></div>
     <div class="add-home-heading">Text Style</div>
     <div class="cp-swatch-grid" id="tcGrid"></div>
     <div class="cp-lightness-row">
@@ -508,7 +513,7 @@
 <!-- Settings overlay -->
 <div class="add-home-overlay" id="settingsOverlay" onclick="hideSettings(event)">
   <div class="add-home-sheet" onclick="event.stopPropagation()">
-    <div class="add-home-handle"></div>
+    <div class="sheet-top"><button class="btn-sheet-close" onclick="hideSettings()">×</button><div class="add-home-handle"></div></div>
     <div class="add-home-heading">Settings</div>
     <div class="add-home-sub">Configure your device and lock screen reference.</div>
     <div style="text-align:left">
@@ -552,7 +557,7 @@
 <!-- Background Color overlay -->
 <div class="add-home-overlay" id="cpOverlay" onclick="hideColorPicker(event)">
   <div class="add-home-sheet" onclick="event.stopPropagation()">
-    <div class="add-home-handle"></div>
+    <div class="sheet-top"><button class="btn-sheet-close" onclick="hideColorPicker()">×</button><div class="add-home-handle"></div></div>
     <div class="add-home-heading">Background Color</div>
     <div class="add-home-sub">Choose a preset or adjust lightness.</div>
     <div class="cp-swatch-grid" id="cpGrid"></div>
@@ -1867,8 +1872,7 @@ init();
 <!-- Verse Selector overlay -->
 <div class="add-home-overlay" id="vsOverlay" onclick="hideVerseSelector(event)">
   <div class="add-home-sheet" onclick="event.stopPropagation()">
-    <div class="add-home-handle"></div>
-    <div class="add-home-heading">Choose a Verse</div>
+    <div class="sheet-top"><button class="btn-sheet-close" onclick="hideVerseSelector()">×</button><div class="add-home-handle"></div></div>
     <div style="text-align:left">
       <label>Translation</label>
       <select id="vsTranslation" onchange="onVsTranslationChange()" style="margin-bottom:12px"></select>
@@ -1891,7 +1895,7 @@ init();
 <!-- Copyright overlay -->
 <div class="add-home-overlay" id="copyrightOverlay" onclick="hideCopyright(event)">
   <div class="add-home-sheet" onclick="event.stopPropagation()">
-    <div class="add-home-handle"></div>
+    <div class="sheet-top"><button class="btn-sheet-close" onclick="hideCopyright()">×</button><div class="add-home-handle"></div></div>
     <div class="add-home-heading">Scripture Copyright Notices</div>
     <div class="add-home-sub">Translations used in this app are licensed for non-commercial personal use.</div>
     <div style="display:flex;flex-direction:column;gap:12px;text-align:left;margin-bottom:24px;font-size:.83rem;color:#1A3D52;line-height:1.5">
@@ -1908,7 +1912,7 @@ init();
 <!-- Add to Home Screen overlay -->
 <div class="add-home-overlay" id="addHomeOverlay" onclick="hideAddToHome(event)">
   <div class="add-home-sheet" onclick="event.stopPropagation()">
-    <div class="add-home-handle"></div>
+    <div class="sheet-top"><button class="btn-sheet-close" onclick="hideAddToHome()">×</button><div class="add-home-handle"></div></div>
     <div class="add-home-heading">Add to Home Screen</div>
     <div class="add-home-sub">Follow steps to install Web App on your iPhone.</div>
     <div class="add-home-steps">
