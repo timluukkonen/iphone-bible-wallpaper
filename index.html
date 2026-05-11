@@ -280,12 +280,17 @@
     .sheet-top .add-home-handle{margin:0}
     .btn-sheet-close{position:absolute;left:0;width:28px;height:28px;border-radius:50%;border:none;background:#EDF5FA;color:#7AA0B8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;padding:0;transition:background .15s,color .15s;font-family:inherit}
     .btn-sheet-close:hover{background:#E0EEF5;color:#1A3D52}
-    .vs-book-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-height:180px;overflow-y:auto;margin-bottom:12px;padding:4px;background:#F7FBFD;border:1.5px solid #EDF5FA;border-radius:10px}
-    .vs-book-btn{padding:6px 4px;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.68rem;font-weight:600;cursor:pointer;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .12s,color .12s;font-family:inherit;width:100%}
+    .vs-h-wrap{position:relative;margin-bottom:12px;background:#F7FBFD;border:1.5px solid #EDF5FA;border-radius:10px;overflow:hidden}
+    .vs-scroll-arrow{position:absolute;right:0;top:0;bottom:0;width:28px;display:flex;align-items:center;justify-content:center;background:linear-gradient(to right,transparent,rgba(247,251,253,.95));color:#7AA0B8;font-size:16px;font-weight:700;pointer-events:none;transition:opacity .15s}
+    .vs-scroll-arrow.hidden{opacity:0}
+    .vs-book-grid{display:flex;flex-direction:column;flex-wrap:wrap;height:100px;gap:4px;overflow-x:auto;overflow-y:hidden;padding:4px;scrollbar-width:none}
+    .vs-book-grid::-webkit-scrollbar{display:none}
+    .vs-book-btn{height:28px;width:88px;flex-shrink:0;padding:0 6px;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.68rem;font-weight:600;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .12s,color .12s;font-family:inherit;display:flex;align-items:center;justify-content:center}
     .vs-book-btn:hover{background:#E0EEF5}
     .vs-book-btn.on{background:#2A9DBF;color:#fff}
-    .vs-num-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-height:130px;overflow-y:auto;margin-bottom:12px;padding:4px;background:#F7FBFD;border:1.5px solid #EDF5FA;border-radius:10px}
-    .vs-num-btn{height:32px;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;font-family:inherit;padding:0}
+    .vs-num-grid{display:flex;flex-direction:column;flex-wrap:wrap;height:112px;gap:4px;overflow-x:auto;overflow-y:hidden;padding:4px;scrollbar-width:none}
+    .vs-num-grid::-webkit-scrollbar{display:none}
+    .vs-num-btn{height:32px;width:32px;flex-shrink:0;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;font-family:inherit;padding:0}
     .vs-num-btn:hover{background:#E0EEF5}
     .vs-num-btn.on{background:#2A9DBF;color:#fff}
   </style>
@@ -1605,6 +1610,8 @@ function selectVsBook(name,preCh,preV){
     cGrid.appendChild(btn);
   }
   document.getElementById('vsChapterSection').style.display='';
+  cGrid.scrollLeft=0;
+  requestAnimationFrame(()=>updateScrollArrow(cGrid));
   if(preCh&&preV){
     // restoring a previous selection — also reveal verse grid
     const numV=getVerseCount(name,selCh,bid);
@@ -1619,6 +1626,8 @@ function selectVsBook(name,preCh,preV){
       vGrid.appendChild(btn);
     }
     document.getElementById('vsVerseSection').style.display='';
+    vGrid.scrollLeft=0;
+    requestAnimationFrame(()=>updateScrollArrow(vGrid));
   }else{
     document.getElementById('vsVerseSection').style.display='none';
     document.getElementById('vsVerseGrid').innerHTML='';
@@ -1641,11 +1650,19 @@ function selectVsChapter(ch){
     vGrid.appendChild(btn);
   }
   document.getElementById('vsVerseSection').style.display='';
-  document.getElementById('vsVerseSection').scrollIntoView({block:'nearest'});
+  vGrid.scrollLeft=0;
+  requestAnimationFrame(()=>updateScrollArrow(vGrid));
 }
 
 function selectVsVerse(v){
   document.querySelectorAll('#vsVerseGrid .vs-num-btn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)===v));
+}
+
+function updateScrollArrow(gridEl){
+  const arrow=gridEl.parentElement?.querySelector('.vs-scroll-arrow');
+  if(!arrow)return;
+  const atEnd=gridEl.scrollLeft>=gridEl.scrollWidth-gridEl.clientWidth-2;
+  arrow.classList.toggle('hidden',gridEl.scrollWidth<=gridEl.clientWidth+2||atEnd);
 }
 
 function onVsTranslationChange(){
@@ -1681,7 +1698,7 @@ function showVerseSelector(){
     v=parseInt(m[3])||1;
   }
   selectVsBook(book,ch,v);
-  setTimeout(()=>document.querySelector('.vs-book-btn.on')?.scrollIntoView({block:'nearest'}),30);
+  requestAnimationFrame(()=>updateScrollArrow(document.getElementById('vsBookGrid')));
   document.getElementById('vsStatus').textContent='';
   document.getElementById('vsStatus').className='status';
   document.getElementById('vsOverlay').classList.add('show');
@@ -1877,14 +1894,23 @@ init();
       <label>Translation</label>
       <select id="vsTranslation" onchange="onVsTranslationChange()" style="margin-bottom:12px"></select>
       <label>Book</label>
-      <div id="vsBookGrid" class="vs-book-grid"></div>
+      <div class="vs-h-wrap">
+        <div id="vsBookGrid" class="vs-book-grid" onscroll="updateScrollArrow(this)"></div>
+        <div class="vs-scroll-arrow hidden">›</div>
+      </div>
       <div id="vsChapterSection" style="display:none">
         <label>Chapter</label>
-        <div id="vsChapterGrid" class="vs-num-grid"></div>
+        <div class="vs-h-wrap">
+          <div id="vsChapterGrid" class="vs-num-grid" onscroll="updateScrollArrow(this)"></div>
+          <div class="vs-scroll-arrow hidden">›</div>
+        </div>
       </div>
       <div id="vsVerseSection" style="display:none">
         <label>Verse</label>
-        <div id="vsVerseGrid" class="vs-num-grid"></div>
+        <div class="vs-h-wrap">
+          <div id="vsVerseGrid" class="vs-num-grid" onscroll="updateScrollArrow(this)"></div>
+          <div class="vs-scroll-arrow hidden">›</div>
+        </div>
       </div>
       <div id="vsStatus" class="status" style="margin-bottom:6px"></div>
       <button class="btn-p" id="vsBtn" onclick="applyVerseSelector()">Get Verse</button>
