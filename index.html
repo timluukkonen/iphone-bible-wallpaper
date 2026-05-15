@@ -290,6 +290,7 @@
     .sheet-top .add-home-handle{margin:0}
     .btn-sheet-close{position:absolute;right:0;width:28px;height:28px;border-radius:50%;border:none;background:#EDF5FA;color:#7AA0B8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;padding:0;transition:background .15s,color .15s;font-family:inherit}
     .btn-sheet-close:hover{background:#E0EEF5;color:#1A3D52}
+    .settings-sheet{padding-top:24px}
     .vs-sheet{max-width:500px;max-height:92vh;padding:12px 14px 10px;text-align:left;touch-action:pan-y}
     .vs-sheet .sheet-top{margin-bottom:8px}
     .vs-picker-shell{display:flex;flex-direction:column;gap:8px}
@@ -350,10 +351,6 @@
     <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="#7AA0B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </button>
   <div class="header-right">
-    <button class="btn-home" id="btnAddHome" onclick="showAddToHome()" title="Add to Home Screen">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3 5l4-4 4 4" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="#2A9DBF" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Add to Home
-    </button>
     <button class="btn-settings" onclick="showSettings()" title="Settings">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
         <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
@@ -568,10 +565,8 @@
 
 <!-- Settings overlay -->
 <div class="add-home-overlay" id="settingsOverlay" onclick="hideSettings(event)">
-  <div class="add-home-sheet" onclick="event.stopPropagation()">
+  <div class="add-home-sheet settings-sheet" onclick="event.stopPropagation()">
     <div class="sheet-top"><button class="btn-sheet-close" onclick="hideSettings()">×</button><div class="add-home-handle"></div></div>
-    <div class="add-home-heading">Settings</div>
-    <div class="add-home-sub">Configure your device and lock screen reference.</div>
     <div style="text-align:left">
       <label>iPhone Model</label>
       <select id="selModel" onchange="onModelChange()" style="margin-bottom:12px">
@@ -619,6 +614,7 @@
         <input type="checkbox" id="chkSound" onchange="toggleSoundFeedback(this.checked)">
         <label for="chkSound">Tap sound on buttons</label>
       </div>
+      <button class="btn-s" id="btnInstallWebApp" onclick="showAddToHome()" style="width:100%;margin-top:14px">Add Web App to iPhone</button>
     </div>
   </div>
 </div>
@@ -2367,9 +2363,9 @@ function setupPortraitLock(){
 
 function init(){
   setupPortraitLock();
-  // Hide "Add to Home" button if already running as installed PWA
+  // Hide install help if already running as an installed PWA.
   if(window.navigator.standalone||window.matchMedia('(display-mode:standalone)').matches){
-    const b=document.getElementById('btnAddHome');
+    const b=document.getElementById('btnInstallWebApp');
     if(b)b.style.display='none';
   }
   initBgPicker();
@@ -2477,8 +2473,8 @@ init();
 <div class="add-home-overlay" id="addHomeOverlay" onclick="hideAddToHome(event)">
   <div class="add-home-sheet" onclick="event.stopPropagation()">
     <div class="sheet-top"><button class="btn-sheet-close" onclick="hideAddToHome()">×</button><div class="add-home-handle"></div></div>
-    <div class="add-home-heading">Add to Home Screen</div>
-    <div class="add-home-sub">Follow steps to install Web App on your iPhone.</div>
+    <div class="add-home-heading">Add Web App to iPhone</div>
+    <div class="add-home-sub">Install this web app from Safari so it opens like an iPhone app.</div>
     <div class="add-home-steps">
 
       <!-- Step 1 -->
