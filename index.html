@@ -280,7 +280,7 @@
     .sheet-top .add-home-handle{margin:0}
     .btn-sheet-close{position:absolute;right:0;width:28px;height:28px;border-radius:50%;border:none;background:#EDF5FA;color:#7AA0B8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;padding:0;transition:background .15s,color .15s;font-family:inherit}
     .btn-sheet-close:hover{background:#E0EEF5;color:#1A3D52}
-    .vs-sheet{max-width:500px;max-height:72vh;padding:12px 14px 16px;text-align:left}
+    .vs-sheet{max-width:500px;max-height:92vh;padding:12px 14px 16px;text-align:left}
     .vs-sheet .sheet-top{margin-bottom:8px}
     .vs-picker-shell{display:flex;flex-direction:column;gap:8px}
     .vs-translation-row{display:flex;align-items:center}
@@ -308,7 +308,7 @@
     .vs-option.in-range{background:#DDF1F7;border-color:#A8D8E8;color:#1A3D52}
     .vs-option.range-edge{background:#2A9DBF;border-color:#2A9DBF;color:#fff}
     @media(max-width:720px){
-      .vs-sheet{max-height:66vh;padding:10px 12px 14px}
+      .vs-sheet{max-height:90vh;padding:10px 12px 14px}
       .vs-option{min-height:32px;font-size:.75rem}
       .vs-option.book{font-size:.64rem}
     }
@@ -1667,14 +1667,14 @@ function getVsOptions(step){
 function getVsPager(step){
   const body=document.getElementById('vsCardBody');
   const width=Math.max(280,body?.clientWidth||window.innerWidth-40);
-  const sheet=document.querySelector('.vs-sheet');
-  const sheetH=sheet?.clientHeight||Math.round((window.innerHeight||720)*.66);
+  const viewportH=window.innerHeight||720;
+  const sheetH=Math.round(viewportH*(window.innerWidth<=720 ? 0.9 : 0.92));
   const gap=6;
   const min=step==='book'?86:42;
   const cols=Math.max(step==='book'?3:5,Math.floor((width+gap)/(min+gap)));
   const rowH=step==='book'?40:38;
-  const fixedH=128;
-  const rows=Math.max(3,Math.min(7,Math.floor((sheetH-fixedH)/(rowH+gap))));
+  const fixedH=150;
+  const rows=Math.max(3,Math.floor((sheetH-fixedH)/(rowH+gap)));
   return{cols,rows,perPage:Math.max(1,cols*rows)};
 }
 
