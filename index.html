@@ -1711,13 +1711,6 @@ let vsSwipeStartX=0;
 let vsSwipeStartY=0;
 let vsSwipeStartTime=0;
 let vsSwipeTracking=false;
-let vsSwipeIntent=false;
-let vsSwipeDir=0;
-let vsSwipeBasePage=0;
-let vsSwipeTargetPage=0;
-let vsSwipeTrack=null;
-let vsSwipeWidth=0;
-let vsSwipeLastDx=0;
 let vsSwipeSuppressClick=false;
 let vsSwipeAnimating=false;
 const vsState={
@@ -1909,18 +1902,10 @@ function renderVs(){
   const body=document.getElementById('vsCardBody');
   updateVsPagerUi(page,pageCount);
   if(!body)return;
-  vsSwipeTrack=null;
   body.innerHTML='';
-  const track=document.createElement('div');
-  track.className='vs-swipe-track';
-  const pageEl=document.createElement('div');
-  pageEl.className='vs-swipe-page';
   const grid=buildVsGrid(step,pager,pages[page]||[]);
   grid.id='vsGrid';
-  pageEl.appendChild(grid);
-  track.appendChild(pageEl);
-  body.appendChild(track);
-  vsSwipeTrack=track;
+  body.appendChild(grid);
 }
 
 function changeVsPage(dir){
@@ -1939,38 +1924,18 @@ function setVsSwipeSuppressClick(ms=220){
 
 function resetVsSwipeState(){
   vsSwipeTracking=false;
-  vsSwipeIntent=false;
-  vsSwipeDir=0;
-  vsSwipeBasePage=0;
-  vsSwipeTargetPage=0;
-  vsSwipeTrack=null;
-  vsSwipeWidth=0;
-  vsSwipeLastDx=0;
 }
 
-function prepareVsSwipeTrack(dir){
+function animateVsPageSlide(dir,targetPage){
   const body=document.getElementById('vsCardBody');
   if(!body||vsSwipeAnimating)return false;
   const step=vsState.active;
   const {pager,pages,page,pageCount}=clampVsPage(step);
-  const targetPage=page+dir;
   if(targetPage<0||targetPage>=pageCount)return false;
-
-  vsSwipeDir=dir;
-  vsSwipeBasePage=page;
-  vsSwipeTargetPage=targetPage;
   const bodyRect=body.getBoundingClientRect();
-  vsSwipeWidth=Math.max(1,bodyRect.width||body.clientWidth||1);
-
-  const track=body.querySelector('.vs-swipe-track');
-  const currentPage=track?.querySelector('.vs-swipe-page');
-  if(!track||!currentPage)return false;
-  track.classList.remove('settling');
-  track.style.transition='';
-  track.style.transform='translate3d(0,0,0)';
-  Array.from(track.querySelectorAll('.vs-swipe-page')).forEach((pageEl,index)=>{
-    if(index>0)pageEl.remove();
-  });
+  const width=Math.max(1,bodyRect.width||body.clientWidth||1);
+  const track=document.createElement('div');
+  track.className='vs-swipe-track';
   const makePage=pageIndex=>{
     const pageEl=document.createElement('div');
     pageEl.className='vs-swipe-page';
@@ -1978,42 +1943,30 @@ function prepareVsSwipeTrack(dir){
     return pageEl;
   };
   if(dir>0){
+    track.appendChild(makePage(page));
     track.appendChild(makePage(targetPage));
   }else{
-    track.insertBefore(makePage(targetPage),currentPage);
+    track.appendChild(makePage(targetPage));
+    track.appendChild(makePage(page));
   }
-  vsSwipeTrack=track;
-  updateVsSwipeTransform(0);
-  return true;
-}
 
-function updateVsSwipeTransform(dx,settling=false){
-  if(!vsSwipeTrack)return;
-  const intendedDx=vsSwipeDir>0?Math.max(0,-dx):Math.max(0,dx);
-  const distance=Math.min(vsSwipeWidth,intendedDx);
-  const x=vsSwipeDir>0?-distance:-vsSwipeWidth+distance;
-  vsSwipeTrack.classList.toggle('settling',settling);
-  vsSwipeTrack.style.transform=`translate3d(${x}px,0,0)`;
-}
-
-function settleVsSwipe(complete){
-  if(!vsSwipeTrack){
-    resetVsSwipeState();
-    return;
-  }
-  const track=vsSwipeTrack;
   vsSwipeAnimating=true;
-  track.classList.add('settling');
-  const finalX=complete
-    ? (vsSwipeDir>0?-vsSwipeWidth:0)
-    : (vsSwipeDir>0?0:-vsSwipeWidth);
-  track.style.transform=`translate3d(${finalX}px,0,0)`;
+  body.innerHTML='';
+  track.style.transform=`translate3d(${dir>0?0:-width}px,0,0)`;
+  body.appendChild(track);
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      track.classList.add('settling');
+      track.style.transform=`translate3d(${dir>0?-width:0}px,0,0)`;
+    });
+  });
   setTimeout(()=>{
-    if(complete)vsState[getVsPageKey(vsState.active)]=vsSwipeTargetPage;
+    vsState[getVsPageKey(step)]=targetPage;
     vsSwipeAnimating=false;
     resetVsSwipeState();
     renderVs();
   },290);
+  return true;
 }
 
 function onVsSwipeStart(e){
@@ -2021,66 +1974,43 @@ function onVsSwipeStart(e){
   vsSwipeStartX=e.touches[0].clientX;
   vsSwipeStartY=e.touches[0].clientY;
   vsSwipeStartTime=Date.now();
-  vsSwipeLastDx=0;
   vsSwipeTracking=true;
-  vsSwipeIntent=false;
-  vsSwipeDir=0;
-  vsSwipeTrack=null;
 }
 
 function onVsSwipeMove(e){
   if(!vsSwipeTracking||e.touches.length!==1)return;
   const dx=e.touches[0].clientX-vsSwipeStartX;
   const dy=e.touches[0].clientY-vsSwipeStartY;
-  vsSwipeLastDx=dx;
-  if(!vsSwipeIntent){
-    if(Math.abs(dx)<10)return;
-    if(Math.abs(dx)<Math.abs(dy)*1.05){
-      resetVsSwipeState();
-      return;
-    }
-    vsSwipeIntent=true;
-    const dir=dx<0?1:-1;
-    if(!prepareVsSwipeTrack(dir)){
-      setVsSwipeSuppressClick();
-      resetVsSwipeState();
-      e.preventDefault();
-      return;
-    }
-  }
-  e.preventDefault();
-  updateVsSwipeTransform(dx);
+  if(Math.abs(dx)>=10&&Math.abs(dx)>=Math.abs(dy)*1.05)e.preventDefault();
 }
 
 function onVsSwipeEnd(e){
   if(!vsSwipeTracking)return;
   vsSwipeTracking=false;
   const touch=e.changedTouches[0];
-  if(!touch){
-    settleVsSwipe(false);
-    return;
-  }
-  const dx=vsSwipeLastDx||touch.clientX-vsSwipeStartX;
+  if(!touch)return;
+  const dx=touch.clientX-vsSwipeStartX;
   const dy=touch.clientY-vsSwipeStartY;
   const elapsed=Math.max(1,Date.now()-vsSwipeStartTime);
   const velocity=Math.abs(dx)/elapsed;
-  if(!vsSwipeIntent||!vsSwipeTrack){
-    resetVsSwipeState();
+  const horizontal=Math.abs(dx)>=Math.abs(dy)*1.05;
+  const accepted=horizontal&&(Math.abs(dx)>=44||velocity>=0.34);
+  if(!accepted)return;
+  const step=vsState.active;
+  const {page,pageCount}=clampVsPage(step);
+  const dir=dx<0?1:-1;
+  const targetPage=page+dir;
+  e.preventDefault();
+  if(targetPage<0||targetPage>=pageCount){
+    setVsSwipeSuppressClick(220);
     return;
   }
-  const complete=(Math.abs(dx)>=Math.min(80,vsSwipeWidth*.28)||velocity>=0.34)&&Math.abs(dx)>=Math.abs(dy)*1.05;
-  setVsSwipeSuppressClick();
-  settleVsSwipe(complete);
-  e.preventDefault();
+  setVsSwipeSuppressClick(320);
+  animateVsPageSlide(dir,targetPage);
 }
 
 function onVsSwipeCancel(){
-  if(vsSwipeTrack){
-    setVsSwipeSuppressClick();
-    settleVsSwipe(false);
-  }else{
-    resetVsSwipeState();
-  }
+  resetVsSwipeState();
 }
 
 function onVsTranslationChange(){
