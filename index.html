@@ -291,41 +291,55 @@
     .sheet-top .add-home-handle{margin:0}
     .btn-sheet-close{position:absolute;right:0;width:28px;height:28px;border-radius:50%;border:none;background:#EDF5FA;color:#7AA0B8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;padding:0;transition:background .15s,color .15s;font-family:inherit}
     .btn-sheet-close:hover{background:#E0EEF5;color:#1A3D52}
-    .vs-sheet{max-width:500px;max-height:92vh;padding:12px 14px 10px;text-align:left;touch-action:pan-y}
-    .vs-sheet .sheet-top{margin-bottom:8px}
-    .vs-picker-shell{display:flex;flex-direction:column;gap:8px}
+    #vsOverlay{align-items:center;padding:8px}
+    .vs-sheet{width:100%;max-width:500px;max-height:calc(100vh - 16px);border-radius:26px;padding:10px 18px 16px;text-align:left;touch-action:pan-y;box-shadow:0 22px 60px rgba(26,61,82,.2)}
+    .vs-sheet .sheet-top{height:28px;margin-bottom:10px}
+    .vs-sheet .add-home-handle{width:44px;background:#D6EAF2}
+    .vs-sheet .btn-sheet-close{right:-3px;background:#F5FAFD;border:1px solid #E1EFF6;color:#7AA0B8;box-shadow:0 2px 8px rgba(26,61,82,.08)}
+    .vs-picker-shell{display:flex;flex-direction:column;gap:10px}
     .vs-translation-row{display:flex;align-items:center}
-    .vs-translation-row select{height:34px;margin:0;border-radius:11px;font-size:.78rem;padding-top:6px;padding-bottom:6px}
-    .vs-summary{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:6px;background:#F5FAFD;border:1.5px solid #D8EAF2;border-radius:14px}
-    .vs-summary-btn{min-width:0;border:1.5px solid #E1EFF6;background:#fff;border-radius:10px;padding:6px 7px;text-align:left;color:#1A3D52;cursor:pointer;transition:background .14s,border-color .14s,transform .1s}
+    .vs-translation-row select{height:42px;margin:0;border-radius:14px;font-size:.82rem;padding:9px 40px 9px 13px;background-color:#FBFEFF;border-color:#CFE6F0;box-shadow:0 1px 0 rgba(255,255,255,.8),0 6px 18px rgba(26,61,82,.05)}
+    .vs-picker-shell{--vs-active-left:0%;--vs-active-width:33.333333%}
+    .vs-picker-shell.vs-active-chapter{--vs-active-left:33.333333%}
+    .vs-picker-shell.vs-active-verse{--vs-active-left:66.666666%}
+    .vs-summary{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;align-items:stretch;margin:0 0 -1.5px;background:transparent}
+    .vs-summary-btn{position:relative;z-index:1;min-width:0;min-height:60px;border:1.5px solid #DDECF3;border-right-width:0;background:linear-gradient(180deg,#FCFEFF,#F6FAFC);border-radius:0;padding:12px 10px 10px;text-align:center;color:#1A3D52;cursor:pointer;transition:background .14s,border-color .14s,box-shadow .14s,opacity .14s}
+    .vs-summary-btn:first-child{border-top-left-radius:16px}
+    .vs-summary-btn:last-child{border-right-width:1.5px;border-top-right-radius:16px}
     .vs-summary-btn:disabled{opacity:.45;cursor:default}
-    .vs-summary-btn.active{background:#F0F8FC;border-color:#2A9DBF;color:#1A3D52}
+    .vs-summary-btn.active{z-index:4;background:#fff;border-color:#A8D8E8;border-bottom-color:#fff;box-shadow:0 -5px 16px rgba(42,157,191,.08)}
+    .vs-summary-btn.active:first-child{border-top-left-radius:16px}
+    .vs-summary-btn.active:last-child{border-top-right-radius:16px}
+    .vs-summary-btn.active::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:4px;background:#fff;z-index:2;pointer-events:none}
     .vs-summary-label{display:block;font-size:.52rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7AA0B8;line-height:1.1}
     .vs-summary-btn.active .vs-summary-label{color:#2A9DBF}
-    .vs-summary-value{display:block;margin-top:2px;font-size:.78rem;font-weight:800;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .vs-card{display:flex;flex-direction:column;gap:8px}
-    .vs-pagination{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:32px;padding:0 2px}
+    .vs-summary-value{display:block;margin-top:5px;font-size:.8rem;font-weight:800;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .vs-card{position:relative;z-index:2;display:flex;flex-direction:column;gap:10px;min-height:226px;padding:20px 12px 11px;background:#fff;border:1.5px solid #A8D8E8;border-radius:0 0 18px 18px;box-shadow:0 10px 24px rgba(26,61,82,.06)}
+    .vs-card::before{content:"";position:absolute;top:-2px;left:var(--vs-active-left);width:var(--vs-active-width);height:4px;background:#fff;z-index:3;pointer-events:none}
+    .vs-pagination{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:32px;padding:2px 2px 0}
     .vs-page-text{min-width:42px;text-align:center;font-size:.72rem;font-weight:800;color:#7AA0B8}
     .vs-page-btn{width:44px;height:32px;border:none;background:transparent;color:#2A9DBF;font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
     .vs-page-btn:last-child{justify-self:end}
     .vs-page-btn:disabled{opacity:.32;cursor:default}
     .vs-card-body{padding:0;touch-action:pan-y;user-select:none}
-    .vs-grid{display:grid;grid-template-columns:repeat(var(--vs-cols,4),minmax(0,1fr));gap:6px}
-    .vs-option{min-width:0;min-height:34px;border-radius:999px;border:1.5px solid #CCE2ED;background:#F7FBFD;color:#1A3D52;font-size:.78rem;font-weight:750;padding:0 8px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .vs-grid{display:grid;grid-template-columns:repeat(var(--vs-cols,4),minmax(0,1fr));gap:8px}
+    .vs-option{min-width:0;min-height:38px;border-radius:999px;border:1.5px solid #D5EAF2;background:#FBFEFF;color:#1A3D52;font-size:.8rem;font-weight:750;padding:0 9px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 7px rgba(26,61,82,.04)}
     .vs-option.book{font-size:.66rem;padding:0 6px}
     .vs-option:hover{background:#EAF5FA;border-color:#B8DDEB}
     .vs-option.on{background:#2A9DBF;border-color:#2A9DBF;color:#fff;box-shadow:0 2px 8px rgba(42,157,191,.26)}
     .vs-option.pending{background:#E2F3F8;border-color:#2A9DBF;color:#1A3D52;box-shadow:inset 0 0 0 1px #2A9DBF}
     .vs-option.in-range{background:#DDF1F7;border-color:#A8D8E8;color:#1A3D52}
     .vs-option.range-edge{background:#2A9DBF;border-color:#2A9DBF;color:#fff}
-    .vs-actions{position:sticky;bottom:0;z-index:3;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 28%);padding:12px 0 2px;margin-top:-2px}
-    .vs-submit{width:100%;height:44px;border:none;border-radius:14px;background:#2A9DBF;color:#fff;font-size:.9rem;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 10px 22px rgba(42,157,191,.24);transition:background .14s,transform .1s,opacity .14s}
+    .vs-actions{position:static;z-index:3;background:transparent;padding:14px 0 0;margin-top:0}
+    .vs-submit{width:100%;height:56px;border:none;border-radius:17px;background:#2A9DBF;color:#fff;font-size:.92rem;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 10px 22px rgba(42,157,191,.24);transition:background .14s,transform .1s,opacity .14s}
     .vs-submit:hover{background:#1F8EB0}
     .vs-submit:active{transform:scale(.99)}
     .vs-submit:disabled{background:#D8EAF2;color:#7AA0B8;box-shadow:none;cursor:default;opacity:.75;transform:none}
     @media(max-width:720px){
-      .vs-sheet{max-height:90vh;padding:10px 12px 14px}
-      .vs-option{min-height:32px;font-size:.75rem}
+      #vsOverlay{align-items:flex-start}
+      .vs-sheet{max-height:calc(100vh - 16px);padding:10px 12px 14px}
+      .vs-summary-btn{min-height:58px;padding-left:8px;padding-right:8px}
+      .vs-option{min-height:36px;font-size:.75rem}
       .vs-option.book{font-size:.64rem}
     }
   </style>
@@ -1694,11 +1708,11 @@ function getVsPager(step){
   const width=Math.max(280,body?.clientWidth||window.innerWidth-40);
   const viewportH=window.innerHeight||720;
   const sheetH=Math.round(viewportH*(window.innerWidth<=720 ? 0.9 : 0.92));
-  const gap=6;
+  const gap=8;
   const min=step==='book'?86:42;
   const cols=Math.max(step==='book'?3:5,Math.floor((width+gap)/(min+gap)));
-  const rowH=step==='book'?40:38;
-  const fixedH=150;
+  const rowH=46;
+  const fixedH=270;
   const rows=Math.max(3,Math.floor((sheetH-fixedH)/(rowH+gap)));
   return{cols,rows,perPage:Math.max(1,cols*rows)};
 }
@@ -1739,11 +1753,16 @@ function updateVsSummary(){
     chapter:vsState.chapter||'',
     verse:getVsVerseLabel(),
   };
+  const shell=document.querySelector('.vs-picker-shell');
+  if(shell){
+    shell.classList.remove('vs-active-book','vs-active-chapter','vs-active-verse');
+    shell.classList.add('vs-active-'+vsState.active);
+  }
   for(const step of ['book','chapter','verse']){
     const btn=document.getElementById('vsSummary'+step[0].toUpperCase()+step.slice(1));
     const val=document.getElementById('vsSummary'+step[0].toUpperCase()+step.slice(1)+'Val');
     if(btn){
-      btn.classList.toggle('active',vsState.active===step&&!!vals[step]);
+      btn.classList.toggle('active',vsState.active===step);
       btn.disabled=(step==='chapter'&&!vsState.book)||(step==='verse'&&!vsState.chapter);
     }
     if(val)val.textContent=vals[step];
@@ -1918,8 +1937,6 @@ function showVerseSelector(){
   initVerseSelector();
   syncVsTranslation();
   resetVsSelection();
-  document.getElementById('vsStatus').textContent='';
-  document.getElementById('vsStatus').className='status';
   document.getElementById('vsOverlay').classList.add('show');
   document.getElementById('versePill').classList.add('open');
   requestAnimationFrame(renderVs);
@@ -1955,18 +1972,19 @@ async function loadVsReference(ref){
 }
 
 async function submitVsSelection(){
-  const st=document.getElementById('vsStatus');
   if(!isVsReady()){
-    st.textContent='Choose a book, chapter, and verse.';
-    st.className='status err';
     return;
   }
-  st.textContent='Loading passage...';
-  st.className='status';
+  const submit=document.getElementById('vsSubmit');
+  const submitLabel=submit?submit.textContent:'Submit';
+  if(submit){
+    submit.disabled=true;
+    submit.textContent='Loading...';
+  }
   const ok=await loadVsReference(buildVsReference());
-  if(!ok){
-    st.textContent=document.getElementById('stFetch').textContent||'Could not load passage.';
-    st.className='status err';
+  if(submit){
+    submit.textContent=submitLabel;
+    submit.disabled=!isVsReady();
   }
 }
 
@@ -2167,7 +2185,6 @@ init();
         </div>
       </div>
 
-      <div id="vsStatus" class="status" style="margin-bottom:2px"></div>
       <div class="vs-actions">
         <button class="vs-submit" id="vsSubmit" onclick="submitVsSelection()" disabled>Submit</button>
       </div>
