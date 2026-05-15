@@ -316,9 +316,9 @@
     .vs-page-btn:disabled{opacity:.32;cursor:default}
     .vs-card-body{padding:0;touch-action:pan-y;user-select:none;overflow:hidden}
     .vs-grid{display:grid;grid-template-columns:repeat(var(--vs-cols,4),minmax(0,1fr));gap:6px}
-    .vs-swipe-track{display:flex;width:200%;will-change:transform;transform:translate3d(0,0,0)}
+    .vs-swipe-track{display:flex;width:100%;will-change:transform;transform:translate3d(0,0,0)}
     .vs-swipe-track.settling{transition:transform .28s cubic-bezier(.22,.61,.36,1)}
-    .vs-swipe-page{flex:0 0 50%;padding:0 1px;box-sizing:border-box}
+    .vs-swipe-page{flex:0 0 100%;min-width:0;padding:0 1px;box-sizing:border-box}
     .vs-option{min-width:0;min-height:34px;border-radius:10px;border:1.5px solid #CCE2ED;background:#F7FBFD;color:#1A3D52;font-size:.78rem;font-weight:750;padding:0 8px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .vs-option.book{font-size:.66rem;padding:0 6px}
     .vs-option:hover{background:#EAF5FA;border-color:#B8DDEB}
@@ -1951,7 +1951,8 @@ function prepareVsSwipeTrack(dir){
   vsSwipeDir=dir;
   vsSwipeBasePage=page;
   vsSwipeTargetPage=targetPage;
-  vsSwipeWidth=Math.max(1,body.clientWidth||body.getBoundingClientRect().width||1);
+  const bodyRect=body.getBoundingClientRect();
+  vsSwipeWidth=Math.max(1,bodyRect.width||body.clientWidth||1);
 
   const track=document.createElement('div');
   track.className='vs-swipe-track';
