@@ -197,7 +197,7 @@
     .preview-col{flex:1;display:flex;flex-direction:column}
     .preview-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
                    padding:20px}
-    .save-bar{display:flex;flex-direction:column;align-items:center;padding:14px 20px 18px}
+    .save-bar{display:flex;flex-direction:column;align-items:center;padding:30px 20px 18px}
     .phone-frame{position:relative;border-radius:44px;overflow:hidden;
                  box-shadow:0 8px 32px rgba(0,0,0,.25)}
     #cv{display:block;cursor:grab}
@@ -205,7 +205,7 @@
     .preview-hint{margin-top:12px;font-size:.72rem;color:#7AA0B8;text-align:center;line-height:1.6}
 
     .phone-wrap{position:relative;display:inline-block}
-    .txt-nav{position:absolute;top:50%;right:-15px;transform:translateY(-50%);
+    .txt-nav{position:absolute;top:50%;transform:translateY(-50%);
              width:34px;z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px}
     .txt-nav-track{position:relative;width:30px;height:160px;flex-shrink:0}
     .txt-sz-btn{
@@ -485,15 +485,16 @@
       <button class="txt-color-btn" id="txtColorBtn" onclick="showTextStyle(event)" title="Text Style"><span>T</span></button>
       <!-- Color picker button -->
       <button class="cp-btn" id="cpBtn" onclick="showColorPicker(event)" title="Background Color"></button>
+      <!-- Save button anchored to bottom edge of phone frame -->
+      <button id="btnSave" onclick="saveWallpaper()" style="position:absolute;bottom:0;left:50%;transform:translate(-50%,50%);z-index:10;display:flex;align-items:center;gap:8px;background:#2A9DBF;color:#fff;border:none;border-radius:50px;padding:12px 28px;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(42,157,191,.35);transition:background .15s,transform .1s;white-space:nowrap">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2v9M5.5 7.5L9 11l3.5-3.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13v1.5A1.5 1.5 0 003.5 16h11a1.5 1.5 0 001.5-1.5V13" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Save Image
+      </button>
     </div>
   </div>
   <div class="save-bar">
-    <button id="btnSave" onclick="saveWallpaper()" style="display:flex;align-items:center;gap:8px;background:#2A9DBF;color:#fff;border:none;border-radius:50px;padding:12px 28px;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(42,157,191,.35);transition:background .15s,transform .1s;white-space:nowrap">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2v9M5.5 7.5L9 11l3.5-3.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13v1.5A1.5 1.5 0 003.5 16h11a1.5 1.5 0 001.5-1.5V13" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
-      Save Image
-    </button>
-    <div id="stExport" class="status" style="margin-top:6px"></div>
-    <div id="previewCitation" style="font-size:.68rem;color:#7AA0B8;text-align:center;margin-top:10px;line-height:1.6;max-width:480px"></div>
+    <div id="stExport" class="status"></div>
+    <div id="previewCitation" style="font-size:.68rem;color:#7AA0B8;text-align:center;margin-top:6px;line-height:1.6;max-width:480px"></div>
   </div>
 </div>
 </div><!-- /app -->
@@ -918,12 +919,25 @@ function previewScale(){
   return Math.min(mxH/m.h, mxW/m.w, 0.32);
 }
 
+function positionTxtNav(){
+  const nav=document.querySelector('.txt-nav');
+  const frame=document.getElementById('frame');
+  if(!nav||!frame)return;
+  requestAnimationFrame(()=>{
+    const navW=nav.offsetWidth||34;
+    const frameW=frame.offsetWidth;
+    nav.style.left=(frameW-Math.floor(navW/2))+'px';
+    nav.style.right='auto';
+  });
+}
+
 function setupCanvas(){
   const m=getModel(), sc=previewScale();
   cv.width=m.w; cv.height=m.h;
   cv.style.width=Math.round(m.w*sc)+'px';
   cv.style.height=Math.round(m.h*sc)+'px';
   document.getElementById('frame').style.borderRadius=Math.round(m.cr*sc)+'px';
+  positionTxtNav();
   const stDev=document.getElementById('stDevice');
   const isAuto=document.getElementById('selModel').value==='auto';
   if(isAuto&&!/iPhone/.test(navigator.userAgent)){
