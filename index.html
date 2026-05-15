@@ -17,16 +17,13 @@
     button,a,select,input[type=button],input[type=submit],input[type=range],input[type=file],[role=button],[onclick],.bg-phone,.cp-dot{touch-action:manipulation}
 
     header{background:#fff;padding:10px 22px;border-bottom:1px solid #CCE2ED;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;box-shadow:0 1px 6px rgba(26,61,82,.06)}
-    .header-left{display:flex;align-items:center;gap:12px}
-    .header-left svg{flex-shrink:0}
-    header h1{font-size:1.05rem;font-weight:700;color:#1A3D52;letter-spacing:.01em}
+    .header-left{min-width:1px}
     .header-right{display:flex;align-items:center;gap:8px;justify-content:flex-end}
     .verse-pill{display:inline-flex;align-items:center;gap:7px;background:#F0F8FC;border:1.5px solid #CCE2ED;border-radius:20px;padding:7px 12px 7px 16px;font-size:.86rem;font-weight:600;color:#1A3D52;cursor:pointer;transition:background .15s,border-color .15s;white-space:nowrap;font-family:inherit}
     .verse-pill:hover{background:#E0EEF5;border-color:#2A9DBF}
     .verse-pill:active{transform:scale(.97)}
     .verse-pill svg{flex-shrink:0;transition:transform .2s}
     .verse-pill.open svg{transform:rotate(180deg)}
-    @media(max-width:720px){header h1{display:none}}
 
     .app{display:flex;height:calc(100vh - 53px);background:#E0EDF5}
     .orientation-lock{display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;background:#EBF4F9;color:#1A3D52;padding:24px;text-align:center}
@@ -299,9 +296,9 @@
     .vs-translation-row{display:flex;align-items:center}
     .vs-translation-row select{height:34px;margin:0;border-radius:11px;font-size:.78rem;padding-top:6px;padding-bottom:6px}
     .vs-summary{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:6px;background:#F5FAFD;border:1.5px solid #D8EAF2;border-radius:14px}
-    .vs-summary-btn{min-width:0;border:1.5px solid #E1EFF6;background:#fff;border-radius:10px;padding:6px 7px;text-align:left;color:#1A3D52;cursor:pointer;transition:background .14s,border-color .14s,transform .1s}
+    .vs-summary-btn{min-width:0;border:1.5px solid #E1EFF6;background:#F0F8FC;border-radius:10px;padding:6px 7px;text-align:left;color:#1A3D52;cursor:pointer;transition:background .14s,border-color .14s,transform .1s}
     .vs-summary-btn:disabled{opacity:.45;cursor:default}
-    .vs-summary-btn.active{background:#F0F8FC;border-color:#2A9DBF;color:#1A3D52}
+    .vs-summary-btn.active{background:#fff;border-color:#2A9DBF;color:#1A3D52}
     .vs-summary-label{display:block;font-size:.52rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7AA0B8;line-height:1.1}
     .vs-summary-btn.active .vs-summary-label{color:#2A9DBF}
     .vs-summary-value{display:block;margin-top:2px;font-size:.78rem;font-weight:800;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -324,6 +321,7 @@
     .vs-submit{width:100%;height:44px;border:none;border-radius:14px;background:#2A9DBF;color:#fff;font-size:.9rem;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 10px 22px rgba(42,157,191,.24);transition:background .14s,transform .1s,opacity .14s}
     .vs-submit:hover{background:#1F8EB0}
     .vs-submit:active{transform:scale(.99)}
+    .vs-submit.loading{background:#2A9DBF;color:#fff;box-shadow:0 10px 22px rgba(42,157,191,.18);opacity:.9;cursor:wait;transform:none}
     .vs-submit:disabled{background:#D8EAF2;color:#7AA0B8;box-shadow:none;cursor:default;opacity:.75;transform:none}
     @media(max-width:720px){
       .vs-sheet{max-height:90vh;padding:10px 12px 14px}
@@ -335,10 +333,7 @@
 <body>
 
 <header>
-  <div class="header-left">
-    <svg width="26" height="26" viewBox="0 0 26 26" style="flex-shrink:0"><rect width="26" height="26" rx="6" fill="#2A9DBF"/><rect x="11" y="5" width="4" height="16" rx="1" fill="white"/><rect x="5" y="9" width="16" height="4" rx="1" fill="white"/></svg>
-    <h1>iPhone Bible Wallpaper Builder</h1>
-  </div>
+  <div class="header-left" aria-hidden="true"></div>
   <button class="verse-pill" id="versePill" onclick="showVerseSelector()" title="Choose verse">
     <span id="versePillText">John 3:16 ESV</span>
     <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="#7AA0B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1745,7 +1740,7 @@ function updateVsSummary(){
     const btn=document.getElementById('vsSummary'+step[0].toUpperCase()+step.slice(1));
     const val=document.getElementById('vsSummary'+step[0].toUpperCase()+step.slice(1)+'Val');
     if(btn){
-      btn.classList.toggle('active',vsState.active===step&&!!vals[step]);
+      btn.classList.toggle('active',vsState.active===step);
       btn.disabled=(step==='chapter'&&!vsState.book)||(step==='verse'&&!vsState.chapter);
     }
     if(val)val.textContent=vals[step];
@@ -1920,8 +1915,7 @@ function showVerseSelector(){
   initVerseSelector();
   syncVsTranslation();
   resetVsSelection();
-  document.getElementById('vsStatus').textContent='';
-  document.getElementById('vsStatus').className='status';
+  hydrateVsFromReference();
   document.getElementById('vsOverlay').classList.add('show');
   document.getElementById('versePill').classList.add('open');
   requestAnimationFrame(renderVs);
@@ -1957,18 +1951,23 @@ async function loadVsReference(ref){
 }
 
 async function submitVsSelection(){
-  const st=document.getElementById('vsStatus');
   if(!isVsReady()){
-    st.textContent='Choose a book, chapter, and verse.';
-    st.className='status err';
     return;
   }
-  st.textContent='Loading passage...';
-  st.className='status';
+  const submit=document.getElementById('vsSubmit');
+  const submitLabel=submit?submit.textContent:'Submit';
+  if(submit?.classList.contains('loading'))return;
+  if(submit){
+    submit.classList.add('loading');
+    submit.setAttribute('aria-busy','true');
+    submit.textContent='Loading...';
+  }
   const ok=await loadVsReference(buildVsReference());
-  if(!ok){
-    st.textContent=document.getElementById('stFetch').textContent||'Could not load passage.';
-    st.className='status err';
+  if(submit){
+    submit.classList.remove('loading');
+    submit.removeAttribute('aria-busy');
+    submit.textContent=submitLabel;
+    submit.disabled=!isVsReady();
   }
 }
 
@@ -2169,7 +2168,6 @@ init();
         </div>
       </div>
 
-      <div id="vsStatus" class="status" style="margin-bottom:2px"></div>
       <div class="vs-actions">
         <button class="vs-submit" id="vsSubmit" onclick="submitVsSelection()" disabled>Submit</button>
       </div>
