@@ -1969,6 +1969,43 @@ function animateVsPageSlide(dir,targetPage){
   return true;
 }
 
+function animateVsRejectBounce(dir){
+  const body=document.getElementById('vsCardBody');
+  if(!body||vsSwipeAnimating)return false;
+  const step=vsState.active;
+  const {pager,pages,page}=clampVsPage(step);
+  const bodyRect=body.getBoundingClientRect();
+  const width=Math.max(1,bodyRect.width||body.clientWidth||1);
+  const bounce=Math.min(28,Math.round(width*.08));
+  const track=document.createElement('div');
+  track.className='vs-swipe-track';
+  const pageEl=document.createElement('div');
+  pageEl.className='vs-swipe-page';
+  pageEl.appendChild(buildVsGrid(step,pager,pages[page]||[]));
+  track.appendChild(pageEl);
+
+  vsSwipeAnimating=true;
+  body.innerHTML='';
+  track.style.transform='translate3d(0,0,0)';
+  body.appendChild(track);
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      track.style.transition='transform .12s cubic-bezier(.2,.8,.2,1)';
+      track.style.transform=`translate3d(${dir>0?-bounce:bounce}px,0,0)`;
+      setTimeout(()=>{
+        track.style.transition='transform .22s cubic-bezier(.22,.61,.36,1)';
+        track.style.transform='translate3d(0,0,0)';
+      },125);
+    });
+  });
+  setTimeout(()=>{
+    vsSwipeAnimating=false;
+    resetVsSwipeState();
+    renderVs();
+  },370);
+  return true;
+}
+
 function onVsSwipeStart(e){
   if(e.touches.length!==1||vsSwipeAnimating)return;
   vsSwipeStartX=e.touches[0].clientX;
@@ -2002,7 +2039,8 @@ function onVsSwipeEnd(e){
   const targetPage=page+dir;
   e.preventDefault();
   if(targetPage<0||targetPage>=pageCount){
-    setVsSwipeSuppressClick(220);
+    setVsSwipeSuppressClick(400);
+    animateVsRejectBounce(dir);
     return;
   }
   setVsSwipeSuppressClick(320);
