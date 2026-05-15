@@ -858,7 +858,7 @@ const s={
   align:'center', ty:50, tw:80,
   showRef:true, rc:'#ffffff',
   bibleId:'', dragging:false,
-  abbrevBookLabels:false,
+  abbrevBookLabels:true,
   hapticFeedback:true, soundFeedback:true,
 };
 
@@ -889,8 +889,10 @@ function saveCurrentVerse(){
 }
 
 function loadBookAbbrevPref(){
-  try{return localStorage.getItem(BOOK_ABBREV_KEY)==='true';}
-  catch(e){return false;}
+  try{
+    const val=localStorage.getItem(BOOK_ABBREV_KEY);
+    return val==null?true:val==='true';
+  }catch(e){return true;}
 }
 
 function saveBookAbbrevPref(){
