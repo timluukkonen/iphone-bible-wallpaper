@@ -300,10 +300,6 @@
     .vs-page-btn:disabled{opacity:.32;cursor:default}
     .vs-card-body{padding:0;touch-action:pan-y;user-select:none}
     .vs-grid{display:grid;grid-template-columns:repeat(var(--vs-cols,4),minmax(0,1fr));gap:6px}
-    .vs-grid.page-next{animation:vsPageNext .16s ease-out}
-    .vs-grid.page-prev{animation:vsPagePrev .16s ease-out}
-    @keyframes vsPageNext{from{opacity:.25;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
-    @keyframes vsPagePrev{from{opacity:.25;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
     .vs-option{min-width:0;min-height:34px;border-radius:999px;border:1.5px solid #CCE2ED;background:#F7FBFD;color:#1A3D52;font-size:.78rem;font-weight:750;padding:0 8px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .vs-option.book{font-size:.66rem;padding:0 6px}
     .vs-option:hover{background:#EAF5FA;border-color:#B8DDEB}
@@ -1624,8 +1620,10 @@ function updateVersePill(){
   const ref=s.verseRef||'';
   const sel=document.getElementById('selBible');
   const bid=sel.value;
-  const abbr=bid==='ESV'?'ESV':(sel.options[sel.selectedIndex]?.text||'').split(' — ')[0].trim();
-  document.getElementById('versePillText').textContent=ref?(ref+' '+abbr):'Choose a Verse';
+  const label=(sel.options[sel.selectedIndex]?.text||'').split(' — ')[0].trim();
+  const isPlaceholder=/loading|api error/i.test(label);
+  const abbr=bid==='ESV'||s.bibleId==='ESV'?'ESV':(!isPlaceholder?label:'');
+  document.getElementById('versePillText').textContent=ref?[ref,abbr].filter(Boolean).join(' '):'Choose a Verse';
 }
 
 let vsInitialized=false;
@@ -1638,47 +1636,11 @@ const vsState={
   bookPage:0,
   chapterPage:0,
   versePage:0,
-  swipeX:0,
-  swipeY:0,
 };
-const VS_SWIPE_THRESHOLD=52;
 
 function initVerseSelector(){
   if(vsInitialized)return;
-  const sheet=document.querySelector('.vs-sheet');
-  sheet.addEventListener('touchstart',e=>{
-    if(e.touches.length!==1)return;
-    vsState.swipeX=e.touches[0].clientX;
-    vsState.swipeY=e.touches[0].clientY;
-  },{passive:true});
-  sheet.addEventListener('touchend',e=>{
-    if(!vsState.swipeX||isVsSwipeLocked())return resetVsSwipe();
-    const dx=e.changedTouches[0].clientX-vsState.swipeX;
-    const dy=e.changedTouches[0].clientY-vsState.swipeY;
-    if(Math.abs(dx)>VS_SWIPE_THRESHOLD&&Math.abs(dx)>Math.abs(dy)*1.2)changeVsPage(dx>0?1:-1);
-    resetVsSwipe();
-  },{passive:true});
-  sheet.addEventListener('pointerdown',e=>{
-    if(e.pointerType==='touch')return;
-    vsState.swipeX=e.clientX;
-    vsState.swipeY=e.clientY;
-  });
-  sheet.addEventListener('pointerup',e=>{
-    if(!vsState.swipeX||e.pointerType==='touch'||isVsSwipeLocked())return resetVsSwipe();
-    const dx=e.clientX-vsState.swipeX;
-    const dy=e.clientY-vsState.swipeY;
-    if(Math.abs(dx)>VS_SWIPE_THRESHOLD&&Math.abs(dx)>Math.abs(dy)*1.2)changeVsPage(dx>0?1:-1);
-    resetVsSwipe();
-  });
   vsInitialized=true;
-}
-
-function resetVsSwipe(){
-  vsState.swipeX=0;vsState.swipeY=0;
-}
-
-function isVsSwipeLocked(){
-  return vsState.active==='verse'&&!!vsState.verseStart&&!vsState.verseEnd;
 }
 
 function getVsTranslation(){
@@ -1761,7 +1723,7 @@ function updateVsSummary(){
   }
 }
 
-function renderVs(animDir=0){
+function renderVs(){
   if(vsState.active==='chapter'&&!vsState.book)vsState.active='book';
   if(vsState.active==='verse'&&!vsState.chapter)vsState.active=vsState.book?'chapter':'book';
   updateVsSummary();
@@ -1799,23 +1761,14 @@ function renderVs(animDir=0){
     }
     grid.appendChild(btn);
   });
-  if(animDir){
-    grid.classList.remove('page-next','page-prev');
-    void grid.offsetWidth;
-    grid.classList.add(animDir>0?'page-next':'page-prev');
-    setTimeout(()=>grid.classList.remove('page-next','page-prev'),180);
-  }
 }
 
 function changeVsPage(dir){
   const step=vsState.active;
   const {pageCount}=clampVsPage(step);
   const key=getVsPageKey(step);
-  const cur=vsState[key]||0;
-  const next=Math.max(0,Math.min(cur+dir,pageCount-1));
-  if(next===cur)return;
-  vsState[key]=next;
-  renderVs(dir);
+  vsState[key]=Math.max(0,Math.min((vsState[key]||0)+dir,pageCount-1));
+  renderVs();
 }
 
 function onVsTranslationChange(){
