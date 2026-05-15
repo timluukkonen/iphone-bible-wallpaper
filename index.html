@@ -280,23 +280,38 @@
     .sheet-top .add-home-handle{margin:0}
     .btn-sheet-close{position:absolute;right:0;width:28px;height:28px;border-radius:50%;border:none;background:#EDF5FA;color:#7AA0B8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;padding:0;transition:background .15s,color .15s;font-family:inherit}
     .btn-sheet-close:hover{background:#E0EEF5;color:#1A3D52}
-    .vs-h-wrap{margin-bottom:12px;background:#F7FBFD;border:1.5px solid #EDF5FA;border-radius:10px;overflow:hidden}
-    .vs-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
-    .vs-label-row label{margin-bottom:0}
-    .vs-arrow-pair{display:flex;gap:2px}
-    .vs-scroll-arrow{width:24px;height:24px;border-radius:50%;border:none;background:transparent;color:#7AA0B8;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit;transition:opacity .15s,color .15s}
-    .vs-scroll-arrow:hover{color:#2A9DBF}
-    .vs-scroll-arrow.hidden{opacity:0;pointer-events:none}
-    .vs-book-grid{display:flex;flex-direction:column;flex-wrap:wrap;height:36px;gap:2px;overflow-x:auto;overflow-y:hidden;padding:4px;scrollbar-width:none}
-    .vs-book-grid::-webkit-scrollbar{display:none}
-    .vs-book-btn{height:28px;width:auto;flex-shrink:0;padding:0 8px;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.68rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s;font-family:inherit;display:flex;align-items:center;justify-content:center}
-    .vs-book-btn:hover{background:#E0EEF5}
-    .vs-book-btn.on{background:#2A9DBF;color:#fff}
-    .vs-num-grid{display:flex;flex-direction:column;flex-wrap:wrap;height:40px;gap:2px;overflow-x:auto;overflow-y:hidden;padding:4px;scrollbar-width:none}
-    .vs-num-grid::-webkit-scrollbar{display:none}
-    .vs-num-btn{height:32px;width:32px;flex-shrink:0;border-radius:7px;border:none;background:transparent;color:#1A3D52;font-size:.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;font-family:inherit;padding:0}
-    .vs-num-btn:hover{background:#E0EEF5}
-    .vs-num-btn.on{background:#2A9DBF;color:#fff}
+    .vs-sheet{max-width:500px;max-height:72vh;padding:12px 14px 16px;text-align:left}
+    .vs-sheet .sheet-top{margin-bottom:8px}
+    .vs-picker-shell{display:flex;flex-direction:column;gap:8px}
+    .vs-translation-row{display:flex;align-items:center}
+    .vs-translation-row select{height:34px;margin:0;border-radius:11px;font-size:.78rem;padding-top:6px;padding-bottom:6px}
+    .vs-summary{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:6px;background:#F5FAFD;border:1.5px solid #D8EAF2;border-radius:14px}
+    .vs-summary-btn{min-width:0;border:1.5px solid #E1EFF6;background:#fff;border-radius:10px;padding:6px 7px;text-align:left;color:#1A3D52;cursor:pointer;transition:background .14s,border-color .14s,transform .1s}
+    .vs-summary-btn:disabled{opacity:.45;cursor:default}
+    .vs-summary-btn.active{background:#2A9DBF;border-color:#2A9DBF;color:#fff}
+    .vs-summary-label{display:block;font-size:.52rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7AA0B8;line-height:1.1}
+    .vs-summary-btn.active .vs-summary-label{color:rgba(255,255,255,.78)}
+    .vs-summary-value{display:block;margin-top:2px;font-size:.78rem;font-weight:800;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .vs-card{display:flex;flex-direction:column;gap:8px}
+    .vs-pagination{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:32px;padding:0 2px}
+    .vs-page-text{min-width:42px;text-align:center;font-size:.72rem;font-weight:800;color:#7AA0B8}
+    .vs-page-btn{width:44px;height:32px;border:none;background:transparent;color:#2A9DBF;font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+    .vs-page-btn:last-child{justify-self:end}
+    .vs-page-btn:disabled{opacity:.32;cursor:default}
+    .vs-card-body{padding:0;touch-action:pan-y;user-select:none}
+    .vs-grid{display:grid;grid-template-columns:repeat(var(--vs-cols,4),minmax(0,1fr));gap:6px}
+    .vs-option{min-width:0;min-height:34px;border-radius:999px;border:1.5px solid #CCE2ED;background:#F7FBFD;color:#1A3D52;font-size:.78rem;font-weight:750;padding:0 8px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .vs-option.book{font-size:.66rem;padding:0 6px}
+    .vs-option:hover{background:#EAF5FA;border-color:#B8DDEB}
+    .vs-option.on{background:#2A9DBF;border-color:#2A9DBF;color:#fff;box-shadow:0 2px 8px rgba(42,157,191,.26)}
+    .vs-option.pending{background:#E2F3F8;border-color:#2A9DBF;color:#1A3D52;box-shadow:inset 0 0 0 1px #2A9DBF}
+    .vs-option.in-range{background:#DDF1F7;border-color:#A8D8E8;color:#1A3D52}
+    .vs-option.range-edge{background:#2A9DBF;border-color:#2A9DBF;color:#fff}
+    @media(max-width:720px){
+      .vs-sheet{max-height:66vh;padding:10px 12px 14px}
+      .vs-option{min-height:32px;font-size:.75rem}
+      .vs-option.book{font-size:.64rem}
+    }
   </style>
 </head>
 <body>
@@ -1584,106 +1599,180 @@ function updateVersePill(){
 }
 
 let vsInitialized=false;
+const vsState={
+  active:'book',
+  book:null,
+  chapter:null,
+  verseStart:null,
+  verseEnd:null,
+  bookPage:0,
+  chapterPage:0,
+  versePage:0,
+  swipeX:0,
+  swipeY:0,
+};
+
 function initVerseSelector(){
   if(vsInitialized)return;
-  const grid=document.getElementById('vsBookGrid');
-  BOOK_LIST.forEach(([name])=>{
-    const btn=document.createElement('button');
-    btn.className='vs-book-btn';btn.textContent=name;btn.dataset.book=name;
-    btn.onclick=()=>selectVsBook(name);
-    grid.appendChild(btn);
+  const body=document.getElementById('vsCardBody');
+  body.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1)return;
+    vsState.swipeX=e.touches[0].clientX;
+    vsState.swipeY=e.touches[0].clientY;
+  },{passive:true});
+  body.addEventListener('touchend',e=>{
+    if(!vsState.swipeX)return;
+    const dx=e.changedTouches[0].clientX-vsState.swipeX;
+    const dy=e.changedTouches[0].clientY-vsState.swipeY;
+    if(Math.abs(dx)>44&&Math.abs(dx)>Math.abs(dy)*1.2)changeVsPage(dx>0?1:-1);
+    vsState.swipeX=0;vsState.swipeY=0;
+  },{passive:true});
+  body.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='touch')return;
+    vsState.swipeX=e.clientX;
+    vsState.swipeY=e.clientY;
+  });
+  body.addEventListener('pointerup',e=>{
+    if(!vsState.swipeX||e.pointerType==='touch')return;
+    const dx=e.clientX-vsState.swipeX;
+    const dy=e.clientY-vsState.swipeY;
+    if(Math.abs(dx)>44&&Math.abs(dx)>Math.abs(dy)*1.2)changeVsPage(dx>0?1:-1);
+    vsState.swipeX=0;vsState.swipeY=0;
   });
   vsInitialized=true;
 }
 
-// Tap a book — reveal chapter grid, hide verse grid
-function selectVsBook(name,preCh,preV){
-  document.querySelectorAll('.vs-book-btn').forEach(b=>b.classList.toggle('on',b.dataset.book===name));
-  const bid=document.getElementById('vsTranslation').value||'ESV';
+function getVsTranslation(){
+  return document.getElementById('vsTranslation')?.value||document.getElementById('selBible').value||'ESV';
+}
+
+function getVsChapterCount(book,bid){
   const key=getVcKey(bid);
-  const data=(VERSE_COUNTS[key]&&VERSE_COUNTS[key][name])||VERSE_COUNTS.NASB[name]||[];
-  const numCh=data.length||1;
-  const selCh=preCh?Math.min(preCh,numCh):0;
-  const cGrid=document.getElementById('vsChapterGrid');
-  cGrid.innerHTML='';
-  for(let i=1;i<=numCh;i++){
-    const btn=document.createElement('button');
-    btn.className='vs-num-btn'+(i===selCh?' on':'');
-    btn.textContent=i;btn.dataset.ch=i;
-    btn.onclick=()=>selectVsChapter(i);
-    cGrid.appendChild(btn);
+  const data=(VERSE_COUNTS[key]&&VERSE_COUNTS[key][book])||VERSE_COUNTS.NASB[book]||[];
+  const listed=BOOK_LIST.find(([name])=>name===book)?.[1]||1;
+  return data.length||listed;
+}
+
+function getVsOptions(step){
+  const bid=getVsTranslation();
+  if(step==='book')return BOOK_LIST.map(([name])=>({value:name,label:name}));
+  if(step==='chapter'){
+    const total=vsState.book?getVsChapterCount(vsState.book,bid):0;
+    return Array.from({length:total},(_,i)=>({value:i+1,label:String(i+1)}));
   }
-  document.getElementById('vsChapterSection').style.display='';
-  cGrid.scrollLeft=0;
-  requestAnimationFrame(()=>updateScrollArrow(cGrid));
-  if(preCh&&preV){
-    // restoring a previous selection — also reveal verse grid
-    const numV=getVerseCount(name,selCh,bid);
-    const selV=Math.min(preV,numV);
-    const vGrid=document.getElementById('vsVerseGrid');
-    vGrid.innerHTML='';
-    for(let i=1;i<=numV;i++){
-      const btn=document.createElement('button');
-      btn.className='vs-num-btn'+(i===selV?' on':'');
-      btn.textContent=i;btn.dataset.v=i;
-      btn.onclick=()=>selectVsVerse(i);
-      vGrid.appendChild(btn);
+  const total=(vsState.book&&vsState.chapter)?getVerseCount(vsState.book,vsState.chapter,bid):0;
+  return Array.from({length:total},(_,i)=>({value:i+1,label:String(i+1)}));
+}
+
+function getVsPager(step){
+  const body=document.getElementById('vsCardBody');
+  const width=Math.max(280,body?.clientWidth||window.innerWidth-40);
+  const sheet=document.querySelector('.vs-sheet');
+  const sheetH=sheet?.clientHeight||Math.round((window.innerHeight||720)*.66);
+  const gap=6;
+  const min=step==='book'?86:42;
+  const cols=Math.max(step==='book'?3:5,Math.floor((width+gap)/(min+gap)));
+  const rowH=step==='book'?40:38;
+  const fixedH=128;
+  const rows=Math.max(3,Math.min(7,Math.floor((sheetH-fixedH)/(rowH+gap))));
+  return{cols,rows,perPage:Math.max(1,cols*rows)};
+}
+
+function getVsPageKey(step){return step+'Page';}
+
+function clampVsPage(step){
+  const options=getVsOptions(step);
+  const pager=getVsPager(step);
+  const key=getVsPageKey(step);
+  const max=Math.max(0,Math.ceil(options.length/pager.perPage)-1);
+  vsState[key]=Math.max(0,Math.min(vsState[key]||0,max));
+  return{options,pager,page:vsState[key],pageCount:max+1};
+}
+
+function setVsPageForValue(step,value){
+  if(value==null)return;
+  const options=getVsOptions(step);
+  const pager=getVsPager(step);
+  const idx=options.findIndex(o=>String(o.value)===String(value));
+  if(idx>=0)vsState[getVsPageKey(step)]=Math.floor(idx/pager.perPage);
+}
+
+function getVsVerseLabel(){
+  if(!vsState.verseStart)return '--';
+  if(!vsState.verseEnd)return vsState.verseStart+'-';
+  const lo=Math.min(vsState.verseStart,vsState.verseEnd);
+  const hi=Math.max(vsState.verseStart,vsState.verseEnd);
+  return lo===hi?String(lo):`${lo}-${hi}`;
+}
+
+function updateVsSummary(){
+  const vals={
+    book:vsState.book||'Choose',
+    chapter:vsState.chapter||'--',
+    verse:getVsVerseLabel(),
+  };
+  for(const step of ['book','chapter','verse']){
+    const btn=document.getElementById('vsSummary'+step[0].toUpperCase()+step.slice(1));
+    const val=document.getElementById('vsSummary'+step[0].toUpperCase()+step.slice(1)+'Val');
+    if(btn){
+      btn.classList.toggle('active',vsState.active===step);
+      btn.disabled=(step==='chapter'&&!vsState.book)||(step==='verse'&&!vsState.chapter);
     }
-    document.getElementById('vsVerseSection').style.display='';
-    vGrid.scrollLeft=0;
-    requestAnimationFrame(()=>updateScrollArrow(vGrid));
-  }else{
-    document.getElementById('vsVerseSection').style.display='none';
-    document.getElementById('vsVerseGrid').innerHTML='';
+    if(val)val.textContent=vals[step];
   }
 }
 
-// Tap a chapter — reveal verse grid
-function selectVsChapter(ch){
-  document.querySelectorAll('#vsChapterGrid .vs-num-btn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.ch)===ch));
-  const book=document.querySelector('.vs-book-btn.on')?.dataset.book||'John';
-  const bid=document.getElementById('vsTranslation').value||'ESV';
-  const numV=getVerseCount(book,ch,bid);
-  const vGrid=document.getElementById('vsVerseGrid');
-  vGrid.innerHTML='';
-  for(let i=1;i<=numV;i++){
+function renderVs(){
+  if(vsState.active==='chapter'&&!vsState.book)vsState.active='book';
+  if(vsState.active==='verse'&&!vsState.chapter)vsState.active=vsState.book?'chapter':'book';
+  updateVsSummary();
+  const step=vsState.active;
+  const {options,pager,page,pageCount}=clampVsPage(step);
+  const grid=document.getElementById('vsGrid');
+  const pageText=document.getElementById('vsPageText');
+  const prev=document.getElementById('vsPrevPage');
+  const next=document.getElementById('vsNextPage');
+  pageText.textContent=pageCount>1?`${page+1}/${pageCount}`:'';
+  prev.disabled=page<=0;
+  next.disabled=page>=pageCount-1;
+  prev.style.visibility=next.style.visibility=pageCount>1?'visible':'hidden';
+  grid.style.setProperty('--vs-cols',pager.cols);
+  grid.innerHTML='';
+  const start=page*pager.perPage;
+  const slice=options.slice(start,start+pager.perPage);
+  slice.forEach(opt=>{
     const btn=document.createElement('button');
-    btn.className='vs-num-btn'+(i===1?' on':'');
-    btn.textContent=i;btn.dataset.v=i;
-    btn.onclick=()=>selectVsVerse(i);
-    vGrid.appendChild(btn);
-  }
-  document.getElementById('vsVerseSection').style.display='';
-  vGrid.scrollLeft=0;
-  requestAnimationFrame(()=>updateScrollArrow(vGrid));
+    btn.type='button';
+    btn.className='vs-option'+(step==='book'?' book':'');
+    btn.textContent=opt.label;
+    btn.onclick=()=>selectVsOption(step,opt.value);
+    if(step==='book'&&vsState.book===opt.value)btn.classList.add('on');
+    if(step==='chapter'&&vsState.chapter===opt.value)btn.classList.add('on');
+    if(step==='verse'){
+      const v=opt.value;
+      if(vsState.verseStart&&!vsState.verseEnd&&v===vsState.verseStart)btn.classList.add('pending');
+      if(vsState.verseStart&&vsState.verseEnd){
+        const lo=Math.min(vsState.verseStart,vsState.verseEnd);
+        const hi=Math.max(vsState.verseStart,vsState.verseEnd);
+        if(v>=lo&&v<=hi)btn.classList.add('in-range');
+        if(v===lo||v===hi)btn.classList.add('range-edge');
+      }
+    }
+    grid.appendChild(btn);
+  });
 }
 
-function selectVsVerse(v){
-  document.querySelectorAll('#vsVerseGrid .vs-num-btn').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)===v));
-}
-
-function scrollVsGrid(gridId,dir){
-  const grid=document.getElementById(gridId);
-  if(!grid)return;
-  grid.scrollBy({left:(dir||1)*grid.clientWidth*.8,behavior:'smooth'});
-  setTimeout(()=>updateScrollArrow(grid),350);
-}
-function updateScrollArrow(gridEl){
-  const arrow=gridEl.dataset.arrow?document.getElementById(gridEl.dataset.arrow):null;
-  const leftArrow=gridEl.dataset.arrowLeft?document.getElementById(gridEl.dataset.arrowLeft):null;
-  const atEnd=gridEl.scrollLeft>=gridEl.scrollWidth-gridEl.clientWidth-2;
-  const atStart=gridEl.scrollLeft<=2;
-  if(arrow)arrow.classList.toggle('hidden',gridEl.scrollWidth<=gridEl.clientWidth+2||atEnd);
-  if(leftArrow)leftArrow.classList.toggle('hidden',atStart);
+function changeVsPage(dir){
+  const step=vsState.active;
+  const {pageCount}=clampVsPage(step);
+  const key=getVsPageKey(step);
+  vsState[key]=Math.max(0,Math.min((vsState[key]||0)+dir,pageCount-1));
+  renderVs();
 }
 
 function onVsTranslationChange(){
-  const book=document.querySelector('.vs-book-btn.on')?.dataset.book;
-  if(!book)return;
-  const curCh=parseInt(document.querySelector('#vsChapterGrid .vs-num-btn.on')?.dataset.ch)||0;
-  const curV=parseInt(document.querySelector('#vsVerseGrid .vs-num-btn.on')?.dataset.v)||0;
-  const vShown=document.getElementById('vsVerseSection').style.display!=='none';
-  selectVsBook(book, curCh||undefined, vShown?(curV||undefined):undefined);
+  validateVsSelection();
+  renderVs();
 }
 
 function syncVsTranslation(){
@@ -1697,24 +1786,94 @@ function syncVsTranslation(){
   vs.value=main.value;
 }
 
-function showVerseSelector(){
-  initVerseSelector();
-  syncVsTranslation();
+function openVsStep(step){
+  if(step==='chapter'&&!vsState.book)return;
+  if(step==='verse'&&!vsState.chapter)return;
+  vsState.active=step;
+  if(step==='book')setVsPageForValue('book',vsState.book);
+  if(step==='chapter')setVsPageForValue('chapter',vsState.chapter);
+  if(step==='verse')setVsPageForValue('verse',vsState.verseStart);
+  renderVs();
+}
+
+function validateVsSelection(){
+  const bid=getVsTranslation();
+  if(!vsState.book){vsState.chapter=null;vsState.verseStart=null;vsState.verseEnd=null;return;}
+  const maxCh=getVsChapterCount(vsState.book,bid);
+  if(!vsState.chapter||vsState.chapter>maxCh){
+    vsState.chapter=null;vsState.verseStart=null;vsState.verseEnd=null;return;
+  }
+  const maxV=getVerseCount(vsState.book,vsState.chapter,bid);
+  if(vsState.verseStart&&vsState.verseStart>maxV){vsState.verseStart=null;vsState.verseEnd=null;}
+  if(vsState.verseEnd&&vsState.verseEnd>maxV)vsState.verseEnd=null;
+}
+
+function selectVsOption(step,value){
+  if(step==='book'){
+    vsState.book=value;
+    validateVsSelection();
+    vsState.active='chapter';
+    setVsPageForValue('chapter',vsState.chapter);
+    renderVs();
+    return;
+  }
+  if(step==='chapter'){
+    vsState.chapter=value;
+    validateVsSelection();
+    vsState.active='verse';
+    setVsPageForValue('verse',vsState.verseStart);
+    renderVs();
+    return;
+  }
+  if(!vsState.verseStart||vsState.verseEnd){
+    vsState.verseStart=value;
+    vsState.verseEnd=null;
+    setVsPageForValue('verse',value);
+    renderVs();
+    return;
+  }
+  vsState.verseEnd=value;
+  renderVs();
+  const ref=buildVsReference();
+  hideVerseSelector();
+  loadVsReference(ref);
+}
+
+function buildVsReference(){
+  const lo=Math.min(vsState.verseStart,vsState.verseEnd||vsState.verseStart);
+  const hi=Math.max(vsState.verseStart,vsState.verseEnd||vsState.verseStart);
+  return lo===hi?`${vsState.book} ${vsState.chapter}:${lo}`:`${vsState.book} ${vsState.chapter}:${lo}-${hi}`;
+}
+
+function hydrateVsFromReference(){
   const ref=s.verseRef||'John 3:16';
-  const m=ref.match(/^(.+?)\s+(\d+):(\d+)/);
-  let book='John',ch=3,v=16;
+  const m=ref.match(/^(.+?)\s+(\d+):(\d+)(?:[-\u2013](\d+))?/);
+  let book='John',ch=3,start=16,end=null;
   if(m){
     const entry=BOOK_LIST.find(([n])=>n.toLowerCase()===m[1].toLowerCase().trim());
     if(entry)book=entry[0];
     ch=parseInt(m[2])||1;
-    v=parseInt(m[3])||1;
+    start=parseInt(m[3])||1;
+    end=m[4]?parseInt(m[4]):null;
   }
-  selectVsBook(book,ch,v);
-  requestAnimationFrame(()=>updateScrollArrow(document.getElementById('vsBookGrid')));
+  vsState.book=book;
+  vsState.chapter=ch;
+  vsState.verseStart=start;
+  vsState.verseEnd=end||start;
+  validateVsSelection();
+  vsState.active='book';
+  setVsPageForValue('book',vsState.book);
+}
+
+function showVerseSelector(){
+  initVerseSelector();
+  syncVsTranslation();
+  hydrateVsFromReference();
   document.getElementById('vsStatus').textContent='';
   document.getElementById('vsStatus').className='status';
   document.getElementById('vsOverlay').classList.add('show');
   document.getElementById('versePill').classList.add('open');
+  requestAnimationFrame(renderVs);
 }
 
 function hideVerseSelector(e){
@@ -1724,27 +1883,20 @@ function hideVerseSelector(e){
   }
 }
 
-async function applyVerseSelector(){
+async function loadVsReference(ref){
   const translation=document.getElementById('vsTranslation').value;
-  const book=document.querySelector('.vs-book-btn.on')?.dataset.book;
-  const ch=document.querySelector('#vsChapterGrid .vs-num-btn.on')?.dataset.ch;
-  const v=document.querySelector('#vsVerseGrid .vs-num-btn.on')?.dataset.v;
-  if(!book||!ch||!v)return;
-  const ref=`${book} ${ch}:${v}`;
-  const st=document.getElementById('vsStatus');
+  const st=document.getElementById('stExport');
   document.getElementById('selBible').value=translation;
   s.bibleId=translation;updateCitation();
   document.getElementById('inRef').value=ref;
   document.getElementById('inRef').style.color='';
-  st.textContent='Fetching…';st.className='status';
-  document.getElementById('vsBtn').disabled=true;
+  st.textContent='Loading passage...';st.className='status';
   await fetchVerse();
-  document.getElementById('vsBtn').disabled=false;
   const stFetch=document.getElementById('stFetch');
   if(stFetch.className.includes('ok')){
-    st.textContent=stFetch.textContent;st.className='status ok';
+    st.textContent='';
+    st.className='status';
     updateVersePill();
-    setTimeout(()=>hideVerseSelector(),700);
   }else{
     st.textContent=stFetch.textContent;st.className='status err';
   }
@@ -1900,29 +2052,40 @@ init();
 
 <!-- Verse Selector overlay -->
 <div class="add-home-overlay" id="vsOverlay" onclick="hideVerseSelector(event)">
-  <div class="add-home-sheet" onclick="event.stopPropagation()">
+  <div class="add-home-sheet vs-sheet" onclick="event.stopPropagation()">
     <div class="sheet-top"><button class="btn-sheet-close" onclick="hideVerseSelector()">×</button><div class="add-home-handle"></div></div>
-    <div style="text-align:left">
-      <label>Translation</label>
-      <select id="vsTranslation" onchange="onVsTranslationChange()" style="margin-bottom:12px"></select>
-      <div class="vs-label-row"><label>Book</label><div class="vs-arrow-pair"><button class="vs-scroll-arrow hidden" id="vsBookLArrow" onclick="scrollVsGrid('vsBookGrid',-1)">‹</button><button class="vs-scroll-arrow hidden" id="vsBookArrow" onclick="scrollVsGrid('vsBookGrid',1)">›</button></div></div>
-      <div class="vs-h-wrap">
-        <div id="vsBookGrid" class="vs-book-grid" data-arrow="vsBookArrow" data-arrow-left="vsBookLArrow" onscroll="updateScrollArrow(this)"></div>
+    <div class="vs-picker-shell">
+      <div class="vs-translation-row">
+        <select id="vsTranslation" onchange="onVsTranslationChange()"></select>
       </div>
-      <div id="vsChapterSection" style="display:none">
-        <div class="vs-label-row"><label>Chapter</label><div class="vs-arrow-pair"><button class="vs-scroll-arrow hidden" id="vsChapterLArrow" onclick="scrollVsGrid('vsChapterGrid',-1)">‹</button><button class="vs-scroll-arrow hidden" id="vsChapterArrow" onclick="scrollVsGrid('vsChapterGrid',1)">›</button></div></div>
-        <div class="vs-h-wrap">
-          <div id="vsChapterGrid" class="vs-num-grid" data-arrow="vsChapterArrow" data-arrow-left="vsChapterLArrow" onscroll="updateScrollArrow(this)"></div>
+
+      <div class="vs-summary" id="vsSummary">
+        <button class="vs-summary-btn" id="vsSummaryBook" onclick="openVsStep('book')">
+          <span class="vs-summary-label">Book</span>
+          <span class="vs-summary-value" id="vsSummaryBookVal">Choose</span>
+        </button>
+        <button class="vs-summary-btn" id="vsSummaryChapter" onclick="openVsStep('chapter')">
+          <span class="vs-summary-label">Chapter</span>
+          <span class="vs-summary-value" id="vsSummaryChapterVal">--</span>
+        </button>
+        <button class="vs-summary-btn" id="vsSummaryVerse" onclick="openVsStep('verse')">
+          <span class="vs-summary-label">Verse</span>
+          <span class="vs-summary-value" id="vsSummaryVerseVal">--</span>
+        </button>
+      </div>
+
+      <div class="vs-card">
+        <div class="vs-card-body" id="vsCardBody">
+          <div class="vs-grid" id="vsGrid"></div>
+        </div>
+        <div class="vs-pagination">
+          <button class="vs-page-btn" id="vsPrevPage" onclick="changeVsPage(-1)">‹</button>
+          <span class="vs-page-text" id="vsPageText"></span>
+          <button class="vs-page-btn" id="vsNextPage" onclick="changeVsPage(1)">›</button>
         </div>
       </div>
-      <div id="vsVerseSection" style="display:none">
-        <div class="vs-label-row"><label>Verse</label><div class="vs-arrow-pair"><button class="vs-scroll-arrow hidden" id="vsVerseLArrow" onclick="scrollVsGrid('vsVerseGrid',-1)">‹</button><button class="vs-scroll-arrow hidden" id="vsVerseArrow" onclick="scrollVsGrid('vsVerseGrid',1)">›</button></div></div>
-        <div class="vs-h-wrap">
-          <div id="vsVerseGrid" class="vs-num-grid" data-arrow="vsVerseArrow" data-arrow-left="vsVerseLArrow" onscroll="updateScrollArrow(this)"></div>
-        </div>
-      </div>
+
       <div id="vsStatus" class="status" style="margin-bottom:6px"></div>
-      <button class="btn-p" id="vsBtn" onclick="applyVerseSelector()">Get Verse</button>
     </div>
   </div>
 </div>
