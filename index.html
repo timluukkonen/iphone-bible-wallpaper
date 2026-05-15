@@ -27,6 +27,17 @@
     @media(max-width:720px){header h1{display:none}}
 
     .app{display:flex;height:calc(100vh - 53px);background:#E0EDF5}
+    .orientation-lock{display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;background:#EBF4F9;color:#1A3D52;padding:24px;text-align:center}
+    .orientation-card{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:280px}
+    .orientation-phone{width:68px;height:112px;border:4px solid #2A9DBF;border-radius:18px;position:relative;box-shadow:0 4px 18px rgba(26,61,82,.14)}
+    .orientation-phone:before{content:"";position:absolute;left:50%;bottom:8px;width:18px;height:3px;border-radius:2px;background:#A8CDD4;transform:translateX(-50%)}
+    .orientation-title{font-size:1.05rem;font-weight:800;color:#1A3D52}
+    .orientation-sub{font-size:.85rem;line-height:1.4;color:#7AA0B8}
+    @media(orientation:landscape) and (max-height:520px){
+      body.ios-device{overflow:hidden}
+      body.ios-device header,body.ios-device .app{pointer-events:none}
+      body.ios-device .orientation-lock{display:flex}
+    }
 
     /* ── Controls ── */
     .controls{width:340px;min-width:340px;background:#EBF4F9;border-right:1px solid #CCE2ED;overflow-y:auto;padding:16px 12px}
@@ -337,6 +348,14 @@
     </button>
   </div>
 </header>
+
+<div class="orientation-lock" aria-live="polite">
+  <div class="orientation-card">
+    <div class="orientation-phone" aria-hidden="true"></div>
+    <div class="orientation-title">Rotate iPhone Upright</div>
+    <div class="orientation-sub">This app works best in portrait.</div>
+  </div>
+</div>
 
 <div class="app">
 <div class="controls">
@@ -2015,7 +2034,18 @@ function hideAddToHome(e){
     document.getElementById('addHomeOverlay').classList.remove('show');
 }
 
+function setupPortraitLock(){
+  if(/iPhone|iPod/.test(navigator.userAgent)){
+    document.body.classList.add('ios-device');
+  }
+  try{
+    const lock=screen.orientation?.lock?.('portrait');
+    if(lock&&lock.catch)lock.catch(()=>{});
+  }catch(e){}
+}
+
 function init(){
+  setupPortraitLock();
   // Hide "Add to Home" button if already running as installed PWA
   if(window.navigator.standalone||window.matchMedia('(display-mode:standalone)').matches){
     const b=document.getElementById('btnAddHome');
