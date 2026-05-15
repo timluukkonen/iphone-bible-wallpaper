@@ -1844,22 +1844,23 @@ function changeVsPage(dir){
   renderVs();
 }
 
-function animateVsPage(dir){
+function animateVsPage(step,targetPage){
   const body=document.getElementById('vsCardBody');
   if(!body||vsSwipeAnimating){
-    changeVsPage(dir);
+    vsState[getVsPageKey(step)]=targetPage;
+    renderVs();
     return;
   }
   vsSwipeAnimating=true;
+  const currentPage=vsState[getVsPageKey(step)]||0;
+  const dir=targetPage>currentPage?1:-1;
   const outClass=dir>0?'vs-swipe-out-left':'vs-swipe-out-right';
   const inClass=dir>0?'vs-swipe-in-right':'vs-swipe-in-left';
   body.classList.remove('vs-swipe-out-left','vs-swipe-out-right','vs-swipe-in-left','vs-swipe-in-right');
   body.classList.add(outClass);
   setTimeout(()=>{
-    const step=vsState.active;
-    const {pageCount}=clampVsPage(step);
     const key=getVsPageKey(step);
-    vsState[key]=Math.max(0,Math.min((vsState[key]||0)+dir,pageCount-1));
+    vsState[key]=targetPage;
     renderVs();
     body.classList.remove(outClass);
     body.classList.add(inClass);
@@ -1898,8 +1899,9 @@ function onVsSwipeEnd(e){
   const {page,pageCount}=clampVsPage(vsState.active);
   const dir=dx<0?1:-1;
   if((dir>0&&page>=pageCount-1)||(dir<0&&page<=0))return;
+  const targetPage=Math.max(0,Math.min(page+dir,pageCount-1));
   vsSwipeSuppressClick=true;
-  animateVsPage(dir);
+  animateVsPage(vsState.active,targetPage);
   setTimeout(()=>{vsSwipeSuppressClick=false;},250);
   e.preventDefault();
 }
