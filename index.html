@@ -806,6 +806,29 @@ const s={
   bibleId:'', dragging:false,
 };
 
+const LAST_VERSE_KEY='bibleWallpaper:lastVerse';
+
+function loadSavedVerse(){
+  try{
+    const raw=localStorage.getItem(LAST_VERSE_KEY);
+    if(!raw)return null;
+    const data=JSON.parse(raw);
+    if(!data||!data.ref||!data.verse)return null;
+    return data;
+  }catch(e){return null;}
+}
+
+function saveCurrentVerse(){
+  if(!s.verseRef||!s.verse)return;
+  try{
+    localStorage.setItem(LAST_VERSE_KEY,JSON.stringify({
+      bibleId:document.getElementById('selBible').value||s.bibleId||'ESV',
+      ref:s.verseRef,
+      verse:s.verse,
+    }));
+  }catch(e){}
+}
+
 // ── Canvas + model ───────────────────────────────────────────────────────────
 const cv=document.getElementById('cv');
 const ctx=cv.getContext('2d');
@@ -1146,7 +1169,8 @@ async function loadBibles(){
       o.value=b.id;o.textContent=`${b._label} — ${nm}`;
       sel.appendChild(o);
     }
-    sel.value='ESV';
+    const savedId=s.bibleId||'ESV';
+    sel.value=Array.from(sel.options).some(o=>o.value===savedId)?savedId:'ESV';
     s.bibleId=sel.value;updateCitation();updateVersePill();
   }catch(e){
     sel.innerHTML='<option>API error — check key</option>';
@@ -1204,6 +1228,7 @@ async function fetchVerseESV(){
     s.verse=text;s.verseRef=vref;
     const tv=document.getElementById('taVerse');tv.value=text;tv.style.color='';autoResizeVerse();
     st.textContent=vref+' loaded';st.className='status ok';
+    saveCurrentVerse();
     updateVersePill();
     draw();
   }catch(e){
@@ -1232,6 +1257,7 @@ async function fetchVerse(){
     s.verse=text;s.verseRef=vref;
     const tv=document.getElementById('taVerse');tv.value=text;tv.style.color='';autoResizeVerse();
     st.textContent=vref+' loaded';st.className='status ok';
+    saveCurrentVerse();
     updateVersePill();
     draw();
   }catch(e){
@@ -2028,11 +2054,14 @@ function init(){
   // Default verse (ESV, no API call)
   const DEF_REF='John 3:16';
   const DEF_VERSE='For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.';
-  s.verse=DEF_VERSE;s.verseRef=DEF_REF;
+  const savedVerse=loadSavedVerse();
+  const initialRef=savedVerse?.ref||DEF_REF;
+  const initialVerse=savedVerse?.verse||DEF_VERSE;
+  s.verse=initialVerse;s.verseRef=initialRef;s.bibleId=savedVerse?.bibleId||'ESV';
   const inRef=document.getElementById('inRef');
   const taVerse=document.getElementById('taVerse');
-  inRef.value=DEF_REF;inRef.style.color='#A8B8C8';
-  taVerse.value=DEF_VERSE;taVerse.style.color='#A8B8C8';autoResizeVerse();
+  inRef.value=initialRef;inRef.style.color=savedVerse?'':'#A8B8C8';
+  taVerse.value=initialVerse;taVerse.style.color=savedVerse?'':'#A8B8C8';autoResizeVerse();
   inRef.addEventListener('focus',function(){
     if(this.value===DEF_REF&&this.style.color==='rgb(168, 184, 200)'){this.value='';this.style.color='';}
   });
