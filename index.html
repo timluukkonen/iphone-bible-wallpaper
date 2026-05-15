@@ -1976,7 +1976,7 @@ function animateVsRejectBounce(dir){
   const {pager,pages,page}=clampVsPage(step);
   const bodyRect=body.getBoundingClientRect();
   const width=Math.max(1,bodyRect.width||body.clientWidth||1);
-  const bounce=Math.min(28,Math.round(width*.08));
+  const bounce=Math.min(12,Math.round(width*.04));
   const track=document.createElement('div');
   track.className='vs-swipe-track';
   const pageEl=document.createElement('div');
@@ -1990,19 +1990,19 @@ function animateVsRejectBounce(dir){
   body.appendChild(track);
   requestAnimationFrame(()=>{
     requestAnimationFrame(()=>{
-      track.style.transition='transform .12s cubic-bezier(.2,.8,.2,1)';
+      track.style.transition='transform .10s cubic-bezier(.2,.8,.2,1)';
       track.style.transform=`translate3d(${dir>0?-bounce:bounce}px,0,0)`;
       setTimeout(()=>{
-        track.style.transition='transform .22s cubic-bezier(.22,.61,.36,1)';
+        track.style.transition='transform .18s cubic-bezier(.22,.61,.36,1)';
         track.style.transform='translate3d(0,0,0)';
-      },125);
+      },105);
     });
   });
   setTimeout(()=>{
     vsSwipeAnimating=false;
     resetVsSwipeState();
     renderVs();
-  },370);
+  },300);
   return true;
 }
 
