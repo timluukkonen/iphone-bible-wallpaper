@@ -318,7 +318,7 @@
     .vs-card-body *{touch-action:pan-y}
     .vs-grid{display:grid;grid-template-columns:repeat(var(--vs-cols,4),minmax(0,1fr));gap:6px}
     .vs-swipe-track{display:flex;width:100%;will-change:transform;transform:translate3d(0,0,0)}
-    .vs-swipe-track.settling{transition:transform .28s cubic-bezier(.22,.61,.36,1)}
+    .vs-swipe-track.settling{transition:transform .18s cubic-bezier(.22,.61,.36,1)}
     .vs-swipe-page{flex:0 0 100%;min-width:0;padding:0 1px;box-sizing:border-box}
     .vs-option{min-width:0;min-height:34px;border-radius:10px;border:1.5px solid #CCE2ED;background:#F7FBFD;color:#1A3D52;font-size:.78rem;font-weight:750;padding:0 8px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .vs-option.book{font-size:.66rem;padding:0 6px}
@@ -1965,7 +1965,7 @@ function animateVsPageSlide(dir,targetPage){
     vsSwipeAnimating=false;
     resetVsSwipeState();
     renderVs();
-  },290);
+  },190);
   return true;
 }
 
@@ -1976,7 +1976,7 @@ function animateVsRejectBounce(dir){
   const {pager,pages,page}=clampVsPage(step);
   const bodyRect=body.getBoundingClientRect();
   const width=Math.max(1,bodyRect.width||body.clientWidth||1);
-  const bounce=Math.min(12,Math.round(width*.04));
+  const bounce=Math.min(6,Math.round(width*.02));
   const track=document.createElement('div');
   track.className='vs-swipe-track';
   const pageEl=document.createElement('div');
@@ -1990,19 +1990,19 @@ function animateVsRejectBounce(dir){
   body.appendChild(track);
   requestAnimationFrame(()=>{
     requestAnimationFrame(()=>{
-      track.style.transition='transform .10s cubic-bezier(.2,.8,.2,1)';
+      track.style.transition='transform .08s cubic-bezier(.2,.8,.2,1)';
       track.style.transform=`translate3d(${dir>0?-bounce:bounce}px,0,0)`;
       setTimeout(()=>{
-        track.style.transition='transform .18s cubic-bezier(.22,.61,.36,1)';
+        track.style.transition='transform .14s cubic-bezier(.22,.61,.36,1)';
         track.style.transform='translate3d(0,0,0)';
-      },105);
+      },85);
     });
   });
   setTimeout(()=>{
     vsSwipeAnimating=false;
     resetVsSwipeState();
     renderVs();
-  },300);
+  },230);
   return true;
 }
 
