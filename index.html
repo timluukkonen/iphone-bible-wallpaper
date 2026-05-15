@@ -1648,6 +1648,10 @@ function updateVersePill(){
 }
 
 let vsInitialized=false;
+let vsSwipeStartX=0;
+let vsSwipeStartY=0;
+let vsSwipeTracking=false;
+let vsSwipeSuppressClick=false;
 const vsState={
   active:'book',
   book:null,
@@ -1662,6 +1666,13 @@ const vsState={
 function initVerseSelector(){
   if(vsInitialized)return;
   vsInitialized=true;
+  const body=document.getElementById('vsCardBody');
+  if(body){
+    body.addEventListener('touchstart',onVsSwipeStart,{passive:true});
+    body.addEventListener('touchmove',onVsSwipeMove,{passive:false});
+    body.addEventListener('touchend',onVsSwipeEnd,{passive:false});
+    body.addEventListener('touchcancel',onVsSwipeCancel,{passive:true});
+  }
 }
 
 function getVsTranslation(){
@@ -1772,7 +1783,14 @@ function renderVs(){
     btn.type='button';
     btn.className='vs-option'+(step==='book'?' book':'');
     btn.textContent=opt.label;
-    btn.onclick=()=>selectVsOption(step,opt.value);
+    btn.onclick=e=>{
+      if(vsSwipeSuppressClick){
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      selectVsOption(step,opt.value);
+    };
     if(step==='book'&&vsState.book===opt.value)btn.classList.add('on');
     if(step==='chapter'&&vsState.chapter===opt.value)btn.classList.add('on');
     if(step==='verse'){
@@ -1794,6 +1812,41 @@ function changeVsPage(dir){
   const key=getVsPageKey(step);
   vsState[key]=Math.max(0,Math.min((vsState[key]||0)+dir,pageCount-1));
   renderVs();
+}
+
+function onVsSwipeStart(e){
+  if(e.touches.length!==1)return;
+  vsSwipeStartX=e.touches[0].clientX;
+  vsSwipeStartY=e.touches[0].clientY;
+  vsSwipeTracking=true;
+}
+
+function onVsSwipeMove(e){
+  if(!vsSwipeTracking||e.touches.length!==1)return;
+  const dx=e.touches[0].clientX-vsSwipeStartX;
+  const dy=e.touches[0].clientY-vsSwipeStartY;
+  if(Math.abs(dx)>18&&Math.abs(dx)>Math.abs(dy)*1.2)e.preventDefault();
+}
+
+function onVsSwipeEnd(e){
+  if(!vsSwipeTracking)return;
+  vsSwipeTracking=false;
+  const touch=e.changedTouches[0];
+  if(!touch)return;
+  const dx=touch.clientX-vsSwipeStartX;
+  const dy=touch.clientY-vsSwipeStartY;
+  if(Math.abs(dx)<44||Math.abs(dx)<Math.abs(dy)*1.2)return;
+  const {page,pageCount}=clampVsPage(vsState.active);
+  const dir=dx<0?1:-1;
+  if((dir>0&&page>=pageCount-1)||(dir<0&&page<=0))return;
+  vsSwipeSuppressClick=true;
+  changeVsPage(dir);
+  setTimeout(()=>{vsSwipeSuppressClick=false;},250);
+  e.preventDefault();
+}
+
+function onVsSwipeCancel(){
+  vsSwipeTracking=false;
 }
 
 function onVsTranslationChange(){
