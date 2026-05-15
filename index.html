@@ -319,7 +319,7 @@
     .vs-card-body.vs-swipe-in-right .vs-grid{animation:vsSwipeInRight .16s ease-out}
     @keyframes vsSwipeInLeft{from{transform:translateX(-22px);opacity:.2}to{transform:translateX(0);opacity:1}}
     @keyframes vsSwipeInRight{from{transform:translateX(22px);opacity:.2}to{transform:translateX(0);opacity:1}}
-    .vs-option{min-width:0;min-height:34px;border-radius:999px;border:1.5px solid #CCE2ED;background:#F7FBFD;color:#1A3D52;font-size:.78rem;font-weight:750;padding:0 8px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .vs-option{min-width:0;min-height:34px;border-radius:10px;border:1.5px solid #CCE2ED;background:#F7FBFD;color:#1A3D52;font-size:.78rem;font-weight:750;padding:0 8px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .vs-option.book{font-size:.66rem;padding:0 6px}
     .vs-option:hover{background:#EAF5FA;border-color:#B8DDEB}
     .vs-option.on{background:#2A9DBF;border-color:#2A9DBF;color:#fff;box-shadow:0 2px 8px rgba(42,157,191,.26)}
@@ -604,6 +604,19 @@
           <button class="btn-s" onclick="clearRef()">Clear</button>
         </div>
       </div>
+      <div style="border-top:1px solid #EDF5FA;margin:12px 0"></div>
+      <div class="check-row">
+        <input type="checkbox" id="chkBookAbbrev" onchange="toggleBookAbbrev(this.checked)">
+        <label for="chkBookAbbrev">Abbreviate long book names in selector</label>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="chkHaptic" onchange="toggleHapticFeedback(this.checked)">
+        <label for="chkHaptic">Haptic feedback on buttons</label>
+      </div>
+      <div class="check-row" style="margin-bottom:0">
+        <input type="checkbox" id="chkSound" onchange="toggleSoundFeedback(this.checked)">
+        <label for="chkSound">Tap sound on buttons</label>
+      </div>
     </div>
   </div>
 </div>
@@ -718,6 +731,16 @@ const BOOK_LIST=[
   ['3 John',1],['Jude',1],['Revelation',22],
 ];
 const NT_BOOK_START=39;
+const BOOK_ABBREV={
+  'Song of Solomon':'Song of Sol',
+  '1 Chronicles':'1 Chron',
+  '2 Chronicles':'2 Chron',
+  'Ecclesiastes':'Eccl',
+  '1 Corinthians':'1 Cor',
+  '2 Corinthians':'2 Cor',
+  '1 Thessalonians':'1 Thess',
+  '2 Thessalonians':'2 Thess',
+};
 
 // Verse counts per chapter, per translation.
 // ESV/NASB/NKJV/KJV share the same Protestant numbering (NASB key).
@@ -835,9 +858,14 @@ const s={
   align:'center', ty:50, tw:80,
   showRef:true, rc:'#ffffff',
   bibleId:'', dragging:false,
+  abbrevBookLabels:false,
+  hapticFeedback:true, soundFeedback:true,
 };
 
 const LAST_VERSE_KEY='bibleWallpaper:lastVerse';
+const BOOK_ABBREV_KEY='bibleWallpaper:abbrevBookLabels';
+const HAPTIC_KEY='bibleWallpaper:hapticFeedback';
+const SOUND_KEY='bibleWallpaper:soundFeedback';
 
 function loadSavedVerse(){
   try{
@@ -858,6 +886,28 @@ function saveCurrentVerse(){
       verse:s.verse,
     }));
   }catch(e){}
+}
+
+function loadBookAbbrevPref(){
+  try{return localStorage.getItem(BOOK_ABBREV_KEY)==='true';}
+  catch(e){return false;}
+}
+
+function saveBookAbbrevPref(){
+  try{localStorage.setItem(BOOK_ABBREV_KEY,s.abbrevBookLabels?'true':'false');}
+  catch(e){}
+}
+
+function loadBoolPref(key,defaultValue){
+  try{
+    const val=localStorage.getItem(key);
+    return val==null?defaultValue:val==='true';
+  }catch(e){return defaultValue;}
+}
+
+function saveBoolPref(key,value){
+  try{localStorage.setItem(key,value?'true':'false');}
+  catch(e){}
 }
 
 // ── Canvas + model ───────────────────────────────────────────────────────────
@@ -1709,6 +1759,11 @@ function getVsOptions(step){
   return Array.from({length:total},(_,i)=>({value:i+1,label:String(i+1)}));
 }
 
+function getVsBookLabel(name){
+  if(!s.abbrevBookLabels)return name;
+  return BOOK_ABBREV[name]||name;
+}
+
 function getVsPager(step){
   const body=document.getElementById('vsCardBody');
   const width=Math.max(280,body?.clientWidth||window.innerWidth-40);
@@ -1811,7 +1866,8 @@ function renderVs(){
     const btn=document.createElement('button');
     btn.type='button';
     btn.className='vs-option'+(step==='book'?' book':'');
-    btn.textContent=opt.label;
+    btn.textContent=step==='book'?getVsBookLabel(opt.label):opt.label;
+    if(step==='book')btn.title=opt.label;
     btn.onclick=e=>{
       if(vsSwipeSuppressClick){
         e.preventDefault();
@@ -2181,6 +2237,67 @@ function hideSettings(e){
     document.getElementById('settingsOverlay').classList.remove('show');
 }
 
+function toggleBookAbbrev(checked){
+  s.abbrevBookLabels=checked;
+  saveBookAbbrevPref();
+  if(document.getElementById('vsOverlay').classList.contains('show'))renderVs();
+}
+
+function toggleHapticFeedback(checked){
+  s.hapticFeedback=checked;
+  saveBoolPref(HAPTIC_KEY,checked);
+}
+
+function toggleSoundFeedback(checked){
+  s.soundFeedback=checked;
+  saveBoolPref(SOUND_KEY,checked);
+}
+
+let tapAudioCtx=null;
+function playTapSound(){
+  if(!s.soundFeedback)return;
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx)return;
+  try{
+    tapAudioCtx=tapAudioCtx||new AudioCtx();
+    const ctx=tapAudioCtx;
+    const play=()=>{
+      const now=ctx.currentTime;
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type='sine';
+      osc.frequency.setValueAtTime(640,now);
+      osc.frequency.exponentialRampToValueAtTime(420,now+.045);
+      gain.gain.setValueAtTime(.032,now);
+      gain.gain.exponentialRampToValueAtTime(.001,now+.055);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now+.06);
+    };
+    if(ctx.state==='suspended')ctx.resume().then(play).catch(()=>{});
+    else play();
+  }catch(e){}
+}
+
+function playTapHaptic(){
+  if(!s.hapticFeedback||!navigator.vibrate)return;
+  try{navigator.vibrate(8);}catch(e){}
+}
+
+function isFeedbackTarget(el){
+  const target=el.closest('button,[role="button"],.pill,.tab,.bg-phone,.cp-dot,.upload-zone,.verse-pill,.btn-home,.btn-settings,.vs-option');
+  if(!target)return false;
+  if(target.disabled||target.getAttribute('aria-disabled')==='true')return false;
+  return true;
+}
+
+function onTapFeedback(e){
+  if(!isFeedbackTarget(e.target))return;
+  playTapHaptic();
+  playTapSound();
+}
+
 function showCopyright(){
   document.getElementById('copyrightOverlay').classList.add('show');
 }
@@ -2219,6 +2336,13 @@ function init(){
   initCpGrid();
   initTcGrid();
   setupCanvas();
+  s.abbrevBookLabels=loadBookAbbrevPref();
+  s.hapticFeedback=loadBoolPref(HAPTIC_KEY,true);
+  s.soundFeedback=loadBoolPref(SOUND_KEY,true);
+  document.getElementById('chkBookAbbrev').checked=s.abbrevBookLabels;
+  document.getElementById('chkHaptic').checked=s.hapticFeedback;
+  document.getElementById('chkSound').checked=s.soundFeedback;
+  document.addEventListener('click',onTapFeedback);
   // Default verse (ESV, no API call)
   const DEF_REF='John 3:16';
   const DEF_VERSE='For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.';
@@ -2250,7 +2374,7 @@ init();
 <!-- Verse Selector overlay -->
 <div class="add-home-overlay" id="vsOverlay" onclick="hideVerseSelector(event)">
   <div class="add-home-sheet vs-sheet" onclick="event.stopPropagation()">
-    <div class="sheet-top"><button class="btn-sheet-close" onclick="hideVerseSelector()">×</button><div class="add-home-handle"></div></div>
+    <div class="sheet-top"><div class="add-home-handle"></div></div>
     <div class="vs-picker-shell">
       <div class="vs-translation-row">
         <select id="vsTranslation" onchange="onVsTranslationChange()"></select>
