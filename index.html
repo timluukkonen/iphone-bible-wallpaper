@@ -315,6 +315,7 @@
     .vs-page-btn:last-child{justify-self:end}
     .vs-page-btn:disabled{opacity:.32;cursor:default}
     .vs-card-body{padding:0;touch-action:pan-y;user-select:none;overflow:hidden}
+    .vs-card-body *{touch-action:pan-y}
     .vs-grid{display:grid;grid-template-columns:repeat(var(--vs-cols,4),minmax(0,1fr));gap:6px}
     .vs-swipe-track{display:flex;width:100%;will-change:transform;transform:translate3d(0,0,0)}
     .vs-swipe-track.settling{transition:transform .28s cubic-bezier(.22,.61,.36,1)}
@@ -1910,9 +1911,16 @@ function renderVs(){
   if(!body)return;
   vsSwipeTrack=null;
   body.innerHTML='';
+  const track=document.createElement('div');
+  track.className='vs-swipe-track';
+  const pageEl=document.createElement('div');
+  pageEl.className='vs-swipe-page';
   const grid=buildVsGrid(step,pager,pages[page]||[]);
   grid.id='vsGrid';
-  body.appendChild(grid);
+  pageEl.appendChild(grid);
+  track.appendChild(pageEl);
+  body.appendChild(track);
+  vsSwipeTrack=track;
 }
 
 function changeVsPage(dir){
@@ -1954,8 +1962,15 @@ function prepareVsSwipeTrack(dir){
   const bodyRect=body.getBoundingClientRect();
   vsSwipeWidth=Math.max(1,bodyRect.width||body.clientWidth||1);
 
-  const track=document.createElement('div');
-  track.className='vs-swipe-track';
+  const track=body.querySelector('.vs-swipe-track');
+  const currentPage=track?.querySelector('.vs-swipe-page');
+  if(!track||!currentPage)return false;
+  track.classList.remove('settling');
+  track.style.transition='';
+  track.style.transform='translate3d(0,0,0)';
+  Array.from(track.querySelectorAll('.vs-swipe-page')).forEach((pageEl,index)=>{
+    if(index>0)pageEl.remove();
+  });
   const makePage=pageIndex=>{
     const pageEl=document.createElement('div');
     pageEl.className='vs-swipe-page';
@@ -1963,14 +1978,10 @@ function prepareVsSwipeTrack(dir){
     return pageEl;
   };
   if(dir>0){
-    track.appendChild(makePage(page));
     track.appendChild(makePage(targetPage));
   }else{
-    track.appendChild(makePage(targetPage));
-    track.appendChild(makePage(page));
+    track.insertBefore(makePage(targetPage),currentPage);
   }
-  body.innerHTML='';
-  body.appendChild(track);
   vsSwipeTrack=track;
   updateVsSwipeTransform(0);
   return true;
