@@ -2330,7 +2330,7 @@ function triggerTapFeedback(target){
 }
 
 function onTapFeedback(e){
-  if(e.type==='pointerdown'&&e.button!=null&&e.button!==0)return;
+  if(e.defaultPrevented)return;
   const target=getFeedbackTarget(e.target);
   if(!target)return;
   triggerTapFeedback(target);
@@ -2380,7 +2380,6 @@ function init(){
   document.getElementById('chkBookAbbrev').checked=s.abbrevBookLabels;
   document.getElementById('chkHaptic').checked=s.hapticFeedback;
   document.getElementById('chkSound').checked=s.soundFeedback;
-  document.addEventListener('pointerdown',onTapFeedback,{passive:true});
   document.addEventListener('click',onTapFeedback);
   // Default verse (ESV, no API call)
   const DEF_REF='John 3:16';
